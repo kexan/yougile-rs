@@ -37,7 +37,7 @@ pub enum DepartmentControllerUpdateError {
 pub async fn department_controller_create(
     configuration: &configuration::Configuration,
     create_department_dto: models::CreateDepartmentDto,
-) -> Result<models::WithIdDto, Error<DepartmentControllerCreateError>> {
+) -> Result<models::Id, Error<DepartmentControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_department_dto = create_department_dto;
 
@@ -206,7 +206,7 @@ pub async fn department_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
     update_department_dto: models::UpdateDepartmentDto,
-) -> Result<models::WithIdDto, Error<DepartmentControllerUpdateError>> {
+) -> Result<models::Id, Error<DepartmentControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
     let p_body_update_department_dto = update_department_dto;
@@ -254,4 +254,3 @@ pub async fn department_controller_update(
         }))
     }
 }
-

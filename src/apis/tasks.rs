@@ -61,7 +61,7 @@ pub enum TaskControllerUpdateChatSubscribersError {
 pub async fn task_controller_create(
     configuration: &configuration::Configuration,
     create_task_dto: models::CreateTaskDto,
-) -> Result<models::WithIdDto, Error<TaskControllerCreateError>> {
+) -> Result<models::Id, Error<TaskControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_task_dto = create_task_dto;
 
@@ -381,7 +381,7 @@ pub async fn task_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
     update_task_dto: models::UpdateTaskDto,
-) -> Result<models::WithIdDto, Error<TaskControllerUpdateError>> {
+) -> Result<models::Id, Error<TaskControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
     let p_body_update_task_dto = update_task_dto;
@@ -434,7 +434,7 @@ pub async fn task_controller_update_chat_subscribers(
     configuration: &configuration::Configuration,
     id: &str,
     task_chat_subscribers_dto: models::TaskChatSubscribersDto,
-) -> Result<models::WithIdDto, Error<TaskControllerUpdateChatSubscribersError>> {
+) -> Result<models::Id, Error<TaskControllerUpdateChatSubscribersError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
     let p_body_task_chat_subscribers_dto = task_chat_subscribers_dto;
@@ -483,4 +483,3 @@ pub async fn task_controller_update_chat_subscribers(
         }))
     }
 }
-

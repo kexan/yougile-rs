@@ -37,7 +37,7 @@ pub enum ColumnControllerUpdateError {
 pub async fn column_controller_create(
     configuration: &configuration::Configuration,
     create_column_dto: models::CreateColumnDto,
-) -> Result<models::WithIdDto, Error<ColumnControllerCreateError>> {
+) -> Result<models::Id, Error<ColumnControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_column_dto = create_column_dto;
 
@@ -206,7 +206,7 @@ pub async fn column_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
     update_column_dto: models::UpdateColumnDto,
-) -> Result<models::WithIdDto, Error<ColumnControllerUpdateError>> {
+) -> Result<models::Id, Error<ColumnControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
     let p_body_update_column_dto = update_column_dto;
@@ -254,4 +254,3 @@ pub async fn column_controller_update(
         }))
     }
 }
-

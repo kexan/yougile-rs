@@ -29,7 +29,7 @@ pub enum WebhookControllerSearchError {
 pub async fn webhook_controller_create(
     configuration: &configuration::Configuration,
     create_webhook_dto: models::CreateWebhookDto,
-) -> Result<models::WithIdDto, Error<WebhookControllerCreateError>> {
+) -> Result<models::Id, Error<WebhookControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_webhook_dto = create_webhook_dto;
 
@@ -79,7 +79,7 @@ pub async fn webhook_controller_put(
     configuration: &configuration::Configuration,
     id: &str,
     update_webhook_dto: models::UpdateWebhookDto,
-) -> Result<models::WithIdDto, Error<WebhookControllerPutError>> {
+) -> Result<models::Id, Error<WebhookControllerPutError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
     let p_body_update_webhook_dto = update_webhook_dto;
@@ -176,4 +176,3 @@ pub async fn webhook_controller_search(
         }))
     }
 }
-

@@ -37,7 +37,7 @@ pub enum GroupChatControllerUpdateError {
 pub async fn group_chat_controller_create(
     configuration: &configuration::Configuration,
     create_group_chat_dto: models::CreateGroupChatDto,
-) -> Result<models::WithIdDto, Error<GroupChatControllerCreateError>> {
+) -> Result<models::Id, Error<GroupChatControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_group_chat_dto = create_group_chat_dto;
 
@@ -201,7 +201,7 @@ pub async fn group_chat_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
     update_group_chat_dto: models::UpdateGroupChatDto,
-) -> Result<models::WithIdDto, Error<GroupChatControllerUpdateError>> {
+) -> Result<models::Id, Error<GroupChatControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
     let p_body_update_group_chat_dto = update_group_chat_dto;

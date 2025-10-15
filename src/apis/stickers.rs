@@ -116,7 +116,7 @@ pub enum StringStickerStateControllerUpdateError {
 pub async fn sprint_sticker_controller_create(
     configuration: &configuration::Configuration,
     create_sprint_sticker_dto: models::CreateSprintStickerDto,
-) -> Result<models::WithIdDto, Error<SprintStickerControllerCreateError>> {
+) -> Result<models::Id, Error<SprintStickerControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_sprint_sticker_dto = create_sprint_sticker_dto;
 
@@ -288,7 +288,7 @@ pub async fn sprint_sticker_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
     update_sprint_sticker_dto: models::UpdateSprintStickerDto,
-) -> Result<models::WithIdDto, Error<SprintStickerControllerUpdateError>> {
+) -> Result<models::Id, Error<SprintStickerControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
     let p_body_update_sprint_sticker_dto = update_sprint_sticker_dto;
@@ -513,7 +513,7 @@ pub async fn sprint_sticker_state_controller_update(
 pub async fn string_sticker_controller_create(
     configuration: &configuration::Configuration,
     create_string_sticker_dto: models::CreateStringStickerDto,
-) -> Result<models::WithIdDto, Error<StringStickerControllerCreateError>> {
+) -> Result<models::Id, Error<StringStickerControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_string_sticker_dto = create_string_sticker_dto;
 
@@ -684,7 +684,7 @@ pub async fn string_sticker_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
     update_string_sticker_dto: models::UpdateStringStickerDto,
-) -> Result<models::WithIdDto, Error<StringStickerControllerUpdateError>> {
+) -> Result<models::Id, Error<StringStickerControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
     let p_body_update_string_sticker_dto = update_string_sticker_dto;
@@ -905,4 +905,3 @@ pub async fn string_sticker_state_controller_update(
         }))
     }
 }
-

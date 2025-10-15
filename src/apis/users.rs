@@ -45,7 +45,7 @@ pub enum UserControllerUpdateError {
 pub async fn user_controller_create(
     configuration: &configuration::Configuration,
     create_user_dto: models::CreateUserDto,
-) -> Result<models::WithIdDto, Error<UserControllerCreateError>> {
+) -> Result<models::Id, Error<UserControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_user_dto = create_user_dto;
 
@@ -94,7 +94,7 @@ pub async fn user_controller_create(
 pub async fn user_controller_delete(
     configuration: &configuration::Configuration,
     id: &str,
-) -> Result<models::WithIdDto, Error<UserControllerDeleteError>> {
+) -> Result<models::Id, Error<UserControllerDeleteError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
 
@@ -261,7 +261,7 @@ pub async fn user_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
     update_user_dto: models::UpdateUserDto,
-) -> Result<models::WithIdDto, Error<UserControllerUpdateError>> {
+) -> Result<models::Id, Error<UserControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
     let p_body_update_user_dto = update_user_dto;
@@ -309,4 +309,3 @@ pub async fn user_controller_update(
         }))
     }
 }
-

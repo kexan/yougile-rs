@@ -76,7 +76,7 @@ pub enum ProjectRolesControllerUpdateError {
 pub async fn project_controller_create(
     configuration: &configuration::Configuration,
     create_project_dto: models::CreateProjectDto,
-) -> Result<models::WithIdDto, Error<ProjectControllerCreateError>> {
+) -> Result<models::Id, Error<ProjectControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_project_dto = create_project_dto;
 
@@ -240,7 +240,7 @@ pub async fn project_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
     update_project_dto: models::UpdateProjectDto,
-) -> Result<models::WithIdDto, Error<ProjectControllerUpdateError>> {
+) -> Result<models::Id, Error<ProjectControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
     let p_body_update_project_dto = update_project_dto;
@@ -293,7 +293,7 @@ pub async fn project_roles_controller_create(
     configuration: &configuration::Configuration,
     project_id: &str,
     create_project_role_dto: models::CreateProjectRoleDto,
-) -> Result<models::WithIdDto, Error<ProjectRolesControllerCreateError>> {
+) -> Result<models::Id, Error<ProjectRolesControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_project_id = project_id;
     let p_body_create_project_role_dto = create_project_role_dto;
@@ -522,7 +522,7 @@ pub async fn project_roles_controller_update(
     project_id: &str,
     id: &str,
     update_project_role_dto: models::UpdateProjectRoleDto,
-) -> Result<models::WithIdDto, Error<ProjectRolesControllerUpdateError>> {
+) -> Result<models::Id, Error<ProjectRolesControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_project_id = project_id;
     let p_path_id = id;
@@ -572,4 +572,3 @@ pub async fn project_roles_controller_update(
         }))
     }
 }
-

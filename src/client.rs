@@ -66,7 +66,7 @@ impl YouGileClient {
         &self,
         update: crate::models::UpdateCompanyDto,
     ) -> Result<
-        crate::models::WithIdDto,
+        crate::models::Id,
         crate::apis::Error<crate::apis::auth::CompanyControllerUpdateError>,
     > {
         crate::apis::auth::company_controller_update(&self.configuration, update).await
@@ -88,7 +88,7 @@ impl YouGileClient {
     pub async fn create_board(
         &self,
         create: crate::models::CreateBoardDto,
-    ) -> Result<crate::models::WithIdDto, YougileError> {
+    ) -> Result<crate::models::Id, YougileError> {
         crate::apis::boards::board_controller_create(&self.configuration, create).await
     }
 
@@ -96,7 +96,7 @@ impl YouGileClient {
         &self,
         id: &str,
     ) -> Result<
-        crate::models::BoardDto,
+        crate::models::Board,
         crate::apis::Error<crate::apis::boards::BoardControllerGetError>,
     > {
         crate::apis::boards::board_controller_get(&self.configuration, id).await
@@ -129,7 +129,7 @@ impl YouGileClient {
         id: &str,
         update: crate::models::UpdateBoardDto,
     ) -> Result<
-        crate::models::WithIdDto,
+        crate::models::Id,
         crate::apis::Error<crate::apis::boards::BoardControllerUpdateError>,
     > {
         crate::apis::boards::board_controller_update(&self.configuration, id, update).await
@@ -140,7 +140,7 @@ impl YouGileClient {
         &self,
         create: crate::models::CreateColumnDto,
     ) -> Result<
-        crate::models::WithIdDto,
+        crate::models::Id,
         crate::apis::Error<crate::apis::columns::ColumnControllerCreateError>,
     > {
         crate::apis::columns::column_controller_create(&self.configuration, create).await
@@ -183,7 +183,7 @@ impl YouGileClient {
         id: &str,
         update: crate::models::UpdateColumnDto,
     ) -> Result<
-        crate::models::WithIdDto,
+        crate::models::Id,
         crate::apis::Error<crate::apis::columns::ColumnControllerUpdateError>,
     > {
         crate::apis::columns::column_controller_update(&self.configuration, id, update).await
@@ -193,10 +193,8 @@ impl YouGileClient {
     pub async fn create_task(
         &self,
         create: crate::models::CreateTaskDto,
-    ) -> Result<
-        crate::models::WithIdDto,
-        crate::apis::Error<crate::apis::tasks::TaskControllerCreateError>,
-    > {
+    ) -> Result<crate::models::Id, crate::apis::Error<crate::apis::tasks::TaskControllerCreateError>>
+    {
         crate::apis::tasks::task_controller_create(&self.configuration, create).await
     }
 
@@ -242,10 +240,8 @@ impl YouGileClient {
         &self,
         id: &str,
         update: crate::models::UpdateTaskDto,
-    ) -> Result<
-        crate::models::WithIdDto,
-        crate::apis::Error<crate::apis::tasks::TaskControllerUpdateError>,
-    > {
+    ) -> Result<crate::models::Id, crate::apis::Error<crate::apis::tasks::TaskControllerUpdateError>>
+    {
         crate::apis::tasks::task_controller_update(&self.configuration, id, update).await
     }
 
@@ -253,10 +249,8 @@ impl YouGileClient {
     pub async fn create_user(
         &self,
         create: crate::models::CreateUserDto,
-    ) -> Result<
-        crate::models::WithIdDto,
-        crate::apis::Error<crate::apis::users::UserControllerCreateError>,
-    > {
+    ) -> Result<crate::models::Id, crate::apis::Error<crate::apis::users::UserControllerCreateError>>
+    {
         crate::apis::users::user_controller_create(&self.configuration, create).await
     }
 
@@ -294,10 +288,8 @@ impl YouGileClient {
         &self,
         id: &str,
         update: crate::models::UpdateUserDto,
-    ) -> Result<
-        crate::models::WithIdDto,
-        crate::apis::Error<crate::apis::users::UserControllerUpdateError>,
-    > {
+    ) -> Result<crate::models::Id, crate::apis::Error<crate::apis::users::UserControllerUpdateError>>
+    {
         crate::apis::users::user_controller_update(&self.configuration, id, update).await
     }
 
@@ -306,7 +298,7 @@ impl YouGileClient {
         &self,
         create: crate::models::CreateProjectDto,
     ) -> Result<
-        crate::models::WithIdDto,
+        crate::models::Id,
         crate::apis::Error<crate::apis::projects::ProjectControllerCreateError>,
     > {
         crate::apis::projects::project_controller_create(&self.configuration, create).await
@@ -347,10 +339,9 @@ impl YouGileClient {
         id: &str,
         update: crate::models::UpdateProjectDto,
     ) -> Result<
-        crate::models::WithIdDto,
+        crate::models::Id,
         crate::apis::Error<crate::apis::projects::ProjectControllerUpdateError>,
     > {
         crate::apis::projects::project_controller_update(&self.configuration, id, update).await
     }
 }
-
