@@ -1,10 +1,10 @@
 /*
  * YouGile REST API v2.0
  *
- * ## Введение  Новая версия REST API от YouGile обладает значительно более широким функционалом по сравнению с первой — существующие запросы получили дополнительные возможности, а также был добавлен ряд новых запросов, которых не было ранее. Вторая версия API несовместима с первой, это нужно учесть тем пользователям, которые хотят перейти с предыдущей версии.  Реализованные на текущий момент запросы можно найти в меню слева, в разделе ENDPOINTS. На данный момент работа над API продолжается. Ниже на этой странице перечислен функционал, который будет добавлен в ближайшее время.  Любые пожелания по развитию функциональности API обязательно сообщайте нам — <support@yougile.com>  ## Как использовать  operations/AuthKeyController_companiesList  - [Получить](operations/AuthKeyController_companiesList) ID компании, которой хочется управлять с помощью REST API (для этого нужен логин и пароль от аккаунта в YouGile). - [Получить](operations/AuthKeyController_create) ключ API (для этого нужен логин и пароль от аккаунта в YouGile и ID компании). - Использовать этот ключ для дальнейших запросов к API. - Ключ API не имеет ограничений по времени и по количеству запросов с его использованием. Есть только ограничение на их частоту - не более 50 в минуту на компанию. - API позволяет управлять ключами: получать список и удалять. У каждого аккаунта может быть не более 30 ключей. - Запрос к API – это HTTPS запрос к адресу вида:    ```http   https://yougile.com/api-v2/{resource}   ```    (http метод GET, POST, PUT или DELETE) - К каждому запросу нужно добавлять заголовки: `Content-Type: application/json` и `Authorization: Bearer <ключ API>`. - Параметры запроса передаются в виде JSON в теле запроса. - Если запрос был успешно выполнен, то ответ будет иметь статус `200` или `201` (в случае создания новых объектов), если же запрос был неуспешным, статус будет начинаться с `3`, `4` или `5` в зависимости от типа ошибки. Также будет присутствовать поле `error` с описанием ошибки. - API при работе проверяет и использует права аккаунта / владельца ключа. Если сотрудники не могут что-то увидеть или сделать через интерфейс из-за недостаточных прав, то же самое ограничение они будут иметь и через API.  ---  Поддержка, консультации, обратная связь — <support@yougile.com>  ## Примеры использования для внутреннего пользования  // Получение ключа для компании ООО «Производство»  ```bash curl --location 'http://localhost:8001/api-v2/auth/keys' \\ --header 'Content-Type: application/json' \\ --header 'Accept: application/json' \\ --data-raw '{   \"login\": \"dev@yougile.com\",   \"password\": \"123\" ,   \"companyId\": \"44eccf40-a027-4d06-b5c2-18f4c02bb026\" }' ```  // Создание проекта  ```bash curl --location 'http://localhost:8001/api-v2/projects' \\ --header 'Content-Type: application/json' \\ --header 'Accept: application/json' \\ --header 'Authorization: Bearer -VRKgqzejQhROjMTmOk3h20Rnj6XKkwBFx5GkK1fA34TvLFmiVdmEPt3-ygeWfiy' \\ --data '{  \"title\": \"тест\",  \"users\": {\"80eed1bd-eda3-4991-ac17-09d28566749d\": \"admin\"} }' ``` 
+ * ## Введение  Новая версия REST API от YouGile обладает значительно более широким функционалом по сравнению с первой — существующие запросы получили дополнительные возможности, а также был добавлен ряд новых запросов, которых не было ранее. Вторая версия API несовместима с первой, это нужно учесть тем пользователям, которые хотят перейти с предыдущей версии.  Реализованные на текущий момент запросы можно найти в меню слева, в разделе ENDPOINTS. На данный момент работа над API продолжается. Ниже на этой странице перечислен функционал, который будет добавлен в ближайшее время.  Любые пожелания по развитию функциональности API обязательно сообщайте нам — <support@yougile.com>  ## Как использовать  operations/AuthKeyController_companiesList  - [Получить](operations/AuthKeyController_companiesList) ID компании, которой хочется управлять с помощью REST API (для этого нужен логин и пароль от аккаунта в YouGile). - [Получить](operations/AuthKeyController_create) ключ API (для этого нужен логин и пароль от аккаунта в YouGile и ID компании). - Использовать этот ключ для дальнейших запросов к API. - Ключ API не имеет ограничений по времени и по количеству запросов с его использованием. Есть только ограничение на их частоту - не более 50 в минуту на компанию. - API позволяет управлять ключами: получать список и удалять. У каждого аккаунта может быть не более 30 ключей. - Запрос к API – это HTTPS запрос к адресу вида:    ```http   https://yougile.com/api-v2/{resource}   ```    (http метод GET, POST, PUT или DELETE) - К каждому запросу нужно добавлять заголовки: `Content-Type: application/json` и `Authorization: Bearer <ключ API>`. - Параметры запроса передаются в виде JSON в теле запроса. - Если запрос был успешно выполнен, то ответ будет иметь статус `200` или `201` (в случае создания новых объектов), если же запрос был неуспешным, статус будет начинаться с `3`, `4` или `5` в зависимости от типа ошибки. Также будет присутствовать поле `error` с описанием ошибки. - API при работе проверяет и использует права аккаунта / владельца ключа. Если сотрудники не могут что-то увидеть или сделать через интерфейс из-за недостаточных прав, то же самое ограничение они будут иметь и через API.  ---  Поддержка, консультации, обратная связь — <support@yougile.com>  ## Примеры использования для внутреннего пользования  // Получение ключа для компании ООО «Производство»  ```bash curl --location 'http://localhost:8001/api-v2/auth/keys' \\ --header 'Content-Type: application/json' \\ --header 'Accept: application/json' \\ --data-raw '{   \"login\": \"dev@yougile.com\",   \"password\": \"123\" ,   \"companyId\": \"44eccf40-a027-4d06-b5c2-18f4c02bb026\" }' ```  // Создание проекта  ```bash curl --location 'http://localhost:8001/api-v2/projects' \\ --header 'Content-Type: application/json' \\ --header 'Accept: application/json' \\ --header 'Authorization: Bearer -VRKgqzejQhROjMTmOk3h20Rnj6XKkwBFx5GkK1fA34TvLFmiVdmEPt3-ygeWfiy' \\ --data '{  \"title\": \"тест\",  \"users\": {\"80eed1bd-eda3-4991-ac17-09d28566749d\": \"admin\"} }' ```
  *
  * The version of the OpenAPI document: 2.0
- * 
+ *
  * Generated by: https://openapi-generator.tech
  */
 
@@ -46,7 +46,23 @@ pub struct TaskPermissionsDto {
 }
 
 impl TaskPermissionsDto {
-    pub fn new(show: bool, delete: bool, edit_title: bool, edit_description: bool, complete: bool, close: bool, assign_users: AssignUsers, connect: bool, edit_subtasks: EditSubtasks, edit_stickers: bool, edit_pins: bool, r#move: Move, send_messages: bool, send_files: bool, edit_who_to_notify: EditWhoToNotify) -> TaskPermissionsDto {
+    pub fn new(
+        show: bool,
+        delete: bool,
+        edit_title: bool,
+        edit_description: bool,
+        complete: bool,
+        close: bool,
+        assign_users: AssignUsers,
+        connect: bool,
+        edit_subtasks: EditSubtasks,
+        edit_stickers: bool,
+        edit_pins: bool,
+        r#move: Move,
+        send_messages: bool,
+        send_files: bool,
+        edit_who_to_notify: EditWhoToNotify,
+    ) -> TaskPermissionsDto {
         TaskPermissionsDto {
             show,
             delete,
@@ -66,7 +82,7 @@ impl TaskPermissionsDto {
         }
     }
 }
-/// 
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum AssignUsers {
     #[serde(rename = "no")]
@@ -86,7 +102,7 @@ impl Default for AssignUsers {
         Self::No
     }
 }
-/// 
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum EditSubtasks {
     #[serde(rename = "no")]
@@ -102,7 +118,6 @@ impl Default for EditSubtasks {
         Self::No
     }
 }
-/// 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Move {
     #[serde(rename = "no")]
@@ -120,7 +135,6 @@ impl Default for Move {
         Self::No
     }
 }
-/// 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum EditWhoToNotify {
     #[serde(rename = "no")]
@@ -136,4 +150,3 @@ impl Default for EditWhoToNotify {
         Self::No
     }
 }
-

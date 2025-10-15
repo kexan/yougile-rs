@@ -9,6 +9,8 @@ extern crate reqwest;
 
 pub mod apis;
 pub mod models;
+pub mod client;
+pub mod error;
 
 // Re-export API functions for convenience
 pub use apis::auth::*;
@@ -23,3 +25,7 @@ pub use apis::stickers::*;
 pub use apis::group_chats::*;
 pub use apis::webhooks::*;
 pub use apis::files::*;
+
+// Re-export the client and error types
+pub use client::YouGileClient;
+pub use error::{YouGileError, Result};
