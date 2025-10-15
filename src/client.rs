@@ -138,22 +138,22 @@ impl YouGileClient {
     // Column methods
     pub async fn create_column(
         &self,
-        create: crate::models::CreateColumnDto,
+        create: crate::models::CreateColumn,
     ) -> Result<
         crate::models::Id,
         crate::apis::Error<crate::apis::columns::ColumnControllerCreateError>,
     > {
-        crate::apis::columns::column_controller_create(&self.configuration, create).await
+        crate::apis::columns::create_column(&self.configuration, create).await
     }
 
     pub async fn get_column(
         &self,
         id: &str,
     ) -> Result<
-        crate::models::ColumnDto,
+        crate::models::Column,
         crate::apis::Error<crate::apis::columns::ColumnControllerGetError>,
     > {
-        crate::apis::columns::column_controller_get(&self.configuration, id).await
+        crate::apis::columns::get_column(&self.configuration, id).await
     }
 
     pub async fn search_columns(
@@ -164,7 +164,7 @@ impl YouGileClient {
         title: Option<&str>,
         board_id: Option<&str>,
     ) -> Result<
-        crate::models::ColumnListDto,
+        crate::models::ColumnList,
         crate::apis::Error<crate::apis::columns::ColumnControllerSearchError>,
     > {
         crate::apis::columns::column_controller_search(
@@ -181,7 +181,7 @@ impl YouGileClient {
     pub async fn update_column(
         &self,
         id: &str,
-        update: crate::models::UpdateColumnDto,
+        update: crate::models::UpdateColumn,
     ) -> Result<
         crate::models::Id,
         crate::apis::Error<crate::apis::columns::ColumnControllerUpdateError>,
