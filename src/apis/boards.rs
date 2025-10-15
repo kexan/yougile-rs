@@ -26,54 +26,22 @@ pub async fn board_controller_create(
     parse_response(resp).await
 }
 
+/// Получить доску по ID
 pub async fn board_controller_get(
     configuration: &Configuration,
     id: &str,
-) -> Result<models::BoardDto, Error<BoardControllerGetError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_id = id;
+) -> Result<models::BoardDto, YougileError> {
+    let encoded_id = crate::apis::urlencode(id);
+    let url = format!("{}{}/{}", configuration.base_path, BOARD_PATH, encoded_id);
 
-    let uri_str = format!(
-        "{}/api-v2/boards/{id}",
-        configuration.base_path,
-        id = crate::apis::urlencode(p_path_id)
-    );
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+    let req_builder = configuration
+        .client
+        .get(&url)
+        .bearer_auth(&configuration.bearer_access_token)
+        .header(reqwest::header::USER_AGENT, &configuration.user_agent);
 
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BoardDto`"))),
-            ContentType::Unsupported(unknown_type) => Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BoardDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<BoardControllerGetError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
+    let resp = req_builder.send().await?;
+    parse_response(resp).await
 }
 
 pub async fn board_controller_search(
