@@ -1,11 +1,8 @@
-use super::{configuration, ContentType, Error};
 use crate::{
     apis::{configuration::Configuration, parse_response, RequestBuilderExt, ResponseContent},
     models::{self, Board, BoardList, CreateBoard, Id, UpdateBoard},
     YougileError,
 };
-use reqwest;
-use serde::{de::Error as _, Deserialize, Serialize};
 
 pub const BOARD_PATH: &str = "/api-v2/boards";
 
