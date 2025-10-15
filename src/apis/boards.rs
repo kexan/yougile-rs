@@ -1,7 +1,7 @@
 use super::{configuration, ContentType, Error};
 use crate::{
     apis::{configuration::Configuration, parse_response, RequestBuilderExt, ResponseContent},
-    models::{self, Board, CreateBoard},
+    models::{self, Board, CreateBoard, UpdateBoard},
     YougileError,
 };
 use reqwest;
@@ -84,7 +84,7 @@ pub async fn board_controller_search(
 pub async fn board_controller_update(
     configuration: &Configuration,
     id: &str,
-    update_board_dto: models::UpdateBoardDto,
+    update_board_dto: UpdateBoard,
 ) -> Result<models::Id, YougileError> {
     let encoded_id = crate::apis::urlencode(id);
     let url = format!("{}{}/{}", configuration.base_path, BOARD_PATH, encoded_id);

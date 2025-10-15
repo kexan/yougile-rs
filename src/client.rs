@@ -127,7 +127,7 @@ impl YouGileClient {
     pub async fn update_board(
         &self,
         id: &str,
-        update: crate::models::UpdateBoardDto,
+        update: crate::models::UpdateBoard,
     ) -> Result<
         crate::models::Id,
         crate::apis::Error<crate::apis::boards::BoardControllerUpdateError>,
