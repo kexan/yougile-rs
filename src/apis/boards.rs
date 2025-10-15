@@ -6,7 +6,7 @@ use crate::{
 
 pub const BOARD_PATH: &str = "/api-v2/boards";
 
-pub async fn board_controller_create(
+pub async fn create_board(
     configuration: &Configuration,
     create_board_dto: CreateBoard,
 ) -> Result<Id, YougileError> {
@@ -23,10 +23,7 @@ pub async fn board_controller_create(
     parse_response(resp).await
 }
 
-pub async fn board_controller_get(
-    configuration: &Configuration,
-    id: &str,
-) -> Result<Board, YougileError> {
+pub async fn get_board(configuration: &Configuration, id: &str) -> Result<Board, YougileError> {
     let encoded_id = crate::apis::urlencode(id);
     let url = format!("{}{}/{}", configuration.base_path, BOARD_PATH, encoded_id);
 
@@ -40,7 +37,7 @@ pub async fn board_controller_get(
     parse_response(resp).await
 }
 
-pub async fn board_controller_search(
+pub async fn search_board(
     configuration: &Configuration,
     include_deleted: Option<bool>,
     limit: Option<f64>,
@@ -78,7 +75,7 @@ pub async fn board_controller_search(
     parse_response(resp).await
 }
 
-pub async fn board_controller_update(
+pub async fn update_board(
     configuration: &Configuration,
     id: &str,
     update_board_dto: UpdateBoard,

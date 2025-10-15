@@ -89,7 +89,7 @@ impl YouGileClient {
         &self,
         create: crate::models::CreateBoard,
     ) -> Result<crate::models::Id, YougileError> {
-        crate::apis::boards::board_controller_create(&self.configuration, create).await
+        crate::apis::boards::create_board(&self.configuration, create).await
     }
 
     pub async fn get_board(
@@ -99,7 +99,7 @@ impl YouGileClient {
         crate::models::Board,
         crate::apis::Error<crate::apis::boards::BoardControllerGetError>,
     > {
-        crate::apis::boards::board_controller_get(&self.configuration, id).await
+        crate::apis::boards::get_board(&self.configuration, id).await
     }
 
     pub async fn search_boards(
@@ -113,7 +113,7 @@ impl YouGileClient {
         crate::models::BoardList,
         crate::apis::Error<crate::apis::boards::BoardControllerSearchError>,
     > {
-        crate::apis::boards::board_controller_search(
+        crate::apis::boards::search_board(
             &self.configuration,
             include_deleted,
             limit,
@@ -132,7 +132,7 @@ impl YouGileClient {
         crate::models::Id,
         crate::apis::Error<crate::apis::boards::BoardControllerUpdateError>,
     > {
-        crate::apis::boards::board_controller_update(&self.configuration, id, update).await
+        crate::apis::boards::update_board(&self.configuration, id, update).await
     }
 
     // Column methods
