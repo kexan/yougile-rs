@@ -3,6 +3,7 @@ use crate::{
     models::{self, ChatId, ChatMessage, ChatMessageList, CreateChatMessage, UpdateChatMessage},
     YougileError,
 };
+const CHAT_MESSAGES_PATH: &str = "/api-v2/chats";
 
 pub async fn get_chat_message(
     configuration: &Configuration,
@@ -11,8 +12,8 @@ pub async fn get_chat_message(
 ) -> Result<ChatMessage, YougileError> {
     let encoded_chat_id = crate::apis::urlencode(chat_id);
     let url = format!(
-        "{}/api-v2/chats/{}/messages/{}",
-        configuration.base_path, encoded_chat_id, id
+        "{}{}/{}/messages/{}",
+        configuration.base_path, CHAT_MESSAGES_PATH, encoded_chat_id, id
     );
 
     let resp = configuration
