@@ -4,6 +4,7 @@ use crate::{
     models::{self, Column, ColumnList, CreateColumn, Id, UpdateColumn},
     YougileError,
 };
+
 const COLUMNS_PATH: &str = "/api-v2/columns";
 
 pub async fn create_column(

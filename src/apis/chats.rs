@@ -3,6 +3,7 @@ use crate::{
     models::{self, ChatId, ChatMessage, ChatMessageList, CreateChatMessage, UpdateChatMessage},
     YougileError,
 };
+
 const CHAT_MESSAGES_PATH: &str = "/api-v2/chats";
 
 pub async fn get_chat_message(
