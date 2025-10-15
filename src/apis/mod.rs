@@ -1,8 +1,10 @@
 use std::error;
 use std::fmt;
 
+use reqwest::RequestBuilder;
 use reqwest::Response;
 
+use crate::apis::configuration::Configuration;
 use crate::YougileError;
 
 pub async fn parse_response<T: serde::de::DeserializeOwned>(
@@ -28,6 +30,17 @@ pub async fn parse_response<T: serde::de::DeserializeOwned>(
         }
     } else {
         Err(YougileError::ApiError { status, content })
+    }
+}
+
+pub trait RequestBuilderExt {
+    fn with_auth_headers(self, cfg: &Configuration) -> Self;
+}
+
+impl RequestBuilderExt for RequestBuilder {
+    fn with_auth_headers(self, cfg: &Configuration) -> Self {
+        self.bearer_auth(&cfg.bearer_access_token)
+            .header(reqwest::header::USER_AGENT, &cfg.user_agent)
     }
 }
 

@@ -1,7 +1,7 @@
 use super::{configuration, ContentType, Error};
 use crate::{
-    apis::{configuration::Configuration, parse_response, ResponseContent},
-    models::{self, Board, CreateBoardDto},
+    apis::{configuration::Configuration, parse_response, RequestBuilderExt, ResponseContent},
+    models::{self, Board, CreateBoard},
     YougileError,
 };
 use reqwest;
@@ -11,22 +11,21 @@ pub const BOARD_PATH: &str = "/api-v2/boards";
 
 pub async fn board_controller_create(
     configuration: &Configuration,
-    create_board_dto: CreateBoardDto,
+    create_board_dto: CreateBoard,
 ) -> Result<models::Id, YougileError> {
     let url = format!("{}{}", configuration.base_path, BOARD_PATH);
 
-    let req_builder = configuration
+    let resp = configuration
         .client
         .post(&url)
         .json(&create_board_dto)
-        .bearer_auth(&configuration.bearer_access_token)
-        .header(reqwest::header::USER_AGENT, &configuration.user_agent);
+        .with_auth_headers(configuration)
+        .send()
+        .await?;
 
-    let resp = req_builder.send().await?;
     parse_response(resp).await
 }
 
-/// Получить доску по ID
 pub async fn board_controller_get(
     configuration: &Configuration,
     id: &str,
@@ -34,13 +33,13 @@ pub async fn board_controller_get(
     let encoded_id = crate::apis::urlencode(id);
     let url = format!("{}{}/{}", configuration.base_path, BOARD_PATH, encoded_id);
 
-    let req_builder = configuration
+    let resp = configuration
         .client
         .get(&url)
-        .bearer_auth(&configuration.bearer_access_token)
-        .header(reqwest::header::USER_AGENT, &configuration.user_agent);
+        .with_auth_headers(configuration)
+        .send()
+        .await?;
 
-    let resp = req_builder.send().await?;
     parse_response(resp).await
 }
 
@@ -71,14 +70,14 @@ pub async fn board_controller_search(
         query_params.push(("projectId", val.to_string()));
     }
 
-    let req_builder = configuration
+    let resp = configuration
         .client
         .get(&url)
         .query(&query_params)
-        .bearer_auth(&configuration.bearer_access_token)
-        .header(reqwest::header::USER_AGENT, &configuration.user_agent);
+        .with_auth_headers(configuration)
+        .send()
+        .await?;
 
-    let resp = req_builder.send().await?;
     parse_response(resp).await
 }
 
@@ -90,13 +89,13 @@ pub async fn board_controller_update(
     let encoded_id = crate::apis::urlencode(id);
     let url = format!("{}{}/{}", configuration.base_path, BOARD_PATH, encoded_id);
 
-    let req_builder = configuration
+    let resp = configuration
         .client
         .put(&url)
         .json(&update_board_dto)
-        .bearer_auth(&configuration.bearer_access_token)
-        .header(reqwest::header::USER_AGENT, &configuration.user_agent);
+        .with_auth_headers(configuration)
+        .send()
+        .await?;
 
-    let resp = req_builder.send().await?;
     parse_response(resp).await
 }

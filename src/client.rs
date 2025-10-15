@@ -87,7 +87,7 @@ impl YouGileClient {
     // Board methods
     pub async fn create_board(
         &self,
-        create: crate::models::CreateBoardDto,
+        create: crate::models::CreateBoard,
     ) -> Result<crate::models::Id, YougileError> {
         crate::apis::boards::board_controller_create(&self.configuration, create).await
     }
