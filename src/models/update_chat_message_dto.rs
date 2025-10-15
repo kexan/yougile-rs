@@ -35,32 +35,29 @@ impl UpdateChatMessageDto {
 }
 /// Список реакций админа
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(Default)]
 pub enum React {
     #[serde(rename = "👍")]
-    ,
+    #[default]
+    ThumbsUp,
     #[serde(rename = "👎")]
-    2,
+    ThumbsDown,
     #[serde(rename = "👏")]
-    3,
+    Clap,
     #[serde(rename = "🙂")]
-    4,
+    SlightlySmiling,
     #[serde(rename = "😀")]
-    5,
+    Grinning,
     #[serde(rename = "😕")]
-    6,
+    Confused,
     #[serde(rename = "🎉")]
-    7,
+    Tada,
     #[serde(rename = "❤")]
-    8,
+    Heart,
     #[serde(rename = "🚀")]
-    9,
+    Rocket,
     #[serde(rename = "✔")]
-    10,
+    CheckMark,
 }
 
-impl Default for React {
-    fn default() -> React {
-        Self::
-    }
-}
 

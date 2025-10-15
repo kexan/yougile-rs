@@ -102,15 +102,27 @@ enum ContentType {
 impl From<&str> for ContentType {
     fn from(content_type: &str) -> Self {
         if content_type.starts_with("application") && content_type.contains("json") {
-            return Self::Json;
+            Self::Json
         } else if content_type.starts_with("text/plain") {
-            return Self::Text;
+            Self::Text
         } else {
-            return Self::Unsupported(content_type.to_string());
+            Self::Unsupported(content_type.to_string())
         }
     }
 }
 
-pub mod default_api;
+// API modules
+pub mod auth;
+pub mod boards;
+pub mod columns;
+pub mod tasks;
+pub mod chats;
+pub mod users;
+pub mod projects;
+pub mod departments;
+pub mod stickers;
+pub mod group_chats;
+pub mod webhooks;
+pub mod files;
 
 pub mod configuration;
