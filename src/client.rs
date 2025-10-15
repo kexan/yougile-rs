@@ -110,7 +110,7 @@ impl YouGileClient {
         title: Option<&str>,
         project_id: Option<&str>,
     ) -> Result<
-        crate::models::BoardListDto,
+        crate::models::BoardList,
         crate::apis::Error<crate::apis::boards::BoardControllerSearchError>,
     > {
         crate::apis::boards::board_controller_search(

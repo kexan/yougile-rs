@@ -1,7 +1,7 @@
 use super::{configuration, ContentType, Error};
 use crate::{
     apis::{configuration::Configuration, parse_response, RequestBuilderExt, ResponseContent},
-    models::{self, Board, CreateBoard, UpdateBoard},
+    models::{self, Board, BoardList, CreateBoard, Id, UpdateBoard},
     YougileError,
 };
 use reqwest;
@@ -12,7 +12,7 @@ pub const BOARD_PATH: &str = "/api-v2/boards";
 pub async fn board_controller_create(
     configuration: &Configuration,
     create_board_dto: CreateBoard,
-) -> Result<models::Id, YougileError> {
+) -> Result<Id, YougileError> {
     let url = format!("{}{}", configuration.base_path, BOARD_PATH);
 
     let resp = configuration
@@ -50,7 +50,7 @@ pub async fn board_controller_search(
     offset: Option<f64>,
     title: Option<&str>,
     project_id: Option<&str>,
-) -> Result<models::BoardListDto, YougileError> {
+) -> Result<BoardList, YougileError> {
     let url = format!("{}{}", configuration.base_path, BOARD_PATH);
 
     let mut query_params = vec![];
@@ -85,7 +85,7 @@ pub async fn board_controller_update(
     configuration: &Configuration,
     id: &str,
     update_board_dto: UpdateBoard,
-) -> Result<models::Id, YougileError> {
+) -> Result<Id, YougileError> {
     let encoded_id = crate::apis::urlencode(id);
     let url = format!("{}{}/{}", configuration.base_path, BOARD_PATH, encoded_id);
 
