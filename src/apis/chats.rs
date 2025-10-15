@@ -40,8 +40,8 @@ pub async fn search_chat_messages(
 ) -> Result<ChatMessageList, YougileError> {
     let encoded_chat_id = crate::apis::urlencode(chat_id);
     let url = format!(
-        "{}/api-v2/chats/{}/messages",
-        configuration.base_path, encoded_chat_id
+        "{}{}/{}/messages",
+        configuration.base_path, CHAT_MESSAGES_PATH, encoded_chat_id
     );
 
     let mut query_params = vec![];
@@ -88,8 +88,8 @@ pub async fn send_chat_message(
 ) -> Result<ChatId, YougileError> {
     let encoded_chat_id = crate::apis::urlencode(chat_id);
     let url = format!(
-        "{}/api-v2/chats/{}/messages",
-        configuration.base_path, encoded_chat_id
+        "{}{}/{}/messages",
+        configuration.base_path, CHAT_MESSAGES_PATH, encoded_chat_id
     );
 
     let resp = configuration
@@ -111,8 +111,8 @@ pub async fn update_chat_message(
 ) -> Result<ChatId, YougileError> {
     let encoded_chat_id = crate::apis::urlencode(chat_id);
     let url = format!(
-        "{}/api-v2/chats/{}/messages/{}",
-        configuration.base_path, encoded_chat_id, id
+        "{}{}/{}/messages/{}",
+        configuration.base_path, CHAT_MESSAGES_PATH, encoded_chat_id, id
     );
 
     let resp = configuration
