@@ -46,13 +46,11 @@ pub async fn board_controller_create(
 
     let mut req_builder = configuration.client.post(&url).json(&create_board_dto);
 
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    }
-
-    if let Some(ref ua) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, ua.clone());
-    }
+    req_builder = req_builder.bearer_auth(configuration.bearer_access_token.to_owned());
+    req_builder = req_builder.header(
+        reqwest::header::USER_AGENT,
+        configuration.user_agent.to_owned(),
+    );
 
     let resp = req_builder.send().await?;
     parse_response(resp).await
