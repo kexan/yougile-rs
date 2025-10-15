@@ -84,7 +84,7 @@ pub async fn search_chat_messages(
 pub async fn send_chat_message(
     configuration: &Configuration,
     chat_id: &str,
-    create_chat_message_dto: CreateChatMessage,
+    create_chat_message: CreateChatMessage,
 ) -> Result<ChatId, YougileError> {
     let encoded_chat_id = crate::apis::urlencode(chat_id);
     let url = format!(
@@ -95,7 +95,7 @@ pub async fn send_chat_message(
     let resp = configuration
         .client
         .post(&url)
-        .json(&create_chat_message_dto)
+        .json(&create_chat_message)
         .with_auth_headers(configuration)
         .send()
         .await?;
@@ -107,7 +107,7 @@ pub async fn update_chat_message(
     configuration: &Configuration,
     chat_id: &str,
     id: f64,
-    update_chat_message_dto: UpdateChatMessage,
+    update_chat_message: UpdateChatMessage,
 ) -> Result<ChatId, YougileError> {
     let encoded_chat_id = crate::apis::urlencode(chat_id);
     let url = format!(
@@ -118,7 +118,7 @@ pub async fn update_chat_message(
     let resp = configuration
         .client
         .put(&url)
-        .json(&update_chat_message_dto)
+        .json(&update_chat_message)
         .with_auth_headers(configuration)
         .send()
         .await?;

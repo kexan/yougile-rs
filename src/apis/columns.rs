@@ -1,43 +1,13 @@
 use super::{configuration, ContentType, Error};
-use crate::{apis::ResponseContent, models};
-use reqwest;
-use serde::{de::Error as _, Deserialize, Serialize};
-
-/// struct for typed errors of method [`column_controller_create`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ColumnControllerCreateError {
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`column_controller_get`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ColumnControllerGetError {
-    Status404(),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`column_controller_search`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ColumnControllerSearchError {
-    Status404(),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`column_controller_update`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ColumnControllerUpdateError {
-    Status404(),
-    UnknownValue(serde_json::Value),
-}
+use crate::{
+    apis::{configuration::Configuration, ResponseContent},
+    models::{self, CreateColumnDto, Id},
+};
 
 pub async fn column_controller_create(
-    configuration: &configuration::Configuration,
-    create_column_dto: models::CreateColumnDto,
-) -> Result<models::Id, Error<ColumnControllerCreateError>> {
+    configuration: &Configuration,
+    create_column_dto: CreateColumnDto,
+) -> Result<Id, Error<ColumnControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_column_dto = create_column_dto;
 
@@ -84,7 +54,7 @@ pub async fn column_controller_create(
 }
 
 pub async fn column_controller_get(
-    configuration: &configuration::Configuration,
+    configuration: &Configuration,
     id: &str,
 ) -> Result<models::ColumnDto, Error<ColumnControllerGetError>> {
     // add a prefix to parameters to efficiently prevent name collisions
@@ -134,7 +104,7 @@ pub async fn column_controller_get(
 }
 
 pub async fn column_controller_search(
-    configuration: &configuration::Configuration,
+    configuration: &Configuration,
     include_deleted: Option<bool>,
     limit: Option<f64>,
     offset: Option<f64>,
@@ -203,10 +173,10 @@ pub async fn column_controller_search(
 }
 
 pub async fn column_controller_update(
-    configuration: &configuration::Configuration,
+    configuration: &Configuration,
     id: &str,
     update_column_dto: models::UpdateColumnDto,
-) -> Result<models::Id, Error<ColumnControllerUpdateError>> {
+) -> Result<Id, Error<ColumnControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
     let p_body_update_column_dto = update_column_dto;

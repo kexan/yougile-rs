@@ -8,14 +8,14 @@ pub const BOARD_PATH: &str = "/api-v2/boards";
 
 pub async fn create_board(
     configuration: &Configuration,
-    create_board_dto: CreateBoard,
+    create_board: CreateBoard,
 ) -> Result<Id, YougileError> {
     let url = format!("{}{}", configuration.base_path, BOARD_PATH);
 
     let resp = configuration
         .client
         .post(&url)
-        .json(&create_board_dto)
+        .json(&create_board)
         .with_auth_headers(configuration)
         .send()
         .await?;
@@ -78,7 +78,7 @@ pub async fn search_board(
 pub async fn update_board(
     configuration: &Configuration,
     id: &str,
-    update_board_dto: UpdateBoard,
+    update_board: UpdateBoard,
 ) -> Result<Id, YougileError> {
     let encoded_id = crate::apis::urlencode(id);
     let url = format!("{}{}/{}", configuration.base_path, BOARD_PATH, encoded_id);
@@ -86,7 +86,7 @@ pub async fn update_board(
     let resp = configuration
         .client
         .put(&url)
-        .json(&update_board_dto)
+        .json(&update_board)
         .with_auth_headers(configuration)
         .send()
         .await?;
