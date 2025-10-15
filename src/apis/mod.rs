@@ -1,6 +1,36 @@
 use std::error;
 use std::fmt;
 
+use reqwest::Response;
+
+use crate::YougileError;
+
+pub async fn parse_response<T: serde::de::DeserializeOwned>(
+    resp: Response,
+) -> Result<T, YougileError> {
+    let status = resp.status();
+
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| "application/octet-stream".to_string());
+
+    let content = resp.text().await?;
+
+    if status.is_success() {
+        if content_type.contains("application/json") {
+            let parsed: T = serde_json::from_str(&content)?;
+            Ok(parsed)
+        } else {
+            Err(YougileError::UnsupportedContentType(content_type))
+        }
+    } else {
+        Err(YougileError::ApiError { status, content })
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct ResponseContent<T> {
     pub status: reqwest::StatusCode,

@@ -1,4 +1,4 @@
-use yougile_client::{YouGileClient, YouGileError};
+use yougile_client::{YouGileClient, YougileError};
 
 // This example requires tokio runtime
 // Add this to your Cargo.toml:
@@ -6,12 +6,12 @@ use yougile_client::{YouGileClient, YouGileError};
 // tokio = { version = "1.0", features = ["full"] }
 
 #[tokio::main]
-async fn main() -> Result<(), YouGileError> {
+async fn main() -> Result<(), YougileError> {
     // Create a new client with a bearer token
     let config = yougile_client::apis::configuration::Configuration::new()
         .with_base_path("https://yougile.com")
         .with_bearer_token("your-api-token-here");
-    
+
     let client = YouGileClient::new(config);
 
     // Example: Get company information
@@ -25,7 +25,10 @@ async fn main() -> Result<(), YouGileError> {
     }
 
     // Example: Search for projects
-    match client.search_projects(None, Some(10.0), Some(0.0), None).await {
+    match client
+        .search_projects(None, Some(10.0), Some(0.0), None)
+        .await
+    {
         Ok(projects) => {
             println!("Found {} projects", projects.content.len());
             for project in projects.content.iter().take(3) {
@@ -39,3 +42,4 @@ async fn main() -> Result<(), YouGileError> {
 
     Ok(())
 }
+

@@ -1,5 +1,9 @@
 use super::{configuration, ContentType, Error};
-use crate::{apis::ResponseContent, models};
+use crate::{
+    apis::{configuration::Configuration, parse_response, ResponseContent},
+    models::{self, CreateBoardDto},
+    YougileError,
+};
 use reqwest;
 use serde::{de::Error as _, Deserialize, Serialize};
 
@@ -35,56 +39,27 @@ pub enum BoardControllerUpdateError {
 }
 
 pub async fn board_controller_create(
-    configuration: &configuration::Configuration,
-    create_board_dto: models::CreateBoardDto,
-) -> Result<models::WithIdDto, Error<BoardControllerCreateError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_body_create_board_dto = create_board_dto;
+    configuration: &Configuration,
+    create_board_dto: CreateBoardDto,
+) -> Result<models::WithIdDto, YougileError> {
+    let url = format!("{}/api-v2/boards", configuration.base_path);
 
-    let uri_str = format!("{}/api-v2/boards", configuration.base_path);
-    let mut req_builder = configuration
-        .client
-        .request(reqwest::Method::POST, &uri_str);
+    let mut req_builder = configuration.client.post(&url).json(&create_board_dto);
 
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-    req_builder = req_builder.json(&p_body_create_board_dto);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::WithIdDto`"))),
-            ContentType::Unsupported(unknown_type) => Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::WithIdDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<BoardControllerCreateError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
     }
+
+    if let Some(ref ua) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, ua.clone());
+    }
+
+    let resp = req_builder.send().await?;
+    parse_response(resp).await
 }
 
 pub async fn board_controller_get(
-    configuration: &configuration::Configuration,
+    configuration: &Configuration,
     id: &str,
 ) -> Result<models::BoardDto, Error<BoardControllerGetError>> {
     // add a prefix to parameters to efficiently prevent name collisions
@@ -134,7 +109,7 @@ pub async fn board_controller_get(
 }
 
 pub async fn board_controller_search(
-    configuration: &configuration::Configuration,
+    configuration: &Configuration,
     include_deleted: Option<bool>,
     limit: Option<f64>,
     offset: Option<f64>,
@@ -203,7 +178,7 @@ pub async fn board_controller_search(
 }
 
 pub async fn board_controller_update(
-    configuration: &configuration::Configuration,
+    configuration: &Configuration,
     id: &str,
     update_board_dto: models::UpdateBoardDto,
 ) -> Result<models::WithIdDto, Error<BoardControllerUpdateError>> {
@@ -254,4 +229,3 @@ pub async fn board_controller_update(
         }))
     }
 }
-
