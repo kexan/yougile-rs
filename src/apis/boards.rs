@@ -7,50 +7,20 @@ use crate::{
 use reqwest;
 use serde::{de::Error as _, Deserialize, Serialize};
 
-/// struct for typed errors of method [`board_controller_create`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum BoardControllerCreateError {
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`board_controller_get`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum BoardControllerGetError {
-    Status404(),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`board_controller_search`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum BoardControllerSearchError {
-    Status404(),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`board_controller_update`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum BoardControllerUpdateError {
-    Status404(),
-    UnknownValue(serde_json::Value),
-}
+pub const BOARD_PATH: &str = "/api-v2/boards";
 
 pub async fn board_controller_create(
     configuration: &Configuration,
     create_board_dto: CreateBoardDto,
 ) -> Result<models::WithIdDto, YougileError> {
-    let url = format!("{}/api-v2/boards", configuration.base_path);
+    let url = format!("{}{}", configuration.base_path, BOARD_PATH);
 
-    let mut req_builder = configuration.client.post(&url).json(&create_board_dto);
-
-    req_builder = req_builder.bearer_auth(configuration.bearer_access_token.to_owned());
-    req_builder = req_builder.header(
-        reqwest::header::USER_AGENT,
-        configuration.user_agent.to_owned(),
-    );
+    let req_builder = configuration
+        .client
+        .post(&url)
+        .json(&create_board_dto)
+        .bearer_auth(&configuration.bearer_access_token)
+        .header(reqwest::header::USER_AGENT, &configuration.user_agent);
 
     let resp = req_builder.send().await?;
     parse_response(resp).await
