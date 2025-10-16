@@ -4,11 +4,11 @@ use yougile_sdk::YouGileSDK;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize logging
     env_logger::init();
-    
+
     // Create a new client using the builder pattern
     let client = YouGileSDK::builder()
-        .token("your-api-token-here") // Replace with your actual token
-        .base_url("https://yougile.com")
+        .token("dIGhpLEQ38CUh-SjUGDNtz0PxkzcrIn-IESOt47jy6EzD4Nt93rHvdwrsLz37oFF") // Replace with your actual token
+        .base_url("https://yougile.kexan.ru")
         .build()?;
 
     // Example: Authentication and company operations
@@ -38,7 +38,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Example: Working with projects
     log::info!("Searching for projects...");
-    match client.projects().search().title("important").limit(5.0).execute().await {
+    match client
+        .projects()
+        .search()
+        .title("important")
+        .limit(5.0)
+        .execute()
+        .await
+    {
         Ok(projects) => {
             log::info!("Found {} projects", projects.content.len());
             for project in projects.content.iter().take(3) {
@@ -80,7 +87,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Example: Working with columns
     log::info!("Searching for columns...");
-    match client.columns().search(None, Some(10.0), Some(0.0), None, None).await {
+    match client
+        .columns()
+        .search(None, Some(10.0), Some(0.0), None, None)
+        .await
+    {
         Ok(columns) => {
             log::info!("Found {} columns", columns.content.len());
             for column in columns.content.iter().take(3) {
@@ -94,7 +105,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Example: Working with group chats
     log::info!("Searching for group chats...");
-    match client.group_chats().search(None, Some(10.0), Some(0.0), None).await {
+    match client
+        .group_chats()
+        .search(None, Some(10.0), Some(0.0), None)
+        .await
+    {
         Ok(group_chats) => {
             log::info!("Found {} group chats", group_chats.content.len());
             for chat in group_chats.content.iter().take(3) {
@@ -108,7 +123,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Example: Working with stickers (sprint stickers)
     log::info!("Searching for sprint stickers...");
-    match client.stickers().search_sprint_stickers(None, Some(10.0), Some(0.0), None, None).await {
+    match client
+        .stickers()
+        .search_sprint_stickers(None, Some(10.0), Some(0.0), None, None)
+        .await
+    {
         Ok(stickers) => {
             log::info!("Found {} sprint stickers", stickers.content.len());
             for sticker in stickers.content.iter().take(3) {
@@ -134,3 +153,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("All API examples completed successfully!");
     Ok(())
 }
+

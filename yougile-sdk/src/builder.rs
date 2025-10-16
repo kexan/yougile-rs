@@ -135,7 +135,7 @@ impl YouGileSDK {
     }
 
     /// Get access to the low-level client if needed
-    pub fn low_level_client(&self) -> &YouGileClient {
+    pub fn client(&self) -> &YouGileClient {
         &self.client
     }
 }
