@@ -23,7 +23,7 @@ impl YouGileClient {
     // Authentication methods
     pub async fn create_auth_key(
         &self,
-        credentials: crate::models::CredentialsWithCompanyDto,
+        credentials: crate::models::CredentialsWithCompany,
     ) -> Result<
         crate::models::AuthKeyDto,
         crate::apis::Error<crate::apis::auth::AuthKeyControllerCreateError>,
@@ -40,7 +40,7 @@ impl YouGileClient {
 
     pub async fn search_auth_keys(
         &self,
-        credentials: crate::models::CredentialsWithCompanyOptionalDto,
+        credentials: crate::models::CredentialsWithCompanyOptional,
     ) -> Result<
         Vec<crate::models::AuthKeyWithDetailsDto>,
         crate::apis::Error<crate::apis::auth::AuthKeyControllerSearchError>,
@@ -69,7 +69,7 @@ impl YouGileClient {
 
     pub async fn get_companies(
         &self,
-        credentials: crate::models::CredentialsWithNameDto,
+        credentials: crate::models::CredentialsWithName,
         limit: Option<f64>,
         offset: Option<f64>,
     ) -> Result<crate::models::CompanyList, crate::apis::Error<crate::apis::auth::GetCompaniesError>>
