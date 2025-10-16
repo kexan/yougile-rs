@@ -192,7 +192,7 @@ pub async fn auth_key_controller_search(
 /// Получить детали текущей компании
 pub async fn company_controller_get(
     configuration: &configuration::Configuration,
-) -> Result<models::CompanyDto, Error<CompanyControllerGetError>> {
+) -> Result<models::Company, Error<CompanyControllerGetError>> {
     let uri_str = format!("{}/api-v2/companies*", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
@@ -285,7 +285,7 @@ pub async fn get_companies(
     credentials_with_name_dto: models::CredentialsWithNameDto,
     limit: Option<f64>,
     offset: Option<f64>,
-) -> Result<models::CompanyListDto, Error<GetCompaniesError>> {
+) -> Result<models::CompanyList, Error<GetCompaniesError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_credentials_with_name_dto = credentials_with_name_dto;
     let p_query_limit = limit;

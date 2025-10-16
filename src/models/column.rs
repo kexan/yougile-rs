@@ -131,3 +131,63 @@ impl UpdateColumn {
         }
     }
 }
+
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ColumnPermissions {
+    #[serde(rename = "editTitle")]
+    pub edit_title: bool,
+    #[serde(rename = "delete")]
+    pub delete: bool,
+    #[serde(rename = "move")]
+    pub r#move: Move,
+    #[serde(rename = "addTask")]
+    pub add_task: bool,
+    #[serde(rename = "allTasks")]
+    pub all_tasks: Box<models::TaskPermissionsDto>,
+    #[serde(rename = "withMeTasks")]
+    pub with_me_tasks: Box<models::TaskPermissionsDto>,
+    #[serde(rename = "myTasks")]
+    pub my_tasks: Box<models::TaskPermissionsDto>,
+    #[serde(rename = "createdByMeTasks")]
+    pub created_by_me_tasks: Box<models::TaskPermissionsDto>,
+}
+
+impl ColumnPermissions {
+    pub fn new(
+        edit_title: bool,
+        delete: bool,
+        r#move: Move,
+        add_task: bool,
+        all_tasks: models::TaskPermissionsDto,
+        with_me_tasks: models::TaskPermissionsDto,
+        my_tasks: models::TaskPermissionsDto,
+        created_by_me_tasks: models::TaskPermissionsDto,
+    ) -> ColumnPermissions {
+        ColumnPermissions {
+            edit_title,
+            delete,
+            r#move,
+            add_task,
+            all_tasks: Box::new(all_tasks),
+            with_me_tasks: Box::new(with_me_tasks),
+            my_tasks: Box::new(my_tasks),
+            created_by_me_tasks: Box::new(created_by_me_tasks),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+pub enum Move {
+    #[serde(rename = "no")]
+    No,
+    #[serde(rename = "project")]
+    Project,
+    #[serde(rename = "yes")]
+    Yes,
+}
+
+impl Default for Move {
+    fn default() -> Move {
+        Self::No
+    }
+}

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::{PagingMetadata, StickersDto};
+use crate::models::{column::ColumnPermissions, PagingMetadata, StickersDto};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Board {
@@ -148,7 +148,7 @@ pub struct BoardPermissions {
     #[serde(rename = "addColumn")]
     pub add_column: bool,
     #[serde(rename = "columns")]
-    pub columns: Box<models::ColumnPermissionsDto>,
+    pub columns: Box<ColumnPermissions>,
     #[serde(rename = "settings")]
     pub settings: bool,
 }
@@ -161,7 +161,7 @@ impl BoardPermissions {
         show_stickers: bool,
         edit_stickers: bool,
         add_column: bool,
-        columns: models::ColumnPermissionsDto,
+        columns: ColumnPermissions,
         settings: bool,
     ) -> BoardPermissions {
         BoardPermissions {

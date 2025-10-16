@@ -51,7 +51,7 @@ impl YouGileClient {
     pub async fn get_company(
         &self,
     ) -> Result<
-        crate::models::CompanyDto,
+        crate::models::Company,
         crate::apis::Error<crate::apis::auth::CompanyControllerGetError>,
     > {
         crate::apis::auth::company_controller_get(&self.configuration).await
@@ -72,10 +72,8 @@ impl YouGileClient {
         credentials: crate::models::CredentialsWithNameDto,
         limit: Option<f64>,
         offset: Option<f64>,
-    ) -> Result<
-        crate::models::CompanyListDto,
-        crate::apis::Error<crate::apis::auth::GetCompaniesError>,
-    > {
+    ) -> Result<crate::models::CompanyList, crate::apis::Error<crate::apis::auth::GetCompaniesError>>
+    {
         crate::apis::auth::get_companies(&self.configuration, credentials, limit, offset).await
     }
 
