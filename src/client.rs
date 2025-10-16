@@ -239,7 +239,7 @@ impl YouGileClient {
     // User methods
     pub async fn create_user(
         &self,
-        create: crate::models::CreateUserDto,
+        create: crate::models::CreateUser,
     ) -> Result<crate::models::Id, crate::apis::Error<crate::apis::users::UserControllerCreateError>>
     {
         crate::apis::users::user_controller_create(&self.configuration, create).await
@@ -260,7 +260,7 @@ impl YouGileClient {
         email: Option<&str>,
         project_id: Option<&str>,
     ) -> Result<
-        crate::models::UserListDto,
+        crate::models::UserList,
         crate::apis::Error<crate::apis::users::UserControllerSearchError>,
     > {
         crate::apis::users::user_controller_search(
@@ -276,7 +276,7 @@ impl YouGileClient {
     pub async fn update_user(
         &self,
         id: &str,
-        update: crate::models::UpdateUserDto,
+        update: crate::models::UpdateUser,
     ) -> Result<crate::models::Id, crate::apis::Error<crate::apis::users::UserControllerUpdateError>>
     {
         crate::apis::users::user_controller_update(&self.configuration, id, update).await

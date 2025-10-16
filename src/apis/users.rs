@@ -44,7 +44,7 @@ pub enum UserControllerUpdateError {
 
 pub async fn user_controller_create(
     configuration: &configuration::Configuration,
-    create_user_dto: models::CreateUserDto,
+    create_user_dto: models::CreateUser,
 ) -> Result<models::Id, Error<UserControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_user_dto = create_user_dto;
@@ -199,7 +199,7 @@ pub async fn user_controller_search(
     offset: Option<f64>,
     email: Option<&str>,
     project_id: Option<&str>,
-) -> Result<models::UserListDto, Error<UserControllerSearchError>> {
+) -> Result<models::UserList, Error<UserControllerSearchError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_limit = limit;
     let p_query_offset = offset;
@@ -260,7 +260,7 @@ pub async fn user_controller_search(
 pub async fn user_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
-    update_user_dto: models::UpdateUserDto,
+    update_user_dto: models::UpdateUser,
 ) -> Result<models::Id, Error<UserControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
