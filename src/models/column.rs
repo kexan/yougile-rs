@@ -43,7 +43,7 @@ pub struct ColumnList {
 }
 
 impl ColumnList {
-    pub fn new(paging: models::PagingMetadata, content: Vec<models::ColumnListBase>) -> ColumnList {
+    pub fn new(paging: models::PagingMetadata, content: Vec<ColumnListBase>) -> ColumnList {
         ColumnList {
             paging: Box::new(paging),
             content,

@@ -15,11 +15,6 @@ impl YouGileClient {
         }
     }
 
-    /// Creates a new YouGile API client with the default configuration.
-    pub fn new_default() -> Self {
-        Self::new(Configuration::new())
-    }
-
     /// Returns a reference to the internal configuration.
     pub fn configuration(&self) -> &Configuration {
         &self.configuration
