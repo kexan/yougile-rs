@@ -115,7 +115,7 @@ pub enum StringStickerStateControllerUpdateError {
 
 pub async fn sprint_sticker_controller_create(
     configuration: &configuration::Configuration,
-    create_sprint_sticker_dto: models::CreateSprintStickerDto,
+    create_sprint_sticker_dto: models::CreateSprintSticker,
 ) -> Result<models::Id, Error<SprintStickerControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_sprint_sticker_dto = create_sprint_sticker_dto;
@@ -166,7 +166,7 @@ pub async fn sprint_sticker_controller_create(
 pub async fn sprint_sticker_controller_get_sticker(
     configuration: &configuration::Configuration,
     id: &str,
-) -> Result<models::SprintStickerWithStatesDto, Error<SprintStickerControllerGetStickerError>> {
+) -> Result<models::SprintStickerWithStates, Error<SprintStickerControllerGetStickerError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
 
@@ -221,7 +221,7 @@ pub async fn sprint_sticker_controller_search(
     offset: Option<f64>,
     name: Option<&str>,
     board_id: Option<&str>,
-) -> Result<models::SprintStickerWithStatesListDto, Error<SprintStickerControllerSearchError>> {
+) -> Result<models::SprintStickerWithStatesList, Error<SprintStickerControllerSearchError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_include_deleted = include_deleted;
     let p_query_limit = limit;
@@ -287,7 +287,7 @@ pub async fn sprint_sticker_controller_search(
 pub async fn sprint_sticker_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
-    update_sprint_sticker_dto: models::UpdateSprintStickerDto,
+    update_sprint_sticker_dto: models::UpdateSprintSticker,
 ) -> Result<models::Id, Error<SprintStickerControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
@@ -341,7 +341,7 @@ pub async fn sprint_sticker_controller_update(
 pub async fn sprint_sticker_state_controller_create(
     configuration: &configuration::Configuration,
     sticker_id: &str,
-    create_sprint_sticker_state_dto: models::CreateSprintStickerStateDto,
+    create_sprint_sticker_state_dto: models::CreateSprintStickerState,
 ) -> Result<models::WithStickerStateIdDto, Error<SprintStickerStateControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_sticker_id = sticker_id;
@@ -399,7 +399,7 @@ pub async fn sprint_sticker_state_controller_get(
     sticker_id: &str,
     sticker_state_id: &str,
     include_deleted: Option<bool>,
-) -> Result<models::SprintStickerStateDto, Error<SprintStickerStateControllerGetError>> {
+) -> Result<models::SprintStickerState, Error<SprintStickerStateControllerGetError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_sticker_id = sticker_id;
     let p_path_sticker_state_id = sticker_state_id;
@@ -457,7 +457,7 @@ pub async fn sprint_sticker_state_controller_update(
     configuration: &configuration::Configuration,
     sticker_id: &str,
     sticker_state_id: &str,
-    update_sprint_sticker_state_dto: models::UpdateSprintStickerStateDto,
+    update_sprint_sticker_state_dto: models::UpdateSprintStickerState,
 ) -> Result<models::WithStickerStateIdDto, Error<SprintStickerStateControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_sticker_id = sticker_id;

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::{column::ColumnPermissions, PagingMetadata, StickersDto};
+use crate::models::{column::ColumnPermissions, PagingMetadata, Stickers};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Board {
@@ -18,7 +18,7 @@ pub struct Board {
     pub project_id: String,
     /// Стикеры доски
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<Box<StickersDto>>,
+    pub stickers: Option<Box<Stickers>>,
 }
 
 impl Board {
@@ -68,7 +68,7 @@ pub struct BoardListBase {
     pub project_id: String,
     /// Стикеры доски
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<Box<StickersDto>>,
+    pub stickers: Option<Box<Stickers>>,
 }
 
 impl BoardListBase {
@@ -93,7 +93,7 @@ pub struct CreateBoard {
     pub project_id: String,
     /// Стикеры доски
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<Box<StickersDto>>,
+    pub stickers: Option<Box<Stickers>>,
 }
 
 impl CreateBoard {
@@ -119,7 +119,7 @@ pub struct UpdateBoard {
     pub project_id: Option<String>,
     /// Стикеры доски
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<Box<StickersDto>>,
+    pub stickers: Option<Box<Stickers>>,
 }
 
 impl UpdateBoard {
