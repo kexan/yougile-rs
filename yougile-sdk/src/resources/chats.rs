@@ -40,6 +40,7 @@ impl<'a> ChatsAPI<'a> {
     }
 
     /// Search for chat messages with various filters
+    #[allow(clippy::too_many_arguments)]
     pub async fn search_messages(
         &self,
         chat_id: &str,
