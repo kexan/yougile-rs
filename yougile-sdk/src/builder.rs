@@ -1,6 +1,6 @@
 use crate::{
     SDKError,
-    resources::{AuthAPI, BoardsAPI, ChatsAPI, ColumnsAPI, FilesAPI, GroupChatsAPI, ProjectsAPI, StickersAPI, TasksAPI, UsersAPI, WebhooksAPI},
+    resources::{AuthAPI, BoardsAPI, ChatsAPI, ColumnsAPI, DepartmentsAPI, FilesAPI, GroupChatsAPI, ProjectsAPI, StickersAPI, TasksAPI, UsersAPI, WebhooksAPI},
 };
 use yougile_client::{YouGileClient, apis::configuration::Configuration};
 
@@ -95,6 +95,11 @@ impl YouGileSDK {
     /// Get access to the columns API
     pub fn columns(&self) -> ColumnsAPI<'_> {
         ColumnsAPI::new(&self.inner)
+    }
+
+    /// Get access to the departments API
+    pub fn departments(&self) -> DepartmentsAPI<'_> {
+        DepartmentsAPI::new(&self.inner)
     }
 
     /// Get access to the chats API

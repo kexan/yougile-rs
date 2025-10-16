@@ -56,4 +56,32 @@ impl<'a> TasksAPI<'a> {
     ) -> Result<yougile_client::models::Id, SDKError> {
         self.client.update_task_chat_subscribers(id, subscribers).await.map_err(SDKError::from)
     }
+
+    /// Search for tasks in reverse order with various filters
+    #[allow(clippy::too_many_arguments)]
+    pub async fn search_reversed(
+        &self,
+        include_deleted: Option<bool>,
+        limit: Option<f64>,
+        offset: Option<f64>,
+        title: Option<&str>,
+        column_id: Option<&str>,
+        assigned_to: Option<&str>,
+        sticker_id: Option<&str>,
+        sticker_state_id: Option<&str>,
+    ) -> Result<yougile_client::models::TaskList, SDKError> {
+        self.client
+            .search_tasks_reversed(
+                include_deleted,
+                limit,
+                offset,
+                title,
+                column_id,
+                assigned_to,
+                sticker_id,
+                sticker_state_id,
+            )
+            .await
+            .map_err(SDKError::from)
+    }
 }

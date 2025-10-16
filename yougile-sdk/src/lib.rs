@@ -82,6 +82,8 @@ pub use yougile_client::{
         FileUpload,
         // Webhook models
         Webhook, CreateWebhook, UpdateWebhook,
+        // Department models
+        Department, CreateDepartment, UpdateDepartment, DepartmentList,
     },
     // Re-export the low-level client in case users need direct access
     YouGileClient,
