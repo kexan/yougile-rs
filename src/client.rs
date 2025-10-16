@@ -1,4 +1,5 @@
 use crate::{
+    YougileError,
     apis::configuration::Configuration,
     models::{
         self, AuthKey, AuthKeyWithDetails, Board, BoardList, ChatId, ChatMessage, ChatMessageList,
@@ -14,7 +15,6 @@ use crate::{
         UpdateProjectRole, UpdateSprintSticker, UpdateSprintStickerState, UpdateStringSticker,
         UpdateStringStickerState, UpdateTask, UpdateUser, UpdateWebhook, User, UserList, Webhook,
     },
-    YougileError,
 };
 use std::sync::Arc;
 
@@ -22,15 +22,13 @@ use std::sync::Arc;
 /// This provides a more idiomatic Rust interface compared to the raw API functions.
 #[derive(Clone)]
 pub struct YouGileClient {
-    configuration: Arc<Configuration>,
+    configuration: Configuration,
 }
 
 impl YouGileClient {
     /// Creates a new YouGile API client with the given configuration.
     pub fn new(configuration: Configuration) -> Self {
-        Self {
-            configuration: Arc::new(configuration),
-        }
+        Self { configuration }
     }
 
     /// Returns a reference to the internal configuration.

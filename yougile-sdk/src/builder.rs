@@ -49,7 +49,7 @@ impl YouGileSDKBuilder {
         let low_level_client = YouGileClient::new(config);
 
         Ok(YouGileSDK {
-            inner: low_level_client,
+            client: low_level_client,
         })
     }
 }
@@ -62,7 +62,7 @@ impl Default for YouGileSDKBuilder {
 
 /// The main YouGile SDK client with a high-level API
 pub struct YouGileSDK {
-    inner: YouGileClient,
+    client: YouGileClient,
 }
 
 impl YouGileSDK {
@@ -73,71 +73,71 @@ impl YouGileSDK {
 
     /// Get access to the auth API
     pub fn auth(&self) -> AuthAPI {
-        AuthAPI::new(Arc::new(self.inner.clone()))
+        AuthAPI::new(Arc::new(self.client.clone()))
     }
 
     /// Get access to the tasks API
     pub fn tasks(&self) -> TasksAPI {
-        TasksAPI::new(Arc::new(self.inner.clone()))
+        TasksAPI::new(Arc::new(self.client.clone()))
     }
 
     /// Get access to the projects API
     pub fn projects(&self) -> ProjectsAPI {
-        ProjectsAPI::new(Arc::new(self.inner.clone()))
+        ProjectsAPI::new(Arc::new(self.client.clone()))
     }
 
     /// Get access to the users API
     pub fn users(&self) -> UsersAPI {
-        UsersAPI::new(Arc::new(self.inner.clone()))
+        UsersAPI::new(Arc::new(self.client.clone()))
     }
 
     /// Get access to the boards API
     pub fn boards(&self) -> BoardsAPI {
-        BoardsAPI::new(Arc::new(self.inner.clone()))
+        BoardsAPI::new(Arc::new(self.client.clone()))
     }
 
     /// Get access to the columns API
     pub fn columns(&self) -> ColumnsAPI {
-        ColumnsAPI::new(Arc::new(self.inner.clone()))
+        ColumnsAPI::new(Arc::new(self.client.clone()))
     }
 
     /// Get access to the departments API
     pub fn departments(&self) -> DepartmentsAPI {
-        DepartmentsAPI::new(Arc::new(self.inner.clone()))
+        DepartmentsAPI::new(Arc::new(self.client.clone()))
     }
 
     /// Get access to the chats API
     pub fn chats(&self) -> ChatsAPI {
-        ChatsAPI::new(Arc::new(self.inner.clone()))
+        ChatsAPI::new(Arc::new(self.client.clone()))
     }
 
     /// Get access to the group chats API
     pub fn group_chats(&self) -> GroupChatsAPI {
-        GroupChatsAPI::new(Arc::new(self.inner.clone()))
+        GroupChatsAPI::new(Arc::new(self.client.clone()))
     }
 
     /// Get access to the stickers API
     pub fn stickers(&self) -> StickersAPI {
-        StickersAPI::new(Arc::new(self.inner.clone()))
+        StickersAPI::new(Arc::new(self.client.clone()))
     }
 
     /// Get access to the files API
     pub fn files(&self) -> FilesAPI {
-        FilesAPI::new(Arc::new(self.inner.clone()))
+        FilesAPI::new(Arc::new(self.client.clone()))
     }
 
     /// Get access to the webhooks API
     pub fn webhooks(&self) -> WebhooksAPI {
-        WebhooksAPI::new(Arc::new(self.inner.clone()))
+        WebhooksAPI::new(Arc::new(self.client.clone()))
     }
 
     /// Get the company information
     pub async fn get_company(&self) -> Result<yougile_client::models::Company, SDKError> {
-        self.inner.get_company().await.map_err(SDKError::from)
+        self.client.get_company().await.map_err(SDKError::from)
     }
 
     /// Get access to the low-level client if needed
     pub fn low_level_client(&self) -> &YouGileClient {
-        &self.inner
+        &self.client
     }
 }

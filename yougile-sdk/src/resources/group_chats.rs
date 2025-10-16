@@ -1,6 +1,6 @@
+use crate::SDKError;
 use std::sync::Arc;
 use yougile_client::YouGileClient;
-use crate::SDKError;
 
 /// API for working with group chats
 pub struct GroupChatsAPI {
@@ -9,9 +9,7 @@ pub struct GroupChatsAPI {
 
 impl GroupChatsAPI {
     pub fn new(client: Arc<YouGileClient>) -> Self {
-        Self { 
-            client: Arc::clone(&client),
-        }
+        Self { client }
     }
 
     /// Get a specific group chat by ID
@@ -21,19 +19,25 @@ impl GroupChatsAPI {
 
     /// Create a new group chat
     pub async fn create(
-        &self, 
-        create_group_chat: yougile_client::models::CreateGroupChat
+        &self,
+        create_group_chat: yougile_client::models::CreateGroupChat,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.create_group_chat(create_group_chat).await.map_err(SDKError::from)
+        self.client
+            .create_group_chat(create_group_chat)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Update an existing group chat
     pub async fn update(
-        &self, 
-        id: &str, 
-        update_group_chat: yougile_client::models::UpdateGroupChat
+        &self,
+        id: &str,
+        update_group_chat: yougile_client::models::UpdateGroupChat,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.update_group_chat(id, update_group_chat).await.map_err(SDKError::from)
+        self.client
+            .update_group_chat(id, update_group_chat)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Search for group chats with various filters
@@ -45,12 +49,7 @@ impl GroupChatsAPI {
         title: Option<&str>,
     ) -> Result<yougile_client::models::GroupChatList, SDKError> {
         self.client
-            .search_group_chat(
-                include_deleted,
-                limit,
-                offset,
-                title,
-            )
+            .search_group_chat(include_deleted, limit, offset, title)
             .await
             .map_err(SDKError::from)
     }
@@ -60,3 +59,4 @@ impl GroupChatsAPI {
         self.search(None, Some(100.0), Some(0.0), None).await
     }
 }
+

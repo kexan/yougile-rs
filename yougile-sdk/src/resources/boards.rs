@@ -1,6 +1,6 @@
+use crate::{SDKError, convenience::BoardSearchBuilder};
 use std::sync::Arc;
 use yougile_client::YouGileClient;
-use crate::{SDKError, convenience::BoardSearchBuilder};
 
 /// API for working with boards
 pub struct BoardsAPI {
@@ -9,9 +9,7 @@ pub struct BoardsAPI {
 
 impl BoardsAPI {
     pub fn new(client: Arc<YouGileClient>) -> Self {
-        Self { 
-            client: Arc::clone(&client),
-        }
+        Self { client }
     }
 
     /// Get a specific board by ID
@@ -21,19 +19,25 @@ impl BoardsAPI {
 
     /// Create a new board
     pub async fn create(
-        &self, 
-        create_board: yougile_client::models::CreateBoard
+        &self,
+        create_board: yougile_client::models::CreateBoard,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.create_board(create_board).await.map_err(SDKError::from)
+        self.client
+            .create_board(create_board)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Update an existing board
     pub async fn update(
-        &self, 
-        id: &str, 
-        update_board: yougile_client::models::UpdateBoard
+        &self,
+        id: &str,
+        update_board: yougile_client::models::UpdateBoard,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.update_board(id, update_board).await.map_err(SDKError::from)
+        self.client
+            .update_board(id, update_board)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Search for boards with various filters using a fluent API
@@ -46,3 +50,4 @@ impl BoardsAPI {
         self.search().execute().await
     }
 }
+

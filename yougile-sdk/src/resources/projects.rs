@@ -1,6 +1,6 @@
+use crate::{SDKError, convenience::ProjectSearchBuilder};
 use std::sync::Arc;
 use yougile_client::YouGileClient;
-use crate::{SDKError, convenience::ProjectSearchBuilder};
 
 /// API for working with projects
 pub struct ProjectsAPI {
@@ -9,9 +9,7 @@ pub struct ProjectsAPI {
 
 impl ProjectsAPI {
     pub fn new(client: Arc<YouGileClient>) -> Self {
-        Self { 
-            client: Arc::clone(&client),
-        }
+        Self { client }
     }
 
     /// Get a specific project by ID
@@ -21,19 +19,25 @@ impl ProjectsAPI {
 
     /// Create a new project
     pub async fn create(
-        &self, 
-        create_project: yougile_client::models::CreateProject
+        &self,
+        create_project: yougile_client::models::CreateProject,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.create_project(create_project).await.map_err(SDKError::from)
+        self.client
+            .create_project(create_project)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Update an existing project
     pub async fn update(
-        &self, 
-        id: &str, 
-        update_project: yougile_client::models::UpdateProject
+        &self,
+        id: &str,
+        update_project: yougile_client::models::UpdateProject,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.update_project(id, update_project).await.map_err(SDKError::from)
+        self.client
+            .update_project(id, update_project)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Search for projects with various filters using a fluent API
@@ -52,7 +56,10 @@ impl ProjectsAPI {
         project_id: &str,
         create_role: yougile_client::models::CreateProjectRole,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.create_project_role(project_id, create_role).await.map_err(SDKError::from)
+        self.client
+            .create_project_role(project_id, create_role)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Get a project role
@@ -61,7 +68,10 @@ impl ProjectsAPI {
         project_id: &str,
         role_id: &str,
     ) -> Result<yougile_client::models::ProjectRole, SDKError> {
-        self.client.get_project_role(project_id, role_id).await.map_err(SDKError::from)
+        self.client
+            .get_project_role(project_id, role_id)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Update a project role
@@ -71,7 +81,10 @@ impl ProjectsAPI {
         role_id: &str,
         update_role: yougile_client::models::UpdateProjectRole,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.update_project_role(project_id, role_id, update_role).await.map_err(SDKError::from)
+        self.client
+            .update_project_role(project_id, role_id, update_role)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Delete a project role
@@ -80,7 +93,10 @@ impl ProjectsAPI {
         project_id: &str,
         role_id: &str,
     ) -> Result<yougile_client::models::ProjectRole, SDKError> {
-        self.client.delete_project_role(project_id, role_id).await.map_err(SDKError::from)
+        self.client
+            .delete_project_role(project_id, role_id)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Search for project roles
@@ -97,3 +113,4 @@ impl ProjectsAPI {
             .map_err(SDKError::from)
     }
 }
+

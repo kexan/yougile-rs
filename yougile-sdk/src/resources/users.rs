@@ -1,6 +1,6 @@
+use crate::{SDKError, convenience::UserSearchBuilder};
 use std::sync::Arc;
 use yougile_client::YouGileClient;
-use crate::{SDKError, convenience::UserSearchBuilder};
 
 /// API for working with users
 pub struct UsersAPI {
@@ -9,9 +9,7 @@ pub struct UsersAPI {
 
 impl UsersAPI {
     pub fn new(client: Arc<YouGileClient>) -> Self {
-        Self { 
-            client: Arc::clone(&client),
-        }
+        Self { client }
     }
 
     /// Get a specific user by ID
@@ -21,19 +19,25 @@ impl UsersAPI {
 
     /// Create a new user
     pub async fn create(
-        &self, 
-        create_user: yougile_client::models::CreateUser
+        &self,
+        create_user: yougile_client::models::CreateUser,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.create_user(create_user).await.map_err(SDKError::from)
+        self.client
+            .create_user(create_user)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Update an existing user
     pub async fn update(
-        &self, 
-        id: &str, 
-        update_user: yougile_client::models::UpdateUser
+        &self,
+        id: &str,
+        update_user: yougile_client::models::UpdateUser,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.update_user(id, update_user).await.map_err(SDKError::from)
+        self.client
+            .update_user(id, update_user)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Delete a user
@@ -51,3 +55,4 @@ impl UsersAPI {
         self.search().execute().await
     }
 }
+

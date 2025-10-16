@@ -1,6 +1,6 @@
+use crate::SDKError;
 use std::sync::Arc;
 use yougile_client::YouGileClient;
-use crate::SDKError;
 
 /// API for working with columns
 pub struct ColumnsAPI {
@@ -9,9 +9,7 @@ pub struct ColumnsAPI {
 
 impl ColumnsAPI {
     pub fn new(client: Arc<YouGileClient>) -> Self {
-        Self { 
-            client: Arc::clone(&client),
-        }
+        Self { client }
     }
 
     /// Get a specific column by ID
@@ -21,19 +19,25 @@ impl ColumnsAPI {
 
     /// Create a new column
     pub async fn create(
-        &self, 
-        create_column: yougile_client::models::CreateColumn
+        &self,
+        create_column: yougile_client::models::CreateColumn,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.create_column(create_column).await.map_err(SDKError::from)
+        self.client
+            .create_column(create_column)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Update an existing column
     pub async fn update(
-        &self, 
-        id: &str, 
-        update_column: yougile_client::models::UpdateColumn
+        &self,
+        id: &str,
+        update_column: yougile_client::models::UpdateColumn,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.update_column(id, update_column).await.map_err(SDKError::from)
+        self.client
+            .update_column(id, update_column)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Search for columns with various filters
@@ -46,13 +50,7 @@ impl ColumnsAPI {
         board_id: Option<&str>,
     ) -> Result<yougile_client::models::ColumnList, SDKError> {
         self.client
-            .search_columns(
-                include_deleted,
-                limit,
-                offset,
-                title,
-                board_id,
-            )
+            .search_columns(include_deleted, limit, offset, title, board_id)
             .await
             .map_err(SDKError::from)
     }
@@ -62,3 +60,4 @@ impl ColumnsAPI {
         self.search(None, Some(100.0), Some(0.0), None, None).await
     }
 }
+

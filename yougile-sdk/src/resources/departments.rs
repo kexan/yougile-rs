@@ -1,6 +1,6 @@
+use crate::SDKError;
 use std::sync::Arc;
 use yougile_client::{YouGileClient, apis::departments};
-use crate::SDKError;
 
 /// API for working with departments
 pub struct DepartmentsAPI {
@@ -9,9 +9,7 @@ pub struct DepartmentsAPI {
 
 impl DepartmentsAPI {
     pub fn new(client: Arc<YouGileClient>) -> Self {
-        Self { 
-            client: Arc::clone(&client),
-        }
+        Self { client }
     }
 
     /// Get a specific department by ID
@@ -23,8 +21,8 @@ impl DepartmentsAPI {
 
     /// Create a new department
     pub async fn create(
-        &self, 
-        create_department: yougile_client::models::CreateDepartment
+        &self,
+        create_department: yougile_client::models::CreateDepartment,
     ) -> Result<yougile_client::models::Id, SDKError> {
         departments::create_department(self.client.configuration(), create_department)
             .await
@@ -33,9 +31,9 @@ impl DepartmentsAPI {
 
     /// Update an existing department
     pub async fn update(
-        &self, 
-        id: &str, 
-        update_department: yougile_client::models::UpdateDepartment
+        &self,
+        id: &str,
+        update_department: yougile_client::models::UpdateDepartment,
     ) -> Result<yougile_client::models::Id, SDKError> {
         departments::update_department(self.client.configuration(), id, update_department)
             .await
@@ -68,3 +66,4 @@ impl DepartmentsAPI {
         self.search(None, Some(100.0), Some(0.0), None, None).await
     }
 }
+

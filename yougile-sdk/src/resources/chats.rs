@@ -1,6 +1,6 @@
+use crate::SDKError;
 use std::sync::Arc;
 use yougile_client::YouGileClient;
-use crate::SDKError;
 
 /// API for working with chats
 pub struct ChatsAPI {
@@ -9,9 +9,7 @@ pub struct ChatsAPI {
 
 impl ChatsAPI {
     pub fn new(client: Arc<YouGileClient>) -> Self {
-        Self { 
-            client: Arc::clone(&client),
-        }
+        Self { client }
     }
 
     /// Send a chat message
@@ -20,7 +18,10 @@ impl ChatsAPI {
         chat_id: &str,
         create_message: yougile_client::models::CreateChatMessage,
     ) -> Result<yougile_client::models::ChatId, SDKError> {
-        self.client.send_chat_message(chat_id, create_message).await.map_err(SDKError::from)
+        self.client
+            .send_chat_message(chat_id, create_message)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Get a specific chat message
@@ -29,7 +30,10 @@ impl ChatsAPI {
         chat_id: &str,
         id: f64,
     ) -> Result<yougile_client::models::ChatMessage, SDKError> {
-        self.client.get_chat_message(chat_id, id).await.map_err(SDKError::from)
+        self.client
+            .get_chat_message(chat_id, id)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Update a chat message
@@ -39,7 +43,10 @@ impl ChatsAPI {
         id: f64,
         update_message: yougile_client::models::UpdateChatMessage,
     ) -> Result<yougile_client::models::ChatId, SDKError> {
-        self.client.update_chat_message(chat_id, id, update_message).await.map_err(SDKError::from)
+        self.client
+            .update_chat_message(chat_id, id, update_message)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Search for chat messages with various filters
@@ -72,3 +79,4 @@ impl ChatsAPI {
             .map_err(SDKError::from)
     }
 }
+

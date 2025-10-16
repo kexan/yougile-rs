@@ -1,6 +1,6 @@
+use crate::{SDKError, convenience::TaskSearchBuilder};
 use std::sync::Arc;
 use yougile_client::YouGileClient;
-use crate::{SDKError, convenience::TaskSearchBuilder};
 
 /// API for working with tasks
 pub struct TasksAPI {
@@ -9,9 +9,7 @@ pub struct TasksAPI {
 
 impl TasksAPI {
     pub fn new(client: Arc<YouGileClient>) -> Self {
-        Self { 
-            client: Arc::clone(&client),
-        }
+        Self { client }
     }
 
     /// Get a specific task by ID
@@ -21,19 +19,25 @@ impl TasksAPI {
 
     /// Create a new task
     pub async fn create(
-        &self, 
-        create_task: yougile_client::models::CreateTask
+        &self,
+        create_task: yougile_client::models::CreateTask,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.create_task(create_task).await.map_err(SDKError::from)
+        self.client
+            .create_task(create_task)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Update an existing task
     pub async fn update(
-        &self, 
-        id: &str, 
-        update_task: yougile_client::models::UpdateTask
+        &self,
+        id: &str,
+        update_task: yougile_client::models::UpdateTask,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.update_task(id, update_task).await.map_err(SDKError::from)
+        self.client
+            .update_task(id, update_task)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Search for tasks with various filters using a fluent API
@@ -48,7 +52,10 @@ impl TasksAPI {
 
     /// Get task chat subscribers
     pub async fn get_chat_subscribers(&self, id: &str) -> Result<Vec<String>, SDKError> {
-        self.client.get_task_chat_subscribers(id).await.map_err(SDKError::from)
+        self.client
+            .get_task_chat_subscribers(id)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Update task chat subscribers
@@ -57,7 +64,10 @@ impl TasksAPI {
         id: &str,
         subscribers: yougile_client::models::TaskChatSubscribers,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.update_task_chat_subscribers(id, subscribers).await.map_err(SDKError::from)
+        self.client
+            .update_task_chat_subscribers(id, subscribers)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Search for tasks in reverse order with various filters
@@ -88,3 +98,4 @@ impl TasksAPI {
             .map_err(SDKError::from)
     }
 }
+

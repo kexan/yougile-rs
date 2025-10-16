@@ -1,6 +1,6 @@
+use crate::SDKError;
 use std::sync::Arc;
 use yougile_client::YouGileClient;
-use crate::SDKError;
 
 /// API for authentication and company operations
 pub struct AuthAPI {
@@ -9,9 +9,7 @@ pub struct AuthAPI {
 
 impl AuthAPI {
     pub fn new(client: Arc<YouGileClient>) -> Self {
-        Self { 
-            client: Arc::clone(&client),
-        }
+        Self { client }
     }
 
     /// Create an authentication key
@@ -19,12 +17,18 @@ impl AuthAPI {
         &self,
         credentials: yougile_client::models::CredentialsWithCompany,
     ) -> Result<yougile_client::models::AuthKey, SDKError> {
-        self.client.create_auth_key(credentials).await.map_err(SDKError::from)
+        self.client
+            .create_auth_key(credentials)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Delete an authentication key
     pub async fn delete_auth_key(&self, key: &str) -> Result<(), SDKError> {
-        self.client.delete_auth_key(key).await.map_err(SDKError::from)
+        self.client
+            .delete_auth_key(key)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Search for authentication keys
@@ -32,7 +36,10 @@ impl AuthAPI {
         &self,
         credentials: yougile_client::models::CredentialsWithCompanyOptional,
     ) -> Result<Vec<yougile_client::models::AuthKeyWithDetails>, SDKError> {
-        self.client.search_auth_keys(credentials).await.map_err(SDKError::from)
+        self.client
+            .search_auth_keys(credentials)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Get company information
@@ -45,7 +52,10 @@ impl AuthAPI {
         &self,
         update: yougile_client::models::UpdateCompany,
     ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client.update_company(update).await.map_err(SDKError::from)
+        self.client
+            .update_company(update)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Get companies
@@ -55,6 +65,10 @@ impl AuthAPI {
         limit: Option<f64>,
         offset: Option<f64>,
     ) -> Result<yougile_client::models::CompanyList, SDKError> {
-        self.client.get_companies(credentials, limit, offset).await.map_err(SDKError::from)
+        self.client
+            .get_companies(credentials, limit, offset)
+            .await
+            .map_err(SDKError::from)
     }
 }
+
