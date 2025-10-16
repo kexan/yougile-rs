@@ -1,5 +1,6 @@
-use crate::models;
 use serde::{Deserialize, Serialize};
+
+use crate::models::{PagingMetadata, StickersDto};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Board {
@@ -17,7 +18,7 @@ pub struct Board {
     pub project_id: String,
     /// Стикеры доски
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<Box<models::StickersDto>>,
+    pub stickers: Option<Box<StickersDto>>,
 }
 
 impl Board {
@@ -36,14 +37,14 @@ impl Board {
 pub struct BoardList {
     /// Дополнительная информация о странице
     #[serde(rename = "paging")]
-    pub paging: Box<models::PagingMetadata>,
+    pub paging: Box<PagingMetadata>,
     /// Список досок
     #[serde(rename = "content")]
-    pub content: Vec<models::BoardListBase>,
+    pub content: Vec<BoardListBase>,
 }
 
 impl BoardList {
-    pub fn new(paging: models::PagingMetadata, content: Vec<models::BoardListBase>) -> BoardList {
+    pub fn new(paging: PagingMetadata, content: Vec<BoardListBase>) -> BoardList {
         BoardList {
             paging: Box::new(paging),
             content,
@@ -67,7 +68,7 @@ pub struct BoardListBase {
     pub project_id: String,
     /// Стикеры доски
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<Box<models::StickersDto>>,
+    pub stickers: Option<Box<StickersDto>>,
 }
 
 impl BoardListBase {
@@ -92,7 +93,7 @@ pub struct CreateBoard {
     pub project_id: String,
     /// Стикеры доски
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<Box<models::StickersDto>>,
+    pub stickers: Option<Box<StickersDto>>,
 }
 
 impl CreateBoard {
@@ -118,7 +119,7 @@ pub struct UpdateBoard {
     pub project_id: Option<String>,
     /// Стикеры доски
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<Box<models::StickersDto>>,
+    pub stickers: Option<Box<StickersDto>>,
 }
 
 impl UpdateBoard {
