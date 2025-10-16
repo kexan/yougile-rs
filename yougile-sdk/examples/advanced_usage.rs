@@ -16,8 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let tasks = client
         .tasks()
         .search()
-        .title("important")
-        .assigned_to("user-id-here")
+        .title("kexa76")
         .limit(20.0)
         .execute()
         .await?;
@@ -31,28 +30,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Example: Creating a new project
-    log::info!("Creating a new project...");
-    let create_project = yougile_client::models::CreateProject::new("New Project".to_string());
-    match client.projects().create(create_project).await {
-        Ok(project_id) => {
-            log::info!("Created project with ID: {}", project_id.id);
-
-            // Now create a task in that project
-            log::info!("Creating a task in the new project...");
-            let create_task = yougile_client::models::CreateTask::new("Initial Task".to_string());
-            match client.tasks().create(create_task).await {
-                Ok(task_id) => {
-                    log::info!("Created task with ID: {}", task_id.id);
-                }
-                Err(e) => {
-                    log::error!("Error creating task: {:?}", e);
-                }
-            }
-        }
-        Err(e) => {
-            log::error!("Error creating project: {:?}", e);
-        }
-    }
+    // log::info!("Creating a new project...");
+    // let create_project = yougile_client::models::CreateProject::new("New Project".to_string());
+    // match client.projects().create(create_project).await {
+    //     Ok(project_id) => {
+    //         log::info!("Created project with ID: {}", project_id.id);
+    //
+    //         // Now create a task in that project
+    //         log::info!("Creating a task in the new project...");
+    //         let create_task = yougile_client::models::CreateTask::new("Initial Task".to_string());
+    //         match client.tasks().create(create_task).await {
+    //             Ok(task_id) => {
+    //                 log::info!("Created task with ID: {}", task_id.id);
+    //             }
+    //             Err(e) => {
+    //                 log::error!("Error creating task: {:?}", e);
+    //             }
+    //         }
+    //     }
+    //     Err(e) => {
+    //         log::error!("Error creating project: {:?}", e);
+    //     }
+    // }
 
     // Example: Searching for users by email
     log::info!("Searching for users by email...");
