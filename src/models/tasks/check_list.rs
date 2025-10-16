@@ -8,15 +8,12 @@ pub struct CheckList {
     pub title: String,
     /// Массив с чеклистами
     #[serde(rename = "items")]
-    pub items: Box<CheckListItem>,
+    pub items: Vec<CheckListItem>,
 }
 
 impl CheckList {
-    pub fn new(title: String, items: CheckListItem) -> CheckList {
-        CheckList {
-            title,
-            items: Box::new(items),
-        }
+    pub fn new(title: String, items: Vec<CheckListItem>) -> CheckList {
+        CheckList { title, items }
     }
 }
 

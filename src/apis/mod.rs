@@ -49,10 +49,27 @@ pub async fn parse_response<T: DeserializeOwned>(resp: Response) -> Result<T, Yo
 
     let content = resp.text().await?;
 
+    // Debug logging for JSON responses
+    if status.is_success() && content_type.contains("application/json") {
+        // Limit debug output to prevent huge logs
+        let debug_content = if content.len() > 1000 {
+            format!("{}...", &content[..1000])
+        } else {
+            content.clone()
+        };
+        eprintln!("DEBUG: Received JSON response (first 1000 chars): {}", debug_content);
+    }
+
     if status.is_success() {
         if content_type.contains("application/json") {
-            let parsed: T = serde_json::from_str(&content)?;
-            Ok(parsed)
+            match serde_json::from_str::<T>(&content) {
+                Ok(parsed) => Ok(parsed),
+                Err(e) => {
+                    eprintln!("DEBUG: Failed to parse JSON: {}", e);
+                    eprintln!("DEBUG: JSON content: {}", content);
+                    Err(YougileError::Serde(e))
+                }
+            }
         } else {
             Err(YougileError::UnsupportedContentType(content_type))
         }
