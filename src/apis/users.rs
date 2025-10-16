@@ -1,9 +1,6 @@
 use crate::{
-    apis::{
-        configuration::Configuration,
-        parse_response, RequestBuilderExt,
-    },
-    models::{CreateUser, User, UserList, UpdateUser},
+    apis::{configuration::Configuration, parse_response, RequestBuilderExt},
+    models::{CreateUser, Id, UpdateUser, User, UserList},
     YougileError,
 };
 
@@ -12,7 +9,7 @@ const USERS_PATH: &str = "/api-v2/users";
 pub async fn create_user(
     configuration: &Configuration,
     create_user: CreateUser,
-) -> Result<crate::models::Id, YougileError> {
+) -> Result<Id, YougileError> {
     let url = format!("{}{}", configuration.base_path, USERS_PATH);
 
     let resp = configuration
@@ -26,15 +23,9 @@ pub async fn create_user(
     parse_response(resp).await
 }
 
-pub async fn delete_user(
-    configuration: &Configuration,
-    id: &str,
-) -> Result<crate::models::Id, YougileError> {
+pub async fn delete_user(configuration: &Configuration, id: &str) -> Result<Id, YougileError> {
     let encoded_id = crate::apis::urlencode(id);
-    let url = format!(
-        "{}{}/{}",
-        configuration.base_path, USERS_PATH, encoded_id
-    );
+    let url = format!("{}{}/{}", configuration.base_path, USERS_PATH, encoded_id);
 
     let resp = configuration
         .client
@@ -46,15 +37,9 @@ pub async fn delete_user(
     parse_response(resp).await
 }
 
-pub async fn get_user(
-    configuration: &Configuration,
-    id: &str,
-) -> Result<User, YougileError> {
+pub async fn get_user(configuration: &Configuration, id: &str) -> Result<User, YougileError> {
     let encoded_id = crate::apis::urlencode(id);
-    let url = format!(
-        "{}{}/{}",
-        configuration.base_path, USERS_PATH, encoded_id
-    );
+    let url = format!("{}{}/{}", configuration.base_path, USERS_PATH, encoded_id);
 
     let resp = configuration
         .client
@@ -104,12 +89,9 @@ pub async fn update_user(
     configuration: &Configuration,
     id: &str,
     update_user: UpdateUser,
-) -> Result<crate::models::Id, YougileError> {
+) -> Result<Id, YougileError> {
     let encoded_id = crate::apis::urlencode(id);
-    let url = format!(
-        "{}{}/{}",
-        configuration.base_path, USERS_PATH, encoded_id
-    );
+    let url = format!("{}{}/{}", configuration.base_path, USERS_PATH, encoded_id);
 
     let resp = configuration
         .client
