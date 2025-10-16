@@ -1,4 +1,4 @@
-use crate::models;
+use crate::models::{self, PagingMetadata};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -129,16 +129,16 @@ impl SprintStickerStateNoId {
 pub struct SprintStickerWithStatesList {
     /// Дополнительная информация о странице
     #[serde(rename = "paging")]
-    pub paging: Box<models::PagingMetadata>,
+    pub paging: Box<PagingMetadata>,
     /// Список спринтовых стикеров компании
     #[serde(rename = "content")]
-    pub content: Vec<models::SprintStickerWithStatesListBase>,
+    pub content: Vec<SprintStickerWithStatesListBase>,
 }
 
 impl SprintStickerWithStatesList {
     pub fn new(
-        paging: models::PagingMetadata,
-        content: Vec<models::SprintStickerWithStatesListBase>,
+        paging: PagingMetadata,
+        content: Vec<SprintStickerWithStatesListBase>,
     ) -> SprintStickerWithStatesList {
         SprintStickerWithStatesList {
             paging: Box::new(paging),
@@ -160,7 +160,7 @@ pub struct SprintStickerWithStatesListBase {
     pub name: String,
     /// Состояния стикера.
     #[serde(rename = "states", skip_serializing_if = "Option::is_none")]
-    pub states: Option<Vec<models::SprintStickerState>>,
+    pub states: Option<Vec<SprintStickerState>>,
 }
 
 impl SprintStickerWithStatesListBase {
@@ -227,7 +227,7 @@ pub struct CreateSprintSticker {
     pub name: String,
     /// Состояния стикера.
     #[serde(rename = "states", skip_serializing_if = "Option::is_none")]
-    pub states: Option<Vec<models::SprintStickerStateNoId>>,
+    pub states: Option<Vec<SprintStickerStateNoId>>,
 }
 
 impl CreateSprintSticker {

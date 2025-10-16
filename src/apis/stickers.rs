@@ -342,7 +342,7 @@ pub async fn sprint_sticker_state_controller_create(
     configuration: &configuration::Configuration,
     sticker_id: &str,
     create_sprint_sticker_state_dto: models::CreateSprintStickerState,
-) -> Result<models::WithStickerStateIdDto, Error<SprintStickerStateControllerCreateError>> {
+) -> Result<models::StickerStateId, Error<SprintStickerStateControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_sticker_id = sticker_id;
     let p_body_create_sprint_sticker_state_dto = create_sprint_sticker_state_dto;
@@ -458,7 +458,7 @@ pub async fn sprint_sticker_state_controller_update(
     sticker_id: &str,
     sticker_state_id: &str,
     update_sprint_sticker_state_dto: models::UpdateSprintStickerState,
-) -> Result<models::WithStickerStateIdDto, Error<SprintStickerStateControllerUpdateError>> {
+) -> Result<models::StickerStateId, Error<SprintStickerStateControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_sticker_id = sticker_id;
     let p_path_sticker_state_id = sticker_state_id;
@@ -738,7 +738,7 @@ pub async fn string_sticker_state_controller_create(
     configuration: &configuration::Configuration,
     sticker_id: &str,
     create_string_sticker_state_dto: models::CreateStringStickerStateDto,
-) -> Result<models::WithStickerStateIdDto, Error<StringStickerStateControllerCreateError>> {
+) -> Result<models::StickerStateId, Error<StringStickerStateControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_sticker_id = sticker_id;
     let p_body_create_string_sticker_state_dto = create_string_sticker_state_dto;
@@ -854,7 +854,7 @@ pub async fn string_sticker_state_controller_update(
     sticker_id: &str,
     sticker_state_id: &str,
     update_string_sticker_state_dto: models::UpdateStringStickerStateDto,
-) -> Result<models::WithStickerStateIdDto, Error<StringStickerStateControllerUpdateError>> {
+) -> Result<models::StickerStateId, Error<StringStickerStateControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_sticker_id = sticker_id;
     let p_path_sticker_state_id = sticker_state_id;
