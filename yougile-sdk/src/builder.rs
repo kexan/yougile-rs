@@ -1,4 +1,7 @@
-use crate::{SDKError, resources::{TasksAPI, ProjectsAPI, UsersAPI, BoardsAPI}};
+use crate::{
+    SDKError,
+    resources::{BoardsAPI, ProjectsAPI, TasksAPI, UsersAPI},
+};
 use yougile_client::{YouGileClient, apis::configuration::Configuration};
 
 /// Builder for creating a YouGileSDK instance
@@ -29,19 +32,27 @@ impl YouGileSDKBuilder {
 
     /// Build the YouGileSDK client
     pub fn build(self) -> Result<YouGileSDK, SDKError> {
-        let token = self.token.ok_or_else(|| SDKError::ConfigurationError("Token is required".into()))?;
-        
+        let token = self
+            .token
+            .ok_or_else(|| SDKError::ConfigurationError("Token is required".into()))?;
+
         let mut config = Configuration::new(token);
-        
+
         if let Some(base_url) = self.base_url {
             config = config.with_base_path(base_url);
         }
 
         let low_level_client = YouGileClient::new(config);
-        
+
         Ok(YouGileSDK {
             inner: low_level_client,
         })
+    }
+}
+
+impl Default for YouGileSDKBuilder {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -86,3 +97,4 @@ impl YouGileSDK {
         &self.inner
     }
 }
+

@@ -12,69 +12,69 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build()?;
 
     // Example: Get company information
-    println!("Getting company information...");
+    log::info!("Getting company information...");
     match client.get_company().await {
         Ok(company) => {
-            println!("Company: {}", company.title);
+            log::info!("Company: {}", company.title);
         }
         Err(e) => {
-            eprintln!("Error getting company: {:?}", e);
+            log::error!("Error getting company: {:?}", e);
         }
     }
 
     // Example: Using the tasks API with fluent search
-    println!("Searching for tasks...");
+    log::info!("Searching for tasks...");
     match client.tasks().search().limit(10.0).execute().await {
         Ok(tasks) => {
-            println!("Found {} tasks", tasks.content.len());
+            log::info!("Found {} tasks", tasks.content.len());
             for task in tasks.content.iter().take(3) {
-                println!("  - {}: {}", task.id, task.title);
+                log::info!("  - {}: {}", task.id, task.title);
             }
         }
         Err(e) => {
-            eprintln!("Error searching tasks: {:?}", e);
+            log::error!("Error searching tasks: {:?}", e);
         }
     }
 
     // Example: Using the projects API with fluent search
-    println!("Searching for projects...");
+    log::info!("Searching for projects...");
     match client.projects().search().title("important").limit(5.0).execute().await {
         Ok(projects) => {
-            println!("Found {} projects", projects.content.len());
+            log::info!("Found {} projects", projects.content.len());
             for project in projects.content.iter().take(3) {
-                println!("  - {}: {}", project.id, project.title);
+                log::info!("  - {}: {}", project.id, project.title);
             }
         }
         Err(e) => {
-            eprintln!("Error searching projects: {:?}", e);
+            log::error!("Error searching projects: {:?}", e);
         }
     }
 
     // Example: Using the users API with fluent search
-    println!("Searching for users...");
+    log::info!("Searching for users...");
     match client.users().search().limit(10.0).execute().await {
         Ok(users) => {
-            println!("Found {} users", users.content.len());
+            log::info!("Found {} users", users.content.len());
             for user in users.content.iter().take(3) {
-                println!("  - {}: {} ({})", user.id, user.real_name, user.email);
+                log::info!("  - {}: {} ({})", user.id, user.real_name, user.email);
             }
         }
         Err(e) => {
-            eprintln!("Error searching users: {:?}", e);
+            log::error!("Error searching users: {:?}", e);
         }
     }
 
     // Example: Using the boards API with fluent search
-    println!("Searching for boards...");
+    log::info!("Searching for boards...");
     match client.boards().search().limit(10.0).execute().await {
         Ok(boards) => {
-            println!("Found {} boards", boards.content.len());
+            log::info!("Found {} boards", boards.content.len());
             for board in boards.content.iter().take(3) {
-                println!("  - {}: {}", board.id, board.title);
+                log::info!("  - {}: {}", board.id, board.title);
             }
         }
         Err(e) => {
-            eprintln!("Error searching boards: {:?}", e);
+            log::error!("Error searching boards: {:?}", e);
         }
     }
 

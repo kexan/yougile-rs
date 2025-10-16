@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Your Name <your.email@example.com>"]
 description = "High-level SDK for YouGile API with builder pattern and convenience methods"
 license = "MIT"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 yougile-client = { path = "../" }
