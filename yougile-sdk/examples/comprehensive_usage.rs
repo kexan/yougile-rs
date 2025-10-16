@@ -102,7 +102,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             log::error!("Error searching columns: {:?}", e);
         }
     }
-
     // Example: Working with group chats
     log::info!("Searching for group chats...");
     match client
@@ -153,4 +152,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("All API examples completed successfully!");
     Ok(())
 }
-
