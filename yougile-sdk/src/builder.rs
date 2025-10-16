@@ -46,11 +46,9 @@ impl YouGileSDKBuilder {
             config = config.with_base_path(base_url);
         }
 
-        let low_level_client = YouGileClient::new(config);
+        let client = Arc::new(YouGileClient::new(config));
 
-        Ok(YouGileSDK {
-            client: low_level_client,
-        })
+        Ok(YouGileSDK { client })
     }
 }
 
@@ -62,7 +60,7 @@ impl Default for YouGileSDKBuilder {
 
 /// The main YouGile SDK client with a high-level API
 pub struct YouGileSDK {
-    client: YouGileClient,
+    client: Arc<YouGileClient>,
 }
 
 impl YouGileSDK {
@@ -73,62 +71,62 @@ impl YouGileSDK {
 
     /// Get access to the auth API
     pub fn auth(&self) -> AuthAPI {
-        AuthAPI::new(Arc::new(self.client.clone()))
+        AuthAPI::new(self.client.clone())
     }
 
     /// Get access to the tasks API
     pub fn tasks(&self) -> TasksAPI {
-        TasksAPI::new(Arc::new(self.client.clone()))
+        TasksAPI::new(self.client.clone())
     }
 
     /// Get access to the projects API
     pub fn projects(&self) -> ProjectsAPI {
-        ProjectsAPI::new(Arc::new(self.client.clone()))
+        ProjectsAPI::new(self.client.clone())
     }
 
     /// Get access to the users API
     pub fn users(&self) -> UsersAPI {
-        UsersAPI::new(Arc::new(self.client.clone()))
+        UsersAPI::new(self.client.clone())
     }
 
     /// Get access to the boards API
     pub fn boards(&self) -> BoardsAPI {
-        BoardsAPI::new(Arc::new(self.client.clone()))
+        BoardsAPI::new(self.client.clone())
     }
 
     /// Get access to the columns API
     pub fn columns(&self) -> ColumnsAPI {
-        ColumnsAPI::new(Arc::new(self.client.clone()))
+        ColumnsAPI::new(self.client.clone())
     }
 
     /// Get access to the departments API
     pub fn departments(&self) -> DepartmentsAPI {
-        DepartmentsAPI::new(Arc::new(self.client.clone()))
+        DepartmentsAPI::new(self.client.clone())
     }
 
     /// Get access to the chats API
     pub fn chats(&self) -> ChatsAPI {
-        ChatsAPI::new(Arc::new(self.client.clone()))
+        ChatsAPI::new(self.client.clone())
     }
 
     /// Get access to the group chats API
     pub fn group_chats(&self) -> GroupChatsAPI {
-        GroupChatsAPI::new(Arc::new(self.client.clone()))
+        GroupChatsAPI::new(self.client.clone())
     }
 
     /// Get access to the stickers API
     pub fn stickers(&self) -> StickersAPI {
-        StickersAPI::new(Arc::new(self.client.clone()))
+        StickersAPI::new(self.client.clone())
     }
 
     /// Get access to the files API
     pub fn files(&self) -> FilesAPI {
-        FilesAPI::new(Arc::new(self.client.clone()))
+        FilesAPI::new(self.client.clone())
     }
 
     /// Get access to the webhooks API
     pub fn webhooks(&self) -> WebhooksAPI {
-        WebhooksAPI::new(Arc::new(self.client.clone()))
+        WebhooksAPI::new(self.client.clone())
     }
 
     /// Get the company information
