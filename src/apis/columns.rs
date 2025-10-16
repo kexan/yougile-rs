@@ -1,7 +1,6 @@
-use super::{configuration, ContentType, Error};
 use crate::{
-    apis::{configuration::Configuration, parse_response, RequestBuilderExt, ResponseContent},
-    models::{self, Column, ColumnList, CreateColumn, Id, UpdateColumn},
+    apis::{configuration::Configuration, parse_response, RequestBuilderExt},
+    models::{Column, ColumnList, CreateColumn, Id, UpdateColumn},
     YougileError,
 };
 

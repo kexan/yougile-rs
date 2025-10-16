@@ -1,6 +1,6 @@
 use crate::{
-    apis::{configuration::Configuration, parse_response, RequestBuilderExt, ResponseContent},
-    models::{self, Board, BoardList, CreateBoard, Id, UpdateBoard},
+    apis::{configuration::Configuration, parse_response, RequestBuilderExt},
+    models::{Board, BoardList, CreateBoard, Id, UpdateBoard},
     YougileError,
 };
 
