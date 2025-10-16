@@ -1,6 +1,9 @@
-mod chat;
+mod chatmessage;
+mod groupchat;
 
-pub use chat::*;
+pub use chatmessage::*;
+pub use groupchat::*;
 
 // Explicit re-exports for clarity
-pub use chat::{ChatMessage, ChatMessageList, ChatMessageListBase, CreateChatMessage, UpdateChatMessage, GroupChat, CreateGroupChat, UpdateGroupChat, GroupChatList, GroupChatListBase, React, ChatId};
+pub use chatmessage::{ChatMessage, ChatMessageList, ChatMessageListBase, CreateChatMessage, UpdateChatMessage, React, ChatId};
+pub use groupchat::{GroupChat, CreateGroupChat, UpdateGroupChat, GroupChatList, GroupChatListBase};
