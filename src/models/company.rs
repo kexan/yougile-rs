@@ -39,14 +39,11 @@ pub struct CompanyList {
     pub paging: Box<models::PagingMetadata>,
     /// Список компаний пользователя
     #[serde(rename = "content")]
-    pub content: Vec<models::CompanyListBase>,
+    pub content: Vec<CompanyListBase>,
 }
 
 impl CompanyList {
-    pub fn new(
-        paging: models::PagingMetadata,
-        content: Vec<models::CompanyListBase>,
-    ) -> CompanyList {
+    pub fn new(paging: models::PagingMetadata, content: Vec<CompanyListBase>) -> CompanyList {
         CompanyList {
             paging: Box::new(paging),
             content,

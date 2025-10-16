@@ -8,11 +8,11 @@ pub struct CheckList {
     pub title: String,
     /// Массив с чеклистами
     #[serde(rename = "items")]
-    pub items: Box<models::CheckListItem>,
+    pub items: Box<CheckListItem>,
 }
 
 impl CheckList {
-    pub fn new(title: String, items: models::CheckListItem) -> CheckList {
+    pub fn new(title: String, items: CheckListItem) -> CheckList {
         CheckList {
             title,
             items: Box::new(items),
