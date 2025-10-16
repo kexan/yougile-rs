@@ -4,7 +4,7 @@ use crate::{
     YougileError,
 };
 
-pub async fn department_controller_create(
+pub async fn create_department(
     configuration: &Configuration,
     create_department: CreateDepartment,
 ) -> Result<Id, YougileError> {
@@ -53,7 +53,7 @@ pub async fn department_controller_create(
     }
 }
 
-pub async fn department_controller_get(
+pub async fn get_department(
     configuration: &Configuration,
     id: &str,
 ) -> Result<Department, YougileError> {
@@ -103,7 +103,7 @@ pub async fn department_controller_get(
     }
 }
 
-pub async fn department_controller_search(
+pub async fn search_department(
     configuration: &Configuration,
     include_deleted: Option<bool>,
     limit: Option<f64>,
@@ -172,7 +172,7 @@ pub async fn department_controller_search(
     }
 }
 
-pub async fn department_controller_update(
+pub async fn update_department(
     configuration: &Configuration,
     id: &str,
     update_department: UpdateDepartment,
