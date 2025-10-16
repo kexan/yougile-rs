@@ -40,7 +40,7 @@ pub async fn get_column(configuration: &Configuration, id: &str) -> Result<Colum
     parse_response(resp).await
 }
 
-pub async fn column_controller_search(
+pub async fn search_column(
     configuration: &Configuration,
     include_deleted: Option<bool>,
     limit: Option<f64>,
@@ -78,7 +78,7 @@ pub async fn column_controller_search(
     parse_response(resp).await
 }
 
-pub async fn column_controller_update(
+pub async fn update_column(
     configuration: &Configuration,
     id: &str,
     update_column: UpdateColumn,

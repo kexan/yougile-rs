@@ -162,7 +162,7 @@ impl YouGileClient {
         crate::models::ColumnList,
         crate::apis::Error<crate::apis::columns::ColumnControllerSearchError>,
     > {
-        crate::apis::columns::column_controller_search(
+        crate::apis::columns::search_column(
             &self.configuration,
             include_deleted,
             limit,
@@ -181,7 +181,7 @@ impl YouGileClient {
         crate::models::Id,
         crate::apis::Error<crate::apis::columns::ColumnControllerUpdateError>,
     > {
-        crate::apis::columns::column_controller_update(&self.configuration, id, update).await
+        crate::apis::columns::update_column(&self.configuration, id, update).await
     }
 
     // Task methods
