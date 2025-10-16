@@ -1,6 +1,7 @@
-use crate::{SDKError, convenience::UserSearchBuilder};
 use std::sync::Arc;
 use yougile_client::YouGileClient;
+
+use crate::SDKError;
 
 /// API for working with users
 pub struct UsersAPI {
@@ -47,7 +48,7 @@ impl UsersAPI {
 
     /// Search for users with various filters using a fluent API
     pub fn search(&self) -> UserSearchBuilder {
-        UserSearchBuilder::new(&self.client)
+        UserSearchBuilder::new(self.client.clone())
     }
 
     /// List all users (with default parameters)
@@ -56,3 +57,55 @@ impl UsersAPI {
     }
 }
 
+/// Search builder for users with fluent API
+pub struct UserSearchBuilder {
+    client: Arc<YouGileClient>,
+    limit: Option<f64>,
+    offset: Option<f64>,
+    email: Option<String>,
+    project_id: Option<String>,
+}
+
+impl UserSearchBuilder {
+    pub fn new(client: Arc<YouGileClient>) -> Self {
+        Self {
+            client,
+            limit: Some(50.0), // Default limit
+            offset: Some(0.0),
+            email: None,
+            project_id: None,
+        }
+    }
+
+    pub fn limit(mut self, limit: f64) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+
+    pub fn offset(mut self, offset: f64) -> Self {
+        self.offset = Some(offset);
+        self
+    }
+
+    pub fn email(mut self, email: impl Into<String>) -> Self {
+        self.email = Some(email.into());
+        self
+    }
+
+    pub fn project_id(mut self, project_id: impl Into<String>) -> Self {
+        self.project_id = Some(project_id.into());
+        self
+    }
+
+    pub async fn execute(self) -> Result<yougile_client::models::UserList, SDKError> {
+        self.client
+            .search_users(
+                self.limit,
+                self.offset,
+                self.email.as_deref(),
+                self.project_id.as_deref(),
+            )
+            .await
+            .map_err(SDKError::from)
+    }
+}
