@@ -1,4 +1,10 @@
-use crate::models::{self, deadline::UpdateDeadline};
+use crate::models::{
+    self,
+    deadline::UpdateDeadline,
+    stopwatch::{CreateStopwatch, UpdateStopwatch},
+    time_tracking::UpdateTimeTracking,
+    timer::{CreateTimer, UpdateTimer},
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -144,10 +150,10 @@ pub struct CreateTask {
     pub id_task_project: Option<String>,
     /// Стикер \"Секундомер\". Позволяет запустить секундомер, а так же ставить его на паузу и запускать заново.
     #[serde(rename = "stopwatch", skip_serializing_if = "Option::is_none")]
-    pub stopwatch: Option<Box<models::CreateStopwatch>>,
+    pub stopwatch: Option<Box<CreateStopwatch>>,
     /// Стикер \"Таймер\". Позволяет установить таймер на заданное время, а также возможность ставить его на паузу и запускать заново
     #[serde(rename = "timer", skip_serializing_if = "Option::is_none")]
-    pub timer: Option<Box<models::CreateTimer>>,
+    pub timer: Option<Box<CreateTimer>>,
 }
 
 impl CreateTask {
@@ -204,7 +210,7 @@ pub struct UpdateTask {
     pub deadline: Option<Box<UpdateDeadline>>,
     /// Стикер \"Таймтрекинг\". Используется для указания ожидаемого и реального времени на выполнение задачи.
     #[serde(rename = "timeTracking", skip_serializing_if = "Option::is_none")]
-    pub time_tracking: Option<Box<models::UpdateTimeTracking>>,
+    pub time_tracking: Option<Box<UpdateTimeTracking>>,
     /// Чеклисты. К задаче всегда будет присвоен переданный объект. Если необходимо внести изменения, нужно сначала получить чеклисты, затем произвести корректировку, а затем записать в задачу заново.
     #[serde(rename = "checklists", skip_serializing_if = "Option::is_none")]
     pub checklists: Option<Vec<models::CheckList>>,
@@ -222,10 +228,10 @@ pub struct UpdateTask {
     pub id_task_project: Option<String>,
     /// Стикер \"Таймер\". Позволяет установить таймер на заданное время, а также возможность ставить его на паузу и запускать заново
     #[serde(rename = "timer", skip_serializing_if = "Option::is_none")]
-    pub timer: Option<Box<models::UpdateTimer>>,
+    pub timer: Option<Box<UpdateTimer>>,
     /// Стикер \"Секундомер\". Позволяет запустить секундомер, а так же ставить его на паузу и запускать заново.
     #[serde(rename = "stopwatch", skip_serializing_if = "Option::is_none")]
-    pub stopwatch: Option<Box<models::UpdateStopwatch>>,
+    pub stopwatch: Option<Box<UpdateStopwatch>>,
 }
 
 impl UpdateTask {
