@@ -3,10 +3,9 @@ use yougile_client::{YouGileClient, YougileError};
 #[tokio::main]
 async fn main() -> Result<(), YougileError> {
     // Create a new client with a bearer token
-    let config = yougile_client::apis::configuration::Configuration::new(
-        "your-api-token-here".to_string()
-    )
-    .with_base_path("https://yougile.com");
+    let config =
+        yougile_client::apis::configuration::Configuration::new("your-api-token-here".to_string())
+            .with_base_path("https://yougile.com");
 
     let client = YouGileClient::new(config);
 
@@ -30,7 +29,10 @@ async fn main() -> Result<(), YougileError> {
 
     // Example: Working with stickers
     println!("\nWorking with sprint stickers...");
-    match client.search_sprint_stickers(None, Some(10.0), Some(0.0), None, None).await {
+    match client
+        .search_sprint_stickers(None, Some(10.0), Some(0.0), None, None)
+        .await
+    {
         Ok(stickers) => {
             println!("Found {} sprint stickers", stickers.content.len());
         }
@@ -52,3 +54,4 @@ async fn main() -> Result<(), YougileError> {
 
     Ok(())
 }
+
