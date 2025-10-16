@@ -19,8 +19,11 @@ use reqwest::RequestBuilder;
 use reqwest::Response;
 use serde::de::DeserializeOwned;
 
-use crate::apis::configuration::Configuration;
 use crate::YougileError;
+use crate::apis::configuration::Configuration;
+
+use log::{debug, error, trace};
+use std::fmt::Debug;
 
 pub trait RequestBuilderExt {
     fn with_auth_headers(self, cfg: &Configuration) -> Self;
@@ -37,7 +40,9 @@ pub fn urlencode<T: AsRef<str>>(s: T) -> String {
     ::url::form_urlencoded::byte_serialize(s.as_ref().as_bytes()).collect()
 }
 
-pub async fn parse_response<T: DeserializeOwned>(resp: Response) -> Result<T, YougileError> {
+pub async fn parse_response<T: DeserializeOwned + Debug>(
+    resp: Response,
+) -> Result<T, YougileError> {
     let status = resp.status();
 
     let content_type = resp
@@ -51,22 +56,24 @@ pub async fn parse_response<T: DeserializeOwned>(resp: Response) -> Result<T, Yo
 
     // Debug logging for JSON responses
     if status.is_success() && content_type.contains("application/json") {
-        // Limit debug output to prevent huge logs
-        let debug_content = if content.len() > 1000 {
-            format!("{}...", &content[..1000])
-        } else {
-            content.clone()
-        };
-        eprintln!("DEBUG: Received JSON response (first 1000 chars): {}", debug_content);
+        debug!(
+            "Received JSON response with length: {} bytes",
+            content.len()
+        );
+        trace!("JSON response content: {}", content);
     }
 
     if status.is_success() {
         if content_type.contains("application/json") {
             match serde_json::from_str::<T>(&content) {
-                Ok(parsed) => Ok(parsed),
+                Ok(parsed) => {
+                    debug!("Successfully parsed JSON response");
+                    trace!("Parsed response: {:?}", parsed);
+                    Ok(parsed)
+                }
                 Err(e) => {
-                    eprintln!("DEBUG: Failed to parse JSON: {}", e);
-                    eprintln!("DEBUG: JSON content: {}", content);
+                    error!("Failed to parse JSON: {}", e);
+                    error!("JSON content: {}", content);
                     Err(YougileError::Serde(e))
                 }
             }
@@ -74,6 +81,10 @@ pub async fn parse_response<T: DeserializeOwned>(resp: Response) -> Result<T, Yo
             Err(YougileError::UnsupportedContentType(content_type))
         }
     } else {
+        error!(
+            "API request failed with status: {} and content: {}",
+            status, content
+        );
         Err(YougileError::ApiError { status, content })
     }
 }

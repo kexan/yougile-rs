@@ -7,6 +7,18 @@ extern crate serde_json;
 extern crate serde_repr;
 extern crate url;
 
+// Initialize logging
+#[cfg(feature = "logging")]
+pub fn init_logging() {
+    use std::env;
+    env_logger::init_from_env(env_logger::Env::default().filter_or("YOUGILE_LOG_LEVEL", "info"));
+}
+
+#[cfg(not(feature = "logging"))]
+pub fn init_logging() {
+    // Logging disabled when feature is not enabled
+}
+
 pub mod apis;
 pub mod client;
 pub mod error;
