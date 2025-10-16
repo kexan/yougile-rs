@@ -1,5 +1,5 @@
-use yougile_client::YouGileClient;
 use crate::SDKError;
+use yougile_client::YouGileClient;
 
 /// Search builder for tasks with fluent API
 pub struct TaskSearchBuilder<'a> {
@@ -252,3 +252,4 @@ impl<'a> BoardSearchBuilder<'a> {
             .map_err(SDKError::from)
     }
 }
+

@@ -1,6 +1,9 @@
 use crate::{
     SDKError,
-    resources::{AuthAPI, BoardsAPI, ChatsAPI, ColumnsAPI, DepartmentsAPI, FilesAPI, GroupChatsAPI, ProjectsAPI, StickersAPI, TasksAPI, UsersAPI, WebhooksAPI},
+    resources::{
+        AuthAPI, BoardsAPI, ChatsAPI, ColumnsAPI, DepartmentsAPI, FilesAPI, GroupChatsAPI,
+        ProjectsAPI, StickersAPI, TasksAPI, UsersAPI, WebhooksAPI,
+    },
 };
 use yougile_client::{YouGileClient, apis::configuration::Configuration};
 
@@ -137,4 +140,3 @@ impl YouGileSDK {
         &self.inner
     }
 }
-
