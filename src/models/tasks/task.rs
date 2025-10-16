@@ -1,10 +1,4 @@
-use crate::models::{
-    self,
-    deadline::UpdateDeadline,
-    stopwatch::{CreateStopwatch, UpdateStopwatch},
-    time_tracking::UpdateTimeTracking,
-    timer::{CreateTimer, UpdateTimer},
-};
+use crate::models::{self, tasks::{UpdateDeadline, CreateStopwatch, UpdateStopwatch, UpdateTimeTracking, CreateTimer, UpdateTimer}};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]

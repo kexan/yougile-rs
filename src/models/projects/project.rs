@@ -1,4 +1,4 @@
-use crate::models::{self, board::BoardPermissions};
+use crate::models::{self, boards::BoardPermissions};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]

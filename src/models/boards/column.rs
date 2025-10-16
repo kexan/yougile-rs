@@ -1,4 +1,4 @@
-use crate::models::{self, task::TaskPermissions};
+use crate::models::{self, tasks::TaskPermissions};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]

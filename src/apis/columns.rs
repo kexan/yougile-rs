@@ -1,9 +1,6 @@
 use crate::{
     apis::{configuration::Configuration, parse_response, RequestBuilderExt},
-    models::{
-        column::{ColumnList, CreateColumn, UpdateColumn},
-        Column, Id,
-    },
+    models::{Column, ColumnList, CreateColumn, Id, UpdateColumn},
     YougileError,
 };
 

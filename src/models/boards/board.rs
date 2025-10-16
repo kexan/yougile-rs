@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::{column::ColumnPermissions, stickers::Stickers, PagingMetadata};
+use crate::models::{boards::ColumnPermissions, stickers::Stickers, common::PagingMetadata};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Board {

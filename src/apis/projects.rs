@@ -348,7 +348,7 @@ pub async fn project_roles_controller_delete(
     configuration: &configuration::Configuration,
     project_id: &str,
     id: &str,
-) -> Result<models::ProjectRoleDto, Error<ProjectRolesControllerDeleteError>> {
+) -> Result<models::ProjectRole, Error<ProjectRolesControllerDeleteError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_project_id = project_id;
     let p_path_id = id;
@@ -403,7 +403,7 @@ pub async fn project_roles_controller_get(
     configuration: &configuration::Configuration,
     project_id: &str,
     id: &str,
-) -> Result<models::ProjectRoleDto, Error<ProjectRolesControllerGetError>> {
+) -> Result<models::ProjectRole, Error<ProjectRolesControllerGetError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_project_id = project_id;
     let p_path_id = id;

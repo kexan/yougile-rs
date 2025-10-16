@@ -3,10 +3,7 @@ use crate::{
         configuration::{self, Configuration},
         parse_response, RequestBuilderExt,
     },
-    models::{
-        department::{CreateDepartment, DepartmentList, UpdateDepartment},
-        Department, Id,
-    },
+    models::{CreateDepartment, Department, DepartmentList, Id, UpdateDepartment},
     YougileError,
 };
 

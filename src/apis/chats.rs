@@ -1,9 +1,6 @@
 use crate::{
     apis::{configuration::Configuration, parse_response, RequestBuilderExt},
-    models::{
-        chat::{ChatId, ChatMessageList, CreateChatMessage, UpdateChatMessage},
-        ChatMessage,
-    },
+    models::{ChatId, ChatMessage, ChatMessageList, CreateChatMessage, UpdateChatMessage},
     YougileError,
 };
 
