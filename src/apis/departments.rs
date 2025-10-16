@@ -1,45 +1,15 @@
-use super::{configuration, ContentType, Error};
-use crate::{apis::ResponseContent, models};
-use reqwest;
-use serde::{de::Error as _, Deserialize, Serialize};
-
-/// struct for typed errors of method [`department_controller_create`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum DepartmentControllerCreateError {
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`department_controller_get`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum DepartmentControllerGetError {
-    Status404(),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`department_controller_search`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum DepartmentControllerSearchError {
-    Status404(),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`department_controller_update`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum DepartmentControllerUpdateError {
-    Status404(),
-    UnknownValue(serde_json::Value),
-}
+use crate::{
+    apis::configuration::{self, Configuration},
+    models::{self, CreateDepartment, Department, DepartmentList, Id, UpdateDepartment},
+    YougileError,
+};
 
 pub async fn department_controller_create(
-    configuration: &configuration::Configuration,
-    create_department_dto: models::CreateDepartmentDto,
-) -> Result<models::Id, Error<DepartmentControllerCreateError>> {
+    configuration: &Configuration,
+    create_department: CreateDepartment,
+) -> Result<Id, YougileError> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_body_create_department_dto = create_department_dto;
+    let p_body_create_department_dto = create_department;
 
     let uri_str = format!("{}/api-v2/departments", configuration.base_path);
     let mut req_builder = configuration
@@ -84,9 +54,9 @@ pub async fn department_controller_create(
 }
 
 pub async fn department_controller_get(
-    configuration: &configuration::Configuration,
+    configuration: &Configuration,
     id: &str,
-) -> Result<models::DepartmentDto, Error<DepartmentControllerGetError>> {
+) -> Result<Department, YougileError> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
 
@@ -134,13 +104,13 @@ pub async fn department_controller_get(
 }
 
 pub async fn department_controller_search(
-    configuration: &configuration::Configuration,
+    configuration: &Configuration,
     include_deleted: Option<bool>,
     limit: Option<f64>,
     offset: Option<f64>,
     title: Option<&str>,
     parent_id: Option<&str>,
-) -> Result<models::DepartmentListDto, Error<DepartmentControllerSearchError>> {
+) -> Result<DepartmentList, YougileError> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_include_deleted = include_deleted;
     let p_query_limit = limit;
@@ -203,13 +173,13 @@ pub async fn department_controller_search(
 }
 
 pub async fn department_controller_update(
-    configuration: &configuration::Configuration,
+    configuration: &Configuration,
     id: &str,
-    update_department_dto: models::UpdateDepartmentDto,
-) -> Result<models::Id, Error<DepartmentControllerUpdateError>> {
+    update_department: UpdateDepartment,
+) -> Result<Id, YougileError> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
-    let p_body_update_department_dto = update_department_dto;
+    let p_body_update_department_dto = update_department;
 
     let uri_str = format!(
         "{}/api-v2/departments/{id}",
