@@ -59,7 +59,7 @@ impl YouGileClient {
 
     pub async fn update_company(
         &self,
-        update: crate::models::UpdateCompanyDto,
+        update: crate::models::UpdateCompany,
     ) -> Result<
         crate::models::Id,
         crate::apis::Error<crate::apis::auth::CompanyControllerUpdateError>,
@@ -289,7 +289,7 @@ impl YouGileClient {
     // Project methods
     pub async fn create_project(
         &self,
-        create: crate::models::CreateProjectDto,
+        create: crate::models::CreateProject,
     ) -> Result<
         crate::models::Id,
         crate::apis::Error<crate::apis::projects::ProjectControllerCreateError>,
@@ -301,7 +301,7 @@ impl YouGileClient {
         &self,
         id: &str,
     ) -> Result<
-        crate::models::ProjectDto,
+        crate::models::Project,
         crate::apis::Error<crate::apis::projects::ProjectControllerGetError>,
     > {
         crate::apis::projects::project_controller_get(&self.configuration, id).await
@@ -314,7 +314,7 @@ impl YouGileClient {
         offset: Option<f64>,
         title: Option<&str>,
     ) -> Result<
-        crate::models::ProjectListDto,
+        crate::models::ProjectList,
         crate::apis::Error<crate::apis::projects::ProjectControllerSearchError>,
     > {
         crate::apis::projects::project_controller_search(
@@ -330,7 +330,7 @@ impl YouGileClient {
     pub async fn update_project(
         &self,
         id: &str,
-        update: crate::models::UpdateProjectDto,
+        update: crate::models::UpdateProject,
     ) -> Result<
         crate::models::Id,
         crate::apis::Error<crate::apis::projects::ProjectControllerUpdateError>,

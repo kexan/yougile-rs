@@ -33,6 +33,29 @@ impl Company {
 }
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub struct UpdateCompany {
+    /// Если true, значит объект удален
+    #[serde(rename = "deleted", skip_serializing_if = "Option::is_none")]
+    pub deleted: Option<bool>,
+    /// Название компании
+    #[serde(rename = "title", skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    /// Вспомогательные данные для разработки
+    #[serde(rename = "apiData", skip_serializing_if = "Option::is_none")]
+    pub api_data: Option<serde_json::Value>,
+}
+
+impl UpdateCompany {
+    pub fn new() -> UpdateCompany {
+        UpdateCompany {
+            deleted: None,
+            title: None,
+            api_data: None,
+        }
+    }
+}
+
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CompanyList {
     /// Дополнительная информация о странице
     #[serde(rename = "paging")]

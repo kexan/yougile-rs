@@ -235,7 +235,7 @@ pub async fn company_controller_get(
 /// Изменить детали текущей компании
 pub async fn company_controller_update(
     configuration: &configuration::Configuration,
-    update_company_dto: models::UpdateCompanyDto,
+    update_company_dto: models::UpdateCompany,
 ) -> Result<models::Id, Error<CompanyControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_update_company_dto = update_company_dto;

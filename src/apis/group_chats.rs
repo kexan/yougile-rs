@@ -200,7 +200,7 @@ pub async fn group_chat_controller_search(
 pub async fn group_chat_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
-    update_group_chat_dto: models::UpdateGroupChatDto,
+    update_group_chat_dto: models::UpdateGroupChat,
 ) -> Result<models::Id, Error<GroupChatControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
