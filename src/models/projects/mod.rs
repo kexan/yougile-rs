@@ -1,7 +1,7 @@
 mod permissions;
-mod projects;
+mod project;
 mod roles;
 
 pub use permissions::*;
-pub use projects::*;
+pub use project::*;
 pub use roles::*;
