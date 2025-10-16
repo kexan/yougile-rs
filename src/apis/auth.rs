@@ -1,337 +1,127 @@
-use super::{configuration, ContentType, Error};
-use crate::{apis::ResponseContent, models};
-use reqwest;
-use serde::{de::Error as _, Deserialize, Serialize};
+use crate::{
+    apis::{configuration::Configuration, parse_response, RequestBuilderExt},
+    models::{
+        AuthKey, AuthKeyWithDetails, Company, CompanyList, CredentialsWithCompany,
+        CredentialsWithCompanyOptional, CredentialsWithName, Id, UpdateCompany,
+    },
+    YougileError,
+};
 
-/// struct for typed errors of method [`auth_key_controller_create`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum AuthKeyControllerCreateError {
-    Status400(),
-    Status401(),
-    Status403(),
-    Status429(),
-    UnknownValue(serde_json::Value),
-}
+const AUTH_KEYS_PATH: &str = "/api-v2/auth/keys";
+const AUTH_COMPANIES_PATH: &str = "/api-v2/auth/companies";
+const COMPANIES_PATH: &str = "/api-v2/companies*";
 
-/// struct for typed errors of method [`auth_key_controller_delete`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum AuthKeyControllerDeleteError {
-    Status429(),
-    UnknownValue(serde_json::Value),
-}
+pub async fn create_auth_key(
+    configuration: &Configuration,
+    credentials_with_company: CredentialsWithCompany,
+) -> Result<AuthKey, YougileError> {
+    let url = format!("{}{}", configuration.base_path, AUTH_KEYS_PATH);
 
-/// struct for typed errors of method [`auth_key_controller_search`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum AuthKeyControllerSearchError {
-    Status400(),
-    Status401(),
-    Status403(),
-    Status429(),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`get_companies`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum GetCompaniesError {
-    Status401(),
-    Status403(),
-    Status429(),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`company_controller_get`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CompanyControllerGetError {
-    Status404(),
-    UnknownValue(serde_json::Value),
-}
-
-/// struct for typed errors of method [`company_controller_update`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CompanyControllerUpdateError {
-    Status404(),
-    UnknownValue(serde_json::Value),
-}
-
-pub async fn auth_key_controller_create(
-    configuration: &configuration::Configuration,
-    credentials_with_company_dto: models::CredentialsWithCompany,
-) -> Result<models::AuthKey, Error<AuthKeyControllerCreateError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_body_credentials_with_company_dto = credentials_with_company_dto;
-
-    let uri_str = format!("{}/api-v2/auth/keys", configuration.base_path);
-    let mut req_builder = configuration
+    let resp = configuration
         .client
-        .request(reqwest::Method::POST, &uri_str);
+        .post(&url)
+        .json(&credentials_with_company)
+        .with_auth_headers(configuration)
+        .send()
+        .await?;
 
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    req_builder = req_builder.json(&p_body_credentials_with_company_dto);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::AuthKeyDto`"))),
-            ContentType::Unsupported(unknown_type) => Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::AuthKeyDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<AuthKeyControllerCreateError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
+    parse_response(resp).await
 }
 
-pub async fn auth_key_controller_delete(
-    configuration: &configuration::Configuration,
-    key: &str,
-) -> Result<(), Error<AuthKeyControllerDeleteError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_key = key;
-
-    let uri_str = format!(
-        "{}/api-v2/auth/keys/{key}",
-        configuration.base_path,
-        key = crate::apis::urlencode(p_path_key)
+pub async fn delete_auth_key(configuration: &Configuration, key: &str) -> Result<(), YougileError> {
+    let encoded_key = crate::apis::urlencode(key);
+    let url = format!(
+        "{}{}/{}",
+        configuration.base_path, AUTH_KEYS_PATH, encoded_key
     );
-    let mut req_builder = configuration
+
+    let resp = configuration
         .client
-        .request(reqwest::Method::DELETE, &uri_str);
+        .delete(&url)
+        .with_auth_headers(configuration)
+        .send()
+        .await?;
 
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
+    if resp.status().is_success() {
         Ok(())
     } else {
-        let content = resp.text().await?;
-        let entity: Option<AuthKeyControllerDeleteError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
+        parse_response(resp).await
     }
 }
 
-pub async fn auth_key_controller_search(
-    configuration: &configuration::Configuration,
-    credentials_with_company_optional_dto: models::CredentialsWithCompanyOptional,
-) -> Result<Vec<models::AuthKeyWithDetails>, Error<AuthKeyControllerSearchError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_body_credentials_with_company_optional_dto = credentials_with_company_optional_dto;
+pub async fn search_auth_keys(
+    configuration: &Configuration,
+    credentials_with_company_optional: CredentialsWithCompanyOptional,
+) -> Result<Vec<AuthKeyWithDetails>, YougileError> {
+    let url = format!("{}/api-v2/auth/keys/get", configuration.base_path);
 
-    let uri_str = format!("{}/api-v2/auth/keys/get", configuration.base_path);
-    let mut req_builder = configuration
+    let resp = configuration
         .client
-        .request(reqwest::Method::POST, &uri_str);
+        .post(&url)
+        .json(&credentials_with_company_optional)
+        .with_auth_headers(configuration)
+        .send()
+        .await?;
 
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    req_builder = req_builder.json(&p_body_credentials_with_company_optional_dto);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec<models::AuthKeyWithDetailsDto>`"))),
-            ContentType::Unsupported(unknown_type) => Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec<models::AuthKeyWithDetailsDto>`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<AuthKeyControllerSearchError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
+    parse_response(resp).await
 }
 
 /// Получить детали текущей компании
-pub async fn company_controller_get(
-    configuration: &configuration::Configuration,
-) -> Result<models::Company, Error<CompanyControllerGetError>> {
-    let uri_str = format!("{}/api-v2/companies*", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+pub async fn get_company(configuration: &Configuration) -> Result<Company, YougileError> {
+    let url = format!("{}{}", configuration.base_path, COMPANIES_PATH);
 
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
+    let resp = configuration
+        .client
+        .get(&url)
+        .with_auth_headers(configuration)
+        .send()
+        .await?;
 
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::CompanyDto`"))),
-            ContentType::Unsupported(unknown_type) => Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::CompanyDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<CompanyControllerGetError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
+    parse_response(resp).await
 }
 
 /// Изменить детали текущей компании
-pub async fn company_controller_update(
-    configuration: &configuration::Configuration,
-    update_company_dto: models::UpdateCompany,
-) -> Result<models::Id, Error<CompanyControllerUpdateError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_body_update_company_dto = update_company_dto;
+pub async fn update_company(
+    configuration: &Configuration,
+    update_company: UpdateCompany,
+) -> Result<Id, YougileError> {
+    let url = format!("{}{}", configuration.base_path, COMPANIES_PATH);
 
-    let uri_str = format!("{}/api-v2/companies*", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::PUT, &uri_str);
+    let resp = configuration
+        .client
+        .put(&url)
+        .json(&update_company)
+        .with_auth_headers(configuration)
+        .send()
+        .await?;
 
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-    req_builder = req_builder.json(&p_body_update_company_dto);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::WithIdDto`"))),
-            ContentType::Unsupported(unknown_type) => Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::WithIdDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<CompanyControllerUpdateError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
+    parse_response(resp).await
 }
 
 pub async fn get_companies(
-    configuration: &configuration::Configuration,
-    credentials_with_name_dto: models::CredentialsWithName,
+    configuration: &Configuration,
+    credentials_with_name: CredentialsWithName,
     limit: Option<f64>,
     offset: Option<f64>,
-) -> Result<models::CompanyList, Error<GetCompaniesError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_body_credentials_with_name_dto = credentials_with_name_dto;
-    let p_query_limit = limit;
-    let p_query_offset = offset;
+) -> Result<CompanyList, YougileError> {
+    let url = format!("{}{}", configuration.base_path, AUTH_COMPANIES_PATH);
 
-    let uri_str = format!("{}/api-v2/auth/companies", configuration.base_path);
-    let mut req_builder = configuration
+    let mut query_params = vec![];
+    if let Some(val) = limit {
+        query_params.push(("limit", val.to_string()));
+    }
+    if let Some(val) = offset {
+        query_params.push(("offset", val.to_string()));
+    }
+
+    let resp = configuration
         .client
-        .request(reqwest::Method::POST, &uri_str);
+        .post(&url)
+        .query(&query_params)
+        .json(&credentials_with_name)
+        .with_auth_headers(configuration)
+        .send()
+        .await?;
 
-    if let Some(ref param_value) = p_query_limit {
-        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_offset {
-        req_builder = req_builder.query(&[("offset", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    req_builder = req_builder.json(&p_body_credentials_with_name_dto);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::CompanyListDto`"))),
-            ContentType::Unsupported(unknown_type) => Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::CompanyListDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetCompaniesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent {
-            status,
-            content,
-            entity,
-        }))
-    }
+    parse_response(resp).await
 }
