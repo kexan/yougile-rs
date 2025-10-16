@@ -1,26 +1,27 @@
-use yougile_sdk::{YouGileSDK, SDKError};
+use yougile_sdk::{SDKError, YouGileSDK};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize logging
     env_logger::init();
-    
+
     // Create a new client using the builder pattern
     let client = YouGileSDK::builder()
-        .token("your-api-token-here") // Replace with your actual token
-        .base_url("https://yougile.com")
+        .token("dIGhpLEQ38CUh-SjUGDNtz0PxkzcrIn-IESOt47jy6EzD4Nt93rHvdwrsLz37oFF") // Replace with your actual token
+        .base_url("https://yougile.kexan.ru")
         .build()?;
 
     // Example: Complex task search with multiple filters
     log::info!("Searching for important tasks assigned to a specific user...");
-    let tasks = client.tasks()
+    let tasks = client
+        .tasks()
         .search()
         .title("important")
         .assigned_to("user-id-here")
         .limit(20.0)
         .execute()
         .await?;
-    
+
     log::info!("Found {} tasks matching criteria", tasks.content.len());
     for task in tasks.content.iter().take(5) {
         log::info!("  - {}: {}", task.id, task.title);
@@ -35,7 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match client.projects().create(create_project).await {
         Ok(project_id) => {
             log::info!("Created project with ID: {}", project_id.id);
-            
+
             // Now create a task in that project
             log::info!("Creating a task in the new project...");
             let create_task = yougile_client::models::CreateTask::new("Initial Task".to_string());
@@ -55,7 +56,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Example: Searching for users by email
     log::info!("Searching for users by email...");
-    match client.users().search().email("example@domain.com").execute().await {
+    match client
+        .users()
+        .search()
+        .email("example@domain.com")
+        .execute()
+        .await
+    {
         Ok(users) => {
             log::info!("Found {} users with that email", users.content.len());
             for user in users.content.iter() {
@@ -69,7 +76,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Example: Searching for boards in a specific project
     log::info!("Searching for boards in a specific project...");
-    match client.boards().search().project_id("project-id-here").execute().await {
+    match client
+        .boards()
+        .search()
+        .project_id("project-id-here")
+        .execute()
+        .await
+    {
         Ok(boards) => {
             log::info!("Found {} boards in project", boards.content.len());
             for board in boards.content.iter() {
@@ -97,3 +110,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+

@@ -4,7 +4,7 @@ use yougile_sdk::YouGileSDK;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize logging
     env_logger::init();
-    
+
     // Create a new client using the builder pattern
     let client = YouGileSDK::builder()
         .token("your-api-token-here") // Replace with your actual token
@@ -38,7 +38,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Example: Using the projects API with fluent search
     log::info!("Searching for projects...");
-    match client.projects().search().title("important").limit(5.0).execute().await {
+    match client
+        .projects()
+        .search()
+        .title("important")
+        .limit(5.0)
+        .execute()
+        .await
+    {
         Ok(projects) => {
             log::info!("Found {} projects", projects.content.len());
             for project in projects.content.iter().take(3) {
@@ -80,3 +87,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
