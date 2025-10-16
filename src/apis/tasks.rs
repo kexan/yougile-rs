@@ -218,7 +218,7 @@ pub async fn task_controller_search(
     assigned_to: Option<&str>,
     sticker_id: Option<&str>,
     sticker_state_id: Option<&str>,
-) -> Result<models::TaskListDto, Error<TaskControllerSearchError>> {
+) -> Result<models::TaskList, Error<TaskControllerSearchError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_include_deleted = include_deleted;
     let p_query_limit = limit;
@@ -303,7 +303,7 @@ pub async fn task_controller_search_reversed(
     assigned_to: Option<&str>,
     sticker_id: Option<&str>,
     sticker_state_id: Option<&str>,
-) -> Result<models::TaskListDto, Error<TaskControllerSearchReversedError>> {
+) -> Result<models::TaskList, Error<TaskControllerSearchReversedError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_include_deleted = include_deleted;
     let p_query_limit = limit;
@@ -433,7 +433,7 @@ pub async fn task_controller_update(
 pub async fn task_controller_update_chat_subscribers(
     configuration: &configuration::Configuration,
     id: &str,
-    task_chat_subscribers_dto: models::TaskChatSubscribersDto,
+    task_chat_subscribers_dto: models::TaskChatSubscribers,
 ) -> Result<models::Id, Error<TaskControllerUpdateChatSubscribersError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;

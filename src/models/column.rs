@@ -1,4 +1,4 @@
-use crate::models;
+use crate::models::{self, task::TaskPermissions};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -143,13 +143,13 @@ pub struct ColumnPermissions {
     #[serde(rename = "addTask")]
     pub add_task: bool,
     #[serde(rename = "allTasks")]
-    pub all_tasks: Box<models::TaskPermissionsDto>,
+    pub all_tasks: Box<TaskPermissions>,
     #[serde(rename = "withMeTasks")]
-    pub with_me_tasks: Box<models::TaskPermissionsDto>,
+    pub with_me_tasks: Box<TaskPermissions>,
     #[serde(rename = "myTasks")]
-    pub my_tasks: Box<models::TaskPermissionsDto>,
+    pub my_tasks: Box<TaskPermissions>,
     #[serde(rename = "createdByMeTasks")]
-    pub created_by_me_tasks: Box<models::TaskPermissionsDto>,
+    pub created_by_me_tasks: Box<TaskPermissions>,
 }
 
 impl ColumnPermissions {
@@ -158,10 +158,10 @@ impl ColumnPermissions {
         delete: bool,
         r#move: Move,
         add_task: bool,
-        all_tasks: models::TaskPermissionsDto,
-        with_me_tasks: models::TaskPermissionsDto,
-        my_tasks: models::TaskPermissionsDto,
-        created_by_me_tasks: models::TaskPermissionsDto,
+        all_tasks: TaskPermissions,
+        with_me_tasks: TaskPermissions,
+        my_tasks: TaskPermissions,
+        created_by_me_tasks: TaskPermissions,
     ) -> ColumnPermissions {
         ColumnPermissions {
             edit_title,

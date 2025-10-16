@@ -210,7 +210,7 @@ impl YouGileClient {
         sticker_id: Option<&str>,
         sticker_state_id: Option<&str>,
     ) -> Result<
-        crate::models::TaskListDto,
+        crate::models::TaskList,
         crate::apis::Error<crate::apis::tasks::TaskControllerSearchError>,
     > {
         crate::apis::tasks::task_controller_search(
