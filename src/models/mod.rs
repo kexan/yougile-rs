@@ -50,8 +50,6 @@ pub mod time_tracking;
 pub use self::time_tracking::TimeTracking;
 pub mod timer;
 pub use self::timer::Timer;
-pub mod update_deadline;
-pub use self::update_deadline::UpdateDeadline;
 pub mod update_stopwatch;
 pub use self::update_stopwatch::UpdateStopwatch;
 pub mod update_task_dto;

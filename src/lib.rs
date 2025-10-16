@@ -29,3 +29,5 @@ pub use apis::webhooks::*;
 // Re-export the client and error types
 pub use client::YouGileClient;
 pub use error::YougileError;
+
+pub use models::stickers::*;
