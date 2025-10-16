@@ -309,7 +309,7 @@ pub struct CreateStringSticker {
     pub icon: Option<Icon>,
     /// Состояния стикера.
     #[serde(rename = "states", skip_serializing_if = "Option::is_none")]
-    pub states: Option<Vec<models::StringStickerStateNoId>>,
+    pub states: Option<Vec<StringStickerStateNoId>>,
 }
 
 impl CreateStringSticker {
@@ -448,7 +448,7 @@ pub struct StringStickerWithStates {
     pub icon: Option<Icon>,
     /// Состояния стикера.
     #[serde(rename = "states", skip_serializing_if = "Option::is_none")]
-    pub states: Option<Vec<models::StringStickerState>>,
+    pub states: Option<Vec<StringStickerState>>,
     /// Количество элементов, которые хочется получить. Максимум 1000.
     #[serde(rename = "limit", skip_serializing_if = "Option::is_none")]
     pub limit: Option<f64>,
@@ -475,16 +475,16 @@ impl StringStickerWithStates {
 pub struct StringStickerWithStatesList {
     /// Дополнительная информация о странице
     #[serde(rename = "paging")]
-    pub paging: Box<models::PagingMetadata>,
+    pub paging: Box<PagingMetadata>,
     /// Список текстовых стикеров компании
     #[serde(rename = "content")]
-    pub content: Vec<models::StringStickerWithStatesListBase>,
+    pub content: Vec<StringStickerWithStatesListBase>,
 }
 
 impl StringStickerWithStatesList {
     pub fn new(
-        paging: models::PagingMetadata,
-        content: Vec<models::StringStickerWithStatesListBase>,
+        paging: PagingMetadata,
+        content: Vec<StringStickerWithStatesListBase>,
     ) -> StringStickerWithStatesList {
         StringStickerWithStatesList {
             paging: Box::new(paging),
@@ -578,7 +578,7 @@ pub struct StringStickerWithStatesListBase {
     pub icon: Option<Icon>,
     /// Состояния стикера.
     #[serde(rename = "states", skip_serializing_if = "Option::is_none")]
-    pub states: Option<Vec<models::StringStickerState>>,
+    pub states: Option<Vec<StringStickerState>>,
     /// Количество элементов, которые хочется получить. Максимум 1000.
     #[serde(rename = "limit", skip_serializing_if = "Option::is_none")]
     pub limit: Option<f64>,
