@@ -2,7 +2,7 @@ use crate::SDKError;
 use std::sync::Arc;
 use yougile_client::{
     YouGileClient,
-    models::{BoardList, CreateBoard, UpdateBoard},
+    models::{Board, BoardList, CreateBoard, UpdateBoard},
 };
 
 /// API for working with boards
@@ -16,8 +16,13 @@ impl BoardsAPI {
     }
 
     /// Get a specific board by ID
-    pub async fn get(&self, id: &str) -> Result<yougile_client::models::Board, SDKError> {
+    pub async fn get(&self, id: &str) -> Result<Board, SDKError> {
         self.client.get_board(id).await.map_err(SDKError::from)
+    }
+
+    /// List all boards (with default parameters)
+    pub async fn list(&self) -> Result<BoardList, SDKError> {
+        self.search().execute().await
     }
 
     /// Create a new board
@@ -33,11 +38,6 @@ impl BoardsAPI {
     /// Search for boards with various filters
     pub fn search(&self) -> BoardSearchBuilder {
         BoardSearchBuilder::new(self.client.clone())
-    }
-
-    /// List all boards (with default parameters)
-    pub async fn list(&self) -> Result<BoardList, SDKError> {
-        self.search().execute().await
     }
 }
 
