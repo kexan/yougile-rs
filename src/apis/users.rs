@@ -146,7 +146,7 @@ pub async fn user_controller_delete(
 pub async fn user_controller_get(
     configuration: &configuration::Configuration,
     id: &str,
-) -> Result<models::UserDto, Error<UserControllerGetError>> {
+) -> Result<models::User, Error<UserControllerGetError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
 

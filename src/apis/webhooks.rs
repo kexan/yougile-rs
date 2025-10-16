@@ -28,7 +28,7 @@ pub enum WebhookControllerSearchError {
 /// Создает подписку на события в компании
 pub async fn webhook_controller_create(
     configuration: &configuration::Configuration,
-    create_webhook_dto: models::CreateWebhookDto,
+    create_webhook_dto: models::CreateWebhook,
 ) -> Result<models::Id, Error<WebhookControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_webhook_dto = create_webhook_dto;
@@ -78,7 +78,7 @@ pub async fn webhook_controller_create(
 pub async fn webhook_controller_put(
     configuration: &configuration::Configuration,
     id: &str,
-    update_webhook_dto: models::UpdateWebhookDto,
+    update_webhook_dto: models::UpdateWebhook,
 ) -> Result<models::Id, Error<WebhookControllerPutError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
@@ -131,7 +131,7 @@ pub async fn webhook_controller_put(
 pub async fn webhook_controller_search(
     configuration: &configuration::Configuration,
     include_deleted: Option<bool>,
-) -> Result<models::WebhookDto, Error<WebhookControllerSearchError>> {
+) -> Result<models::Webhook, Error<WebhookControllerSearchError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_include_deleted = include_deleted;
 

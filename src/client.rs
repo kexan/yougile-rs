@@ -248,10 +248,8 @@ impl YouGileClient {
     pub async fn get_user(
         &self,
         id: &str,
-    ) -> Result<
-        crate::models::UserDto,
-        crate::apis::Error<crate::apis::users::UserControllerGetError>,
-    > {
+    ) -> Result<crate::models::User, crate::apis::Error<crate::apis::users::UserControllerGetError>>
+    {
         crate::apis::users::user_controller_get(&self.configuration, id).await
     }
 
