@@ -99,6 +99,7 @@ pub async fn update_project(
     parse_response(resp).await
 }
 
+//TODO: сделать нормально
 const PROJECT_ROLES_PATH: &str = "/api-v2/projects/{}/roles";
 
 pub async fn create_project_role(
