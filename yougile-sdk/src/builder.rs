@@ -1,6 +1,6 @@
 use crate::{
     SDKError,
-    resources::{BoardsAPI, ProjectsAPI, TasksAPI, UsersAPI},
+    resources::{AuthAPI, BoardsAPI, ChatsAPI, ColumnsAPI, FilesAPI, GroupChatsAPI, ProjectsAPI, StickersAPI, TasksAPI, UsersAPI, WebhooksAPI},
 };
 use yougile_client::{YouGileClient, apis::configuration::Configuration};
 
@@ -67,6 +67,11 @@ impl YouGileSDK {
         YouGileSDKBuilder::new()
     }
 
+    /// Get access to the auth API
+    pub fn auth(&self) -> AuthAPI<'_> {
+        AuthAPI::new(&self.inner)
+    }
+
     /// Get access to the tasks API
     pub fn tasks(&self) -> TasksAPI<'_> {
         TasksAPI::new(&self.inner)
@@ -85,6 +90,36 @@ impl YouGileSDK {
     /// Get access to the boards API
     pub fn boards(&self) -> BoardsAPI<'_> {
         BoardsAPI::new(&self.inner)
+    }
+
+    /// Get access to the columns API
+    pub fn columns(&self) -> ColumnsAPI<'_> {
+        ColumnsAPI::new(&self.inner)
+    }
+
+    /// Get access to the chats API
+    pub fn chats(&self) -> ChatsAPI<'_> {
+        ChatsAPI::new(&self.inner)
+    }
+
+    /// Get access to the group chats API
+    pub fn group_chats(&self) -> GroupChatsAPI<'_> {
+        GroupChatsAPI::new(&self.inner)
+    }
+
+    /// Get access to the stickers API
+    pub fn stickers(&self) -> StickersAPI<'_> {
+        StickersAPI::new(&self.inner)
+    }
+
+    /// Get access to the files API
+    pub fn files(&self) -> FilesAPI<'_> {
+        FilesAPI::new(&self.inner)
+    }
+
+    /// Get access to the webhooks API
+    pub fn webhooks(&self) -> WebhooksAPI<'_> {
+        WebhooksAPI::new(&self.inner)
     }
 
     /// Get the company information

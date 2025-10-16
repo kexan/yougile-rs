@@ -19,7 +19,7 @@
 //! 
 //! // Get company information
 //! let company = client.get_company().await?;
-//! println!("Company: {}", company.title);
+//! log::info!("Company: {}", company.title);
 //! 
 //! // Search for tasks using fluent API
 //! let tasks = client.tasks()
@@ -43,6 +43,11 @@
 //! - `client.projects()` - Access project-related operations  
 //! - `client.users()` - Access user-related operations
 //! - `client.boards()` - Access board-related operations
+//! - `client.chats()` - Access chat-related operations
+//! - `client.group_chats()` - Access group chat-related operations
+//! - `client.stickers()` - Access sticker-related operations
+//! - `client.webhooks()` - Access webhook-related operations
+//! - `client.files()` - Access file-related operations
 
 mod builder;
 mod error;
@@ -58,9 +63,25 @@ pub use yougile_client::{
         // Common models
         Company, Id, User, Task, Project, Board, Column,
         // Request models
-        CreateTask, UpdateTask, CreateProject, UpdateProject,
+        CreateTask, UpdateTask, CreateProject, UpdateProject, CreateBoard, UpdateBoard,
+        CreateUser, UpdateUser, CreateColumn, UpdateColumn,
         // Response models
         TaskList, ProjectList, UserList, BoardList, ColumnList,
+        // Auth models
+        AuthKey, AuthKeyWithDetails, CredentialsWithCompany, CredentialsWithCompanyOptional,
+        CredentialsWithName, CompanyList,
+        // Chat models
+        ChatMessage, ChatMessageList, CreateChatMessage, UpdateChatMessage, ChatId,
+        GroupChat, GroupChatList, CreateGroupChat, UpdateGroupChat,
+        // Sticker models
+        SprintStickerWithStates, SprintStickerWithStatesList, UpdateSprintSticker,
+        CreateSprintSticker, CreateSprintStickerState, UpdateSprintStickerState, StickerStateId,
+        StringStickerWithStates, StringStickerWithStatesList, UpdateStringSticker,
+        CreateStringSticker, CreateStringStickerState, UpdateStringStickerState,
+        // File models
+        FileUpload,
+        // Webhook models
+        Webhook, CreateWebhook, UpdateWebhook,
     },
     // Re-export the low-level client in case users need direct access
     YouGileClient,
