@@ -20,6 +20,7 @@ use std::sync::Arc;
 
 /// A client for interacting with the YouGile API.
 /// This provides a more idiomatic Rust interface compared to the raw API functions.
+#[derive(Clone)]
 pub struct YouGileClient {
     configuration: Arc<Configuration>,
 }

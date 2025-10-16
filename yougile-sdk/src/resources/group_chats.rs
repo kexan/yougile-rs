@@ -1,14 +1,17 @@
+use std::sync::Arc;
 use yougile_client::YouGileClient;
 use crate::SDKError;
 
 /// API for working with group chats
-pub struct GroupChatsAPI<'a> {
-    client: &'a YouGileClient,
+pub struct GroupChatsAPI {
+    client: Arc<YouGileClient>,
 }
 
-impl<'a> GroupChatsAPI<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
-        Self { client }
+impl GroupChatsAPI {
+    pub fn new(client: Arc<YouGileClient>) -> Self {
+        Self { 
+            client: Arc::clone(&client),
+        }
     }
 
     /// Get a specific group chat by ID

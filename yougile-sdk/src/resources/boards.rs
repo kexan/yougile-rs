@@ -1,14 +1,17 @@
+use std::sync::Arc;
 use yougile_client::YouGileClient;
 use crate::{SDKError, convenience::BoardSearchBuilder};
 
 /// API for working with boards
-pub struct BoardsAPI<'a> {
-    client: &'a YouGileClient,
+pub struct BoardsAPI {
+    client: Arc<YouGileClient>,
 }
 
-impl<'a> BoardsAPI<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
-        Self { client }
+impl BoardsAPI {
+    pub fn new(client: Arc<YouGileClient>) -> Self {
+        Self { 
+            client: Arc::clone(&client),
+        }
     }
 
     /// Get a specific board by ID
@@ -34,8 +37,8 @@ impl<'a> BoardsAPI<'a> {
     }
 
     /// Search for boards with various filters using a fluent API
-    pub fn search(&self) -> BoardSearchBuilder<'_> {
-        BoardSearchBuilder::new(self.client)
+    pub fn search(&self) -> BoardSearchBuilder {
+        BoardSearchBuilder::new(&self.client)
     }
 
     /// List all boards (with default parameters)

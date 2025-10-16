@@ -1,14 +1,17 @@
+use std::sync::Arc;
 use yougile_client::YouGileClient;
 use crate::SDKError;
 
 /// API for working with chats
-pub struct ChatsAPI<'a> {
-    client: &'a YouGileClient,
+pub struct ChatsAPI {
+    client: Arc<YouGileClient>,
 }
 
-impl<'a> ChatsAPI<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
-        Self { client }
+impl ChatsAPI {
+    pub fn new(client: Arc<YouGileClient>) -> Self {
+        Self { 
+            client: Arc::clone(&client),
+        }
     }
 
     /// Send a chat message

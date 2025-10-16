@@ -1,14 +1,17 @@
+use std::sync::Arc;
 use yougile_client::YouGileClient;
 use crate::{SDKError, convenience::UserSearchBuilder};
 
 /// API for working with users
-pub struct UsersAPI<'a> {
-    client: &'a YouGileClient,
+pub struct UsersAPI {
+    client: Arc<YouGileClient>,
 }
 
-impl<'a> UsersAPI<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
-        Self { client }
+impl UsersAPI {
+    pub fn new(client: Arc<YouGileClient>) -> Self {
+        Self { 
+            client: Arc::clone(&client),
+        }
     }
 
     /// Get a specific user by ID
@@ -39,8 +42,8 @@ impl<'a> UsersAPI<'a> {
     }
 
     /// Search for users with various filters using a fluent API
-    pub fn search(&self) -> UserSearchBuilder<'_> {
-        UserSearchBuilder::new(self.client)
+    pub fn search(&self) -> UserSearchBuilder {
+        UserSearchBuilder::new(&self.client)
     }
 
     /// List all users (with default parameters)

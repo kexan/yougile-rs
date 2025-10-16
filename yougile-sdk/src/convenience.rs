@@ -1,9 +1,10 @@
 use crate::SDKError;
+use std::sync::Arc;
 use yougile_client::YouGileClient;
 
 /// Search builder for tasks with fluent API
-pub struct TaskSearchBuilder<'a> {
-    client: &'a YouGileClient,
+pub struct TaskSearchBuilder {
+    client: Arc<YouGileClient>,
     include_deleted: Option<bool>,
     limit: Option<f64>,
     offset: Option<f64>,
@@ -14,10 +15,10 @@ pub struct TaskSearchBuilder<'a> {
     sticker_state_id: Option<String>,
 }
 
-impl<'a> TaskSearchBuilder<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
+impl TaskSearchBuilder {
+    pub fn new(client: &Arc<YouGileClient>) -> Self {
         Self {
-            client,
+            client: Arc::clone(client),
             include_deleted: None,
             limit: Some(50.0), // Default limit
             offset: Some(0.0),
@@ -87,18 +88,18 @@ impl<'a> TaskSearchBuilder<'a> {
 }
 
 /// Search builder for projects with fluent API
-pub struct ProjectSearchBuilder<'a> {
-    client: &'a YouGileClient,
+pub struct ProjectSearchBuilder {
+    client: Arc<YouGileClient>,
     include_deleted: Option<bool>,
     limit: Option<f64>,
     offset: Option<f64>,
     title: Option<String>,
 }
 
-impl<'a> ProjectSearchBuilder<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
+impl ProjectSearchBuilder {
+    pub fn new(client: &Arc<YouGileClient>) -> Self {
         Self {
-            client,
+            client: Arc::clone(client),
             include_deleted: None,
             limit: Some(50.0), // Default limit
             offset: Some(0.0),
@@ -140,18 +141,18 @@ impl<'a> ProjectSearchBuilder<'a> {
 }
 
 /// Search builder for users with fluent API
-pub struct UserSearchBuilder<'a> {
-    client: &'a YouGileClient,
+pub struct UserSearchBuilder {
+    client: Arc<YouGileClient>,
     limit: Option<f64>,
     offset: Option<f64>,
     email: Option<String>,
     project_id: Option<String>,
 }
 
-impl<'a> UserSearchBuilder<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
+impl UserSearchBuilder {
+    pub fn new(client: &Arc<YouGileClient>) -> Self {
         Self {
-            client,
+            client: Arc::clone(client),
             limit: Some(50.0), // Default limit
             offset: Some(0.0),
             email: None,
@@ -193,8 +194,8 @@ impl<'a> UserSearchBuilder<'a> {
 }
 
 /// Search builder for boards with fluent API
-pub struct BoardSearchBuilder<'a> {
-    client: &'a YouGileClient,
+pub struct BoardSearchBuilder {
+    client: Arc<YouGileClient>,
     include_deleted: Option<bool>,
     limit: Option<f64>,
     offset: Option<f64>,
@@ -202,10 +203,10 @@ pub struct BoardSearchBuilder<'a> {
     project_id: Option<String>,
 }
 
-impl<'a> BoardSearchBuilder<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
+impl BoardSearchBuilder {
+    pub fn new(client: &Arc<YouGileClient>) -> Self {
         Self {
-            client,
+            client: Arc::clone(client),
             include_deleted: None,
             limit: Some(50.0), // Default limit
             offset: Some(0.0),
@@ -252,4 +253,3 @@ impl<'a> BoardSearchBuilder<'a> {
             .map_err(SDKError::from)
     }
 }
-

@@ -1,14 +1,17 @@
+use std::sync::Arc;
 use yougile_client::YouGileClient;
 use crate::SDKError;
 
 /// API for working with stickers
-pub struct StickersAPI<'a> {
-    client: &'a YouGileClient,
+pub struct StickersAPI {
+    client: Arc<YouGileClient>,
 }
 
-impl<'a> StickersAPI<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
-        Self { client }
+impl StickersAPI {
+    pub fn new(client: Arc<YouGileClient>) -> Self {
+        Self { 
+            client: Arc::clone(&client),
+        }
     }
 
     /// Create a sprint sticker

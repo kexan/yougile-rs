@@ -1,14 +1,17 @@
+use std::sync::Arc;
 use yougile_client::YouGileClient;
 use crate::SDKError;
 
 /// API for authentication and company operations
-pub struct AuthAPI<'a> {
-    client: &'a YouGileClient,
+pub struct AuthAPI {
+    client: Arc<YouGileClient>,
 }
 
-impl<'a> AuthAPI<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
-        Self { client }
+impl AuthAPI {
+    pub fn new(client: Arc<YouGileClient>) -> Self {
+        Self { 
+            client: Arc::clone(&client),
+        }
     }
 
     /// Create an authentication key

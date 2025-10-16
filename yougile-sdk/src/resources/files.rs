@@ -1,14 +1,17 @@
+use std::sync::Arc;
 use yougile_client::YouGileClient;
 use crate::SDKError;
 
 /// API for working with files
-pub struct FilesAPI<'a> {
-    client: &'a YouGileClient,
+pub struct FilesAPI {
+    client: Arc<YouGileClient>,
 }
 
-impl<'a> FilesAPI<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
-        Self { client }
+impl FilesAPI {
+    pub fn new(client: Arc<YouGileClient>) -> Self {
+        Self { 
+            client: Arc::clone(&client),
+        }
     }
 
     /// Upload a file

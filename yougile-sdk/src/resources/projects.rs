@@ -1,14 +1,17 @@
+use std::sync::Arc;
 use yougile_client::YouGileClient;
 use crate::{SDKError, convenience::ProjectSearchBuilder};
 
 /// API for working with projects
-pub struct ProjectsAPI<'a> {
-    client: &'a YouGileClient,
+pub struct ProjectsAPI {
+    client: Arc<YouGileClient>,
 }
 
-impl<'a> ProjectsAPI<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
-        Self { client }
+impl ProjectsAPI {
+    pub fn new(client: Arc<YouGileClient>) -> Self {
+        Self { 
+            client: Arc::clone(&client),
+        }
     }
 
     /// Get a specific project by ID
@@ -34,8 +37,8 @@ impl<'a> ProjectsAPI<'a> {
     }
 
     /// Search for projects with various filters using a fluent API
-    pub fn search(&self) -> ProjectSearchBuilder<'_> {
-        ProjectSearchBuilder::new(self.client)
+    pub fn search(&self) -> ProjectSearchBuilder {
+        ProjectSearchBuilder::new(&self.client)
     }
 
     /// List all projects (with default parameters)

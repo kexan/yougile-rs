@@ -1,14 +1,17 @@
+use std::sync::Arc;
 use yougile_client::YouGileClient;
 use crate::{SDKError, convenience::TaskSearchBuilder};
 
 /// API for working with tasks
-pub struct TasksAPI<'a> {
-    client: &'a YouGileClient,
+pub struct TasksAPI {
+    client: Arc<YouGileClient>,
 }
 
-impl<'a> TasksAPI<'a> {
-    pub fn new(client: &'a YouGileClient) -> Self {
-        Self { client }
+impl TasksAPI {
+    pub fn new(client: Arc<YouGileClient>) -> Self {
+        Self { 
+            client: Arc::clone(&client),
+        }
     }
 
     /// Get a specific task by ID
@@ -34,8 +37,8 @@ impl<'a> TasksAPI<'a> {
     }
 
     /// Search for tasks with various filters using a fluent API
-    pub fn search(&self) -> TaskSearchBuilder<'_> {
-        TaskSearchBuilder::new(self.client)
+    pub fn search(&self) -> TaskSearchBuilder {
+        TaskSearchBuilder::new(&self.client)
     }
 
     /// List all tasks (with default parameters)
