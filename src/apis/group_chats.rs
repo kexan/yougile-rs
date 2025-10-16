@@ -36,7 +36,7 @@ pub enum GroupChatControllerUpdateError {
 
 pub async fn group_chat_controller_create(
     configuration: &configuration::Configuration,
-    create_group_chat_dto: models::CreateGroupChatDto,
+    create_group_chat_dto: models::CreateGroupChat,
 ) -> Result<models::Id, Error<GroupChatControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_group_chat_dto = create_group_chat_dto;
@@ -86,7 +86,7 @@ pub async fn group_chat_controller_create(
 pub async fn group_chat_controller_get(
     configuration: &configuration::Configuration,
     id: &str,
-) -> Result<models::GroupChatDto, Error<GroupChatControllerGetError>> {
+) -> Result<models::GroupChat, Error<GroupChatControllerGetError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
 
@@ -139,7 +139,7 @@ pub async fn group_chat_controller_search(
     limit: Option<f64>,
     offset: Option<f64>,
     title: Option<&str>,
-) -> Result<models::GroupChatListDto, Error<GroupChatControllerSearchError>> {
+) -> Result<models::GroupChatList, Error<GroupChatControllerSearchError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_include_deleted = include_deleted;
     let p_query_limit = limit;
