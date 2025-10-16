@@ -1,6 +1,9 @@
 use crate::SDKError;
 use std::sync::Arc;
-use yougile_client::{YouGileClient, models::BoardList};
+use yougile_client::{
+    YouGileClient,
+    models::{BoardList, CreateBoard, UpdateBoard},
+};
 
 /// API for working with boards
 pub struct BoardsAPI {
@@ -18,26 +21,13 @@ impl BoardsAPI {
     }
 
     /// Create a new board
-    pub async fn create(
-        &self,
-        create_board: yougile_client::models::CreateBoard,
-    ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client
-            .create_board(create_board)
-            .await
-            .map_err(SDKError::from)
+    pub fn create(&self) -> BoardCreateBuilder {
+        BoardCreateBuilder::new(self.client.clone())
     }
 
     /// Update an existing board
-    pub async fn update(
-        &self,
-        id: &str,
-        update_board: yougile_client::models::UpdateBoard,
-    ) -> Result<yougile_client::models::Id, SDKError> {
-        self.client
-            .update_board(id, update_board)
-            .await
-            .map_err(SDKError::from)
+    pub fn update(&self, id: impl Into<String>) -> BoardUpdateBuilder {
+        BoardUpdateBuilder::new(self.client.clone(), id.into())
     }
 
     /// Search for boards with various filters
@@ -107,6 +97,89 @@ impl BoardSearchBuilder {
                 self.title.as_deref(),
                 self.project_id.as_deref(),
             )
+            .await
+            .map_err(SDKError::from)
+    }
+}
+
+pub struct BoardCreateBuilder {
+    client: Arc<YouGileClient>,
+    data: CreateBoard,
+}
+
+impl BoardCreateBuilder {
+    pub fn new(client: Arc<YouGileClient>) -> Self {
+        Self {
+            client,
+            data: CreateBoard {
+                title: "".into(),
+                project_id: "".into(),
+                stickers: None,
+            },
+        }
+    }
+
+    pub fn title(mut self, title: impl Into<String>) -> Self {
+        self.data.title = title.into();
+        self
+    }
+
+    pub fn project_id(mut self, project_id: impl Into<String>) -> Self {
+        self.data.project_id = project_id.into();
+        self
+    }
+
+    pub fn stickers(mut self, stickers: yougile_client::models::Stickers) -> Self {
+        self.data.stickers = Some(Box::new(stickers));
+        self
+    }
+
+    pub async fn execute(self) -> Result<yougile_client::models::Id, SDKError> {
+        self.client
+            .create_board(self.data)
+            .await
+            .map_err(SDKError::from)
+    }
+}
+
+pub struct BoardUpdateBuilder {
+    client: Arc<YouGileClient>,
+    id: String,
+    data: UpdateBoard,
+}
+
+impl BoardUpdateBuilder {
+    pub fn new(client: Arc<YouGileClient>, id: String) -> Self {
+        Self {
+            client,
+            id,
+            data: UpdateBoard::new(),
+        }
+    }
+
+    pub fn title(mut self, title: impl Into<String>) -> Self {
+        self.data.title = Some(title.into());
+        self
+    }
+
+    pub fn deleted(mut self, deleted: bool) -> Self {
+        self.data.deleted = Some(deleted);
+        self
+    }
+
+    pub fn project_id(mut self, project_id: impl Into<String>) -> Self {
+        self.data.project_id = Some(project_id.into());
+        self
+    }
+
+    pub fn stickers(mut self, stickers: yougile_client::models::Stickers) -> Self {
+        self.data.stickers = Some(Box::new(stickers));
+        self
+    }
+
+    pub async fn execute(self) -> Result<yougile_client::models::Id, SDKError> {
+        self.client
+            .update_board(&self.id, self.data)
             .await
             .map_err(SDKError::from)
     }
