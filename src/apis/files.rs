@@ -15,7 +15,7 @@ pub enum FileControllerUploadFileError {
 /// Загружает файл на сервер и возвращает его URL. Если вы хотите использовать curl из командной строки, не указывайте явно boundary в Content-Type — curl сам выставит нужный заголовок.
 pub async fn file_controller_upload_file(
     configuration: &configuration::Configuration,
-) -> Result<models::FileUploadDto, Error<FileControllerUploadFileError>> {
+) -> Result<models::FileUpload, Error<FileControllerUploadFileError>> {
     let uri_str = format!("{}/api-v2/upload-file", configuration.base_path);
     let mut req_builder = configuration
         .client
@@ -56,4 +56,3 @@ pub async fn file_controller_upload_file(
         }))
     }
 }
-
