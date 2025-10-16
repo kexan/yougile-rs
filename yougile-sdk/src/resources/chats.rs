@@ -79,4 +79,3 @@ impl ChatsAPI {
             .map_err(SDKError::from)
     }
 }
-

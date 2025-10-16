@@ -184,3 +184,15 @@ impl BoardUpdateBuilder {
             .map_err(SDKError::from)
     }
 }
+
+//TODO: надо сделать так, чтобы можно было вызывать update на Board
+pub trait BoardExt {
+    /// Begin updating this board via the SDK.
+    fn update(&self, client: Arc<YouGileClient>) -> BoardUpdateBuilder;
+}
+
+impl BoardExt for Board {
+    fn update(&self, client: Arc<YouGileClient>) -> BoardUpdateBuilder {
+        BoardUpdateBuilder::new(client.clone(), self.id.clone())
+    }
+}
