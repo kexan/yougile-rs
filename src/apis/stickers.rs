@@ -512,7 +512,7 @@ pub async fn sprint_sticker_state_controller_update(
 
 pub async fn string_sticker_controller_create(
     configuration: &configuration::Configuration,
-    create_string_sticker_dto: models::CreateStringStickerDto,
+    create_string_sticker_dto: models::CreateStringSticker,
 ) -> Result<models::Id, Error<StringStickerControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_string_sticker_dto = create_string_sticker_dto;
@@ -563,7 +563,7 @@ pub async fn string_sticker_controller_create(
 pub async fn string_sticker_controller_get(
     configuration: &configuration::Configuration,
     id: &str,
-) -> Result<models::StringStickerWithStatesDto, Error<StringStickerControllerGetError>> {
+) -> Result<models::StringStickerWithStates, Error<StringStickerControllerGetError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
 
@@ -617,7 +617,7 @@ pub async fn string_sticker_controller_search(
     offset: Option<f64>,
     name: Option<&str>,
     board_id: Option<&str>,
-) -> Result<models::StringStickerWithStatesListDto, Error<StringStickerControllerSearchError>> {
+) -> Result<models::StringStickerWithStatesList, Error<StringStickerControllerSearchError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_query_include_deleted = include_deleted;
     let p_query_limit = limit;
@@ -683,7 +683,7 @@ pub async fn string_sticker_controller_search(
 pub async fn string_sticker_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
-    update_string_sticker_dto: models::UpdateStringStickerDto,
+    update_string_sticker_dto: models::UpdateStringSticker,
 ) -> Result<models::Id, Error<StringStickerControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
@@ -737,7 +737,7 @@ pub async fn string_sticker_controller_update(
 pub async fn string_sticker_state_controller_create(
     configuration: &configuration::Configuration,
     sticker_id: &str,
-    create_string_sticker_state_dto: models::CreateStringStickerStateDto,
+    create_string_sticker_state_dto: models::CreateStringStickerState,
 ) -> Result<models::StickerStateId, Error<StringStickerStateControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_sticker_id = sticker_id;
@@ -795,7 +795,7 @@ pub async fn string_sticker_state_controller_get(
     sticker_id: &str,
     sticker_state_id: &str,
     include_deleted: Option<bool>,
-) -> Result<models::StringStickerStateDto, Error<StringStickerStateControllerGetError>> {
+) -> Result<models::StringStickerState, Error<StringStickerStateControllerGetError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_sticker_id = sticker_id;
     let p_path_sticker_state_id = sticker_state_id;
@@ -853,7 +853,7 @@ pub async fn string_sticker_state_controller_update(
     configuration: &configuration::Configuration,
     sticker_id: &str,
     sticker_state_id: &str,
-    update_string_sticker_state_dto: models::UpdateStringStickerStateDto,
+    update_string_sticker_state_dto: models::UpdateStringStickerState,
 ) -> Result<models::StickerStateId, Error<StringStickerStateControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_sticker_id = sticker_id;
