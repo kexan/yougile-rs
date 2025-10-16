@@ -25,7 +25,7 @@ impl YouGileClient {
         &self,
         credentials: crate::models::CredentialsWithCompany,
     ) -> Result<
-        crate::models::AuthKeyDto,
+        crate::models::AuthKey,
         crate::apis::Error<crate::apis::auth::AuthKeyControllerCreateError>,
     > {
         crate::apis::auth::auth_key_controller_create(&self.configuration, credentials).await
@@ -42,7 +42,7 @@ impl YouGileClient {
         &self,
         credentials: crate::models::CredentialsWithCompanyOptional,
     ) -> Result<
-        Vec<crate::models::AuthKeyWithDetailsDto>,
+        Vec<crate::models::AuthKeyWithDetails>,
         crate::apis::Error<crate::apis::auth::AuthKeyControllerSearchError>,
     > {
         crate::apis::auth::auth_key_controller_search(&self.configuration, credentials).await

@@ -62,7 +62,7 @@ pub enum CompanyControllerUpdateError {
 pub async fn auth_key_controller_create(
     configuration: &configuration::Configuration,
     credentials_with_company_dto: models::CredentialsWithCompany,
-) -> Result<models::AuthKeyDto, Error<AuthKeyControllerCreateError>> {
+) -> Result<models::AuthKey, Error<AuthKeyControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_credentials_with_company_dto = credentials_with_company_dto;
 
@@ -146,7 +146,7 @@ pub async fn auth_key_controller_delete(
 pub async fn auth_key_controller_search(
     configuration: &configuration::Configuration,
     credentials_with_company_optional_dto: models::CredentialsWithCompanyOptional,
-) -> Result<Vec<models::AuthKeyWithDetailsDto>, Error<AuthKeyControllerSearchError>> {
+) -> Result<Vec<models::AuthKeyWithDetails>, Error<AuthKeyControllerSearchError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_credentials_with_company_optional_dto = credentials_with_company_optional_dto;
 

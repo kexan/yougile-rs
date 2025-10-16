@@ -1,7 +1,3 @@
-pub mod auth_key_dto;
-pub use self::auth_key_dto::AuthKeyDto;
-pub mod auth_key_with_details_dto;
-pub use self::auth_key_with_details_dto::AuthKeyWithDetailsDto;
 pub mod board;
 pub use self::board::Board;
 pub mod chat;
