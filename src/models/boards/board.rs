@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::{boards::ColumnPermissions, stickers::Stickers, common::PagingMetadata};
+use crate::models::{
+    boards::permissions::ColumnPermissions, common::PagingMetadata, stickers::Stickers,
+};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Board {
@@ -129,50 +131,6 @@ impl UpdateBoard {
             title: None,
             project_id: None,
             stickers: None,
-        }
-    }
-}
-
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct BoardPermissions {
-    #[serde(rename = "editTitle")]
-    pub edit_title: bool,
-    #[serde(rename = "delete")]
-    pub delete: bool,
-    #[serde(rename = "move")]
-    pub r#move: bool,
-    #[serde(rename = "showStickers")]
-    pub show_stickers: bool,
-    #[serde(rename = "editStickers")]
-    pub edit_stickers: bool,
-    #[serde(rename = "addColumn")]
-    pub add_column: bool,
-    #[serde(rename = "columns")]
-    pub columns: Box<ColumnPermissions>,
-    #[serde(rename = "settings")]
-    pub settings: bool,
-}
-
-impl BoardPermissions {
-    pub fn new(
-        edit_title: bool,
-        delete: bool,
-        r#move: bool,
-        show_stickers: bool,
-        edit_stickers: bool,
-        add_column: bool,
-        columns: ColumnPermissions,
-        settings: bool,
-    ) -> BoardPermissions {
-        BoardPermissions {
-            edit_title,
-            delete,
-            r#move,
-            show_stickers,
-            edit_stickers,
-            add_column,
-            columns: Box::new(columns),
-            settings,
         }
     }
 }
