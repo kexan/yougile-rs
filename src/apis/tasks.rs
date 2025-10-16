@@ -60,7 +60,7 @@ pub enum TaskControllerUpdateChatSubscribersError {
 
 pub async fn task_controller_create(
     configuration: &configuration::Configuration,
-    create_task_dto: models::CreateTaskDto,
+    create_task_dto: models::CreateTask,
 ) -> Result<models::Id, Error<TaskControllerCreateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_body_create_task_dto = create_task_dto;
@@ -110,7 +110,7 @@ pub async fn task_controller_create(
 pub async fn task_controller_get(
     configuration: &configuration::Configuration,
     id: &str,
-) -> Result<models::TaskDto, Error<TaskControllerGetError>> {
+) -> Result<models::Task, Error<TaskControllerGetError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;
 
@@ -380,7 +380,7 @@ pub async fn task_controller_search_reversed(
 pub async fn task_controller_update(
     configuration: &configuration::Configuration,
     id: &str,
-    update_task_dto: models::UpdateTaskDto,
+    update_task_dto: models::UpdateTask,
 ) -> Result<models::Id, Error<TaskControllerUpdateError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_id = id;

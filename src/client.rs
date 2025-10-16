@@ -185,7 +185,7 @@ impl YouGileClient {
     // Task methods
     pub async fn create_task(
         &self,
-        create: crate::models::CreateTaskDto,
+        create: crate::models::CreateTask,
     ) -> Result<crate::models::Id, crate::apis::Error<crate::apis::tasks::TaskControllerCreateError>>
     {
         crate::apis::tasks::task_controller_create(&self.configuration, create).await
@@ -194,10 +194,8 @@ impl YouGileClient {
     pub async fn get_task(
         &self,
         id: &str,
-    ) -> Result<
-        crate::models::TaskDto,
-        crate::apis::Error<crate::apis::tasks::TaskControllerGetError>,
-    > {
+    ) -> Result<crate::models::Task, crate::apis::Error<crate::apis::tasks::TaskControllerGetError>>
+    {
         crate::apis::tasks::task_controller_get(&self.configuration, id).await
     }
 
@@ -232,7 +230,7 @@ impl YouGileClient {
     pub async fn update_task(
         &self,
         id: &str,
-        update: crate::models::UpdateTaskDto,
+        update: crate::models::UpdateTask,
     ) -> Result<crate::models::Id, crate::apis::Error<crate::apis::tasks::TaskControllerUpdateError>>
     {
         crate::apis::tasks::task_controller_update(&self.configuration, id, update).await
