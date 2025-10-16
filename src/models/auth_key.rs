@@ -2,15 +2,15 @@ use crate::models;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct AuthKeyDto {
+pub struct AuthKey {
     /// Ключ авторизации
     #[serde(rename = "key")]
     pub key: String,
 }
 
-impl AuthKeyDto {
-    pub fn new(key: String) -> AuthKeyDto {
-        AuthKeyDto { key }
+impl AuthKey {
+    pub fn new(key: String) -> AuthKey {
+        AuthKey { key }
     }
 }
 

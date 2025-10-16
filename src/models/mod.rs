@@ -1,3 +1,5 @@
+pub mod auth_key;
+pub use self::auth_key::AuthKey;
 pub mod board;
 pub use self::board::Board;
 pub mod chat;
