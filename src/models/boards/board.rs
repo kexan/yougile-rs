@@ -22,7 +22,7 @@ pub struct Board {
     pub project_id: String,
     /// Стикеры доски
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<Box<Stickers>>,
+    pub stickers: Option<Stickers>,
 }
 
 impl Board {
@@ -49,7 +49,7 @@ pub struct CreateBoard {
     pub project_id: String,
     /// Стикеры доски
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<Box<Stickers>>,
+    pub stickers: Option<Stickers>,
 }
 
 impl CreateBoard {
@@ -75,7 +75,7 @@ pub struct UpdateBoard {
     pub project_id: Option<String>,
     /// Стикеры доски
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<Box<Stickers>>,
+    pub stickers: Option<Stickers>,
 }
 
 impl UpdateBoard {
