@@ -4,12 +4,11 @@ use yougile_client::{YouGileClient, YougileError};
 async fn main() -> Result<(), YougileError> {
     // Initialize logging
     env_logger::init();
-    
+
     // Create a new client with a bearer token
-    let config = yougile_client::apis::configuration::Configuration::new(
-        "your-api-token-here".to_string()
-    )
-    .with_base_path("https://yougile.com");
+    let config =
+        yougile_client::apis::configuration::Configuration::new("your-api-token-here".to_string())
+            .with_base_path("https://yougile.com");
 
     let client = YouGileClient::new(config);
 
@@ -33,7 +32,10 @@ async fn main() -> Result<(), YougileError> {
 
     // Example: Working with sprint stickers
     log::info!("Working with sprint stickers...");
-    match client.search_sprint_stickers(None, Some(10.0), Some(0.0), None, None).await {
+    match client
+        .search_sprint_stickers(None, Some(10.0), Some(0.0), None, None)
+        .await
+    {
         Ok(stickers) => {
             log::info!("Found {} sprint stickers", stickers.content.len());
         }
@@ -43,15 +45,16 @@ async fn main() -> Result<(), YougileError> {
     }
 
     // Example: Working with webhooks
-    log::info!("Working with webhooks...");
-    match client.search_webhooks(None).await {
-        Ok(webhook) => {
-            log::info!("Found webhook: {} (ID: {})", webhook.url, webhook.id);
-        }
-        Err(e) => {
-            log::error!("Error searching webhooks: {:?}", e);
-        }
-    }
+    // log::info!("Working with webhooks...");
+    // match client.search_webhooks(None).await {
+    //     Ok(webhook) => {
+    //         log::info!("Found webhook: {} (ID: {})", webhook.url, webhook.id);
+    //     }
+    //     Err(e) => {
+    //         log::error!("Error searching webhooks: {:?}", e);
+    //     }
+    // }
 
     Ok(())
 }
+

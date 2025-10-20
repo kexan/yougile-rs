@@ -630,7 +630,7 @@ impl YouGileClient {
     pub async fn search_webhooks(
         &self,
         include_deleted: Option<bool>,
-    ) -> Result<Webhook, YougileError> {
+    ) -> Result<Vec<Webhook>, YougileError> {
         crate::apis::webhooks::search_webhooks(&self.configuration, include_deleted).await
     }
 }

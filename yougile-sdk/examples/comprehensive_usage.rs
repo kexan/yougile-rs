@@ -141,8 +141,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Example: Working with webhooks
     info!("Searching for webhooks...");
     match client.webhooks().search(None).await {
-        Ok(_webhooks) => {
-            info!("Found webhooks");
+        Ok(webhooks) => {
+            info!("Found {} webhook(s)", webhooks.len());
+            for (i, webhook) in webhooks.iter().enumerate() {
+                info!("Webhook #{}:\n{:#?}", i + 1, webhook);
+            }
         }
         Err(e) => {
             error!("Error searching webhooks: {:?}", e);

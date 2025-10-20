@@ -1,7 +1,7 @@
 use crate::{
-    apis::{configuration::Configuration, parse_response, RequestBuilderExt},
-    models::{CreateWebhook, Id, UpdateWebhook, Webhook},
     YougileError,
+    apis::{RequestBuilderExt, configuration::Configuration, parse_response},
+    models::{CreateWebhook, Id, UpdateWebhook, Webhook},
 };
 
 const WEBHOOKS_PATH: &str = "/api-v2/webhooks";
@@ -49,7 +49,7 @@ pub async fn update_webhook(
 pub async fn search_webhooks(
     configuration: &Configuration,
     include_deleted: Option<bool>,
-) -> Result<Webhook, YougileError> {
+) -> Result<Vec<Webhook>, YougileError> {
     let url = format!("{}{}", configuration.base_path, WEBHOOKS_PATH);
 
     let mut query_params = vec![];

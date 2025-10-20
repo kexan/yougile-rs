@@ -39,11 +39,10 @@ impl WebhooksAPI {
     pub async fn search(
         &self,
         include_deleted: Option<bool>,
-    ) -> Result<yougile_client::models::Webhook, SDKError> {
+    ) -> Result<Vec<yougile_client::models::Webhook>, SDKError> {
         self.client
             .search_webhooks(include_deleted)
             .await
             .map_err(SDKError::from)
     }
 }
-
