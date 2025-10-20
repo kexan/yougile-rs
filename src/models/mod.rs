@@ -36,10 +36,9 @@ pub use self::stickers::{
 pub mod tasks;
 pub use self::tasks::{
     AssignUsers, CheckList, CreateTask, Deadline, EditSubtasks, EditWhoToNotify, Move, Stopwatch,
-    Task, TaskChatSubscribers, TaskList, TaskListBase, TaskPermissions, TimeTracking, Timer,
-    UpdateTask,
+    Task, TaskChatSubscribers, TaskList, TaskPermissions, TimeTracking, Timer, UpdateTask,
 };
 pub mod users;
-pub use self::users::{CreateUser, UpdateUser, User, UserList, UserListBase};
+pub use self::users::{CreateUser, UpdateUser, User, UserList};
 pub mod webhooks;
 pub use self::webhooks::{CreateWebhook, UpdateWebhook, Webhook};
