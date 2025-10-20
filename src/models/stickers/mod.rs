@@ -5,15 +5,3 @@ mod string_stickers;
 pub use common::*;
 pub use sprint_stickers::*;
 pub use string_stickers::*;
-
-// Explicit re-exports for clarity
-pub use common::{Icon, StickerStateId, Stickers};
-pub use sprint_stickers::{
-    CreateSprintSticker, SprintStateData, SprintStateUpdate, SprintSticker, SprintStickerList,
-    SprintStickerState, UpdateSprintSticker,
-};
-pub use string_stickers::{
-    CreateStringSticker, CreateStringStickerState, StringStickerState, StringStickerStateNoId,
-    StringStickerWithStates, StringStickerWithStatesList, UpdateStringSticker,
-    UpdateStringStickerState,
-};

@@ -1,18 +1,17 @@
 use crate::{
-    SprintStateData, SprintStateUpdate, YougileError,
+    SprintStateData, SprintStateUpdate, StringStateData, StringStateUpdate, StringSticker,
+    StringStickerData, StringStickerList, YougileError,
     apis::configuration::Configuration,
     models::{
         self, AuthCredentials, AuthKey, AuthKeyWithDetails, Board, BoardList, ChatId, ChatMessage,
         ChatMessageList, Column, ColumnList, Company, CompanyList, CreateBoard, CreateChatMessage,
         CreateColumn, CreateGroupChat, CreateProject, CreateProjectRole, CreateSprintSticker,
-        CreateStringSticker, CreateStringStickerState, CreateTask, CreateUser, CreateWebhook,
-        FileUpload, GroupChat, GroupChatList, Id, Project, ProjectList, ProjectRole,
-        ProjectRoleList, SprintSticker, SprintStickerList, SprintStickerState, StickerStateId,
-        StringStickerState, StringStickerWithStates, StringStickerWithStatesList, Task,
+        CreateStringSticker, CreateTask, CreateUser, CreateWebhook, FileUpload, GroupChat,
+        GroupChatList, Id, Project, ProjectList, ProjectRole, ProjectRoleList, SprintSticker,
+        SprintStickerList, SprintStickerState, StickerStateId, StringStickerState, Task,
         TaskChatSubscribers, TaskList, UpdateBoard, UpdateChatMessage, UpdateColumn, UpdateCompany,
         UpdateGroupChat, UpdateProject, UpdateProjectRole, UpdateSprintSticker,
-        UpdateStringSticker, UpdateStringStickerState, UpdateTask, UpdateUser, UpdateWebhook, User,
-        UserList, Webhook,
+        UpdateStringSticker, UpdateTask, UpdateUser, UpdateWebhook, User, UserList, Webhook,
     },
 };
 use std::sync::Arc;
@@ -539,10 +538,7 @@ impl YouGileClient {
             .await
     }
 
-    pub async fn get_string_sticker(
-        &self,
-        id: &str,
-    ) -> Result<StringStickerWithStates, YougileError> {
+    pub async fn get_string_sticker(&self, id: &str) -> Result<StringSticker, YougileError> {
         crate::apis::stickers::get_string_sticker(&self.configuration, id).await
     }
 
@@ -553,7 +549,7 @@ impl YouGileClient {
         offset: Option<f64>,
         name: Option<&str>,
         board_id: Option<&str>,
-    ) -> Result<StringStickerWithStatesList, YougileError> {
+    ) -> Result<StringStickerList, YougileError> {
         crate::apis::stickers::search_string_sticker(
             &self.configuration,
             include_deleted,
@@ -578,8 +574,8 @@ impl YouGileClient {
     pub async fn create_string_sticker_state(
         &self,
         sticker_id: &str,
-        create_string_sticker_state: CreateStringStickerState,
-    ) -> Result<StickerStateId, YougileError> {
+        create_string_sticker_state: StringStateData,
+    ) -> Result<Id, YougileError> {
         crate::apis::stickers::create_string_sticker_state(
             &self.configuration,
             sticker_id,
@@ -607,8 +603,8 @@ impl YouGileClient {
         &self,
         sticker_id: &str,
         sticker_state_id: &str,
-        update_string_sticker_state: UpdateStringStickerState,
-    ) -> Result<StickerStateId, YougileError> {
+        update_string_sticker_state: StringStateUpdate,
+    ) -> Result<Id, YougileError> {
         crate::apis::stickers::update_string_sticker_state(
             &self.configuration,
             sticker_id,

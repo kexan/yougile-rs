@@ -22,13 +22,8 @@ pub use self::projects::{
     ProjectRoleList, UpdateProject, UpdateProjectRole,
 };
 pub mod stickers;
-pub use self::stickers::{
-    CreateSprintSticker, CreateStringSticker, CreateStringStickerState, Icon, SprintStateData,
-    SprintStateUpdate, SprintSticker, SprintStickerList, SprintStickerState, StickerStateId,
-    Stickers, StringStickerState, StringStickerStateNoId, StringStickerWithStates,
-    StringStickerWithStatesList, UpdateSprintSticker, UpdateStringSticker,
-    UpdateStringStickerState,
-};
+pub use self::stickers::*;
+
 pub mod tasks;
 pub use self::tasks::{
     AssignUsers, CheckList, CreateTask, Deadline, EditSubtasks, EditWhoToNotify, Move, Stopwatch,

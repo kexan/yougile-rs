@@ -114,7 +114,7 @@ impl StickersAPI {
     pub async fn get_string_sticker(
         &self,
         id: &str,
-    ) -> Result<yougile_client::models::StringStickerWithStates, SDKError> {
+    ) -> Result<yougile_client::models::StringSticker, SDKError> {
         self.client
             .get_string_sticker(id)
             .await
@@ -129,7 +129,7 @@ impl StickersAPI {
         offset: Option<f64>,
         name: Option<&str>,
         board_id: Option<&str>,
-    ) -> Result<yougile_client::models::StringStickerWithStatesList, SDKError> {
+    ) -> Result<yougile_client::models::StringStickerList, SDKError> {
         self.client
             .search_string_stickers(include_deleted, limit, offset, name, board_id)
             .await
@@ -152,8 +152,8 @@ impl StickersAPI {
     pub async fn create_string_sticker_state(
         &self,
         sticker_id: &str,
-        create_string_sticker_state: yougile_client::models::CreateStringStickerState,
-    ) -> Result<yougile_client::models::StickerStateId, SDKError> {
+        create_string_sticker_state: yougile_client::models::StringStateData,
+    ) -> Result<yougile_client::models::Id, SDKError> {
         self.client
             .create_string_sticker_state(sticker_id, create_string_sticker_state)
             .await
@@ -178,8 +178,8 @@ impl StickersAPI {
         &self,
         sticker_id: &str,
         sticker_state_id: &str,
-        update_string_sticker_state: yougile_client::models::UpdateStringStickerState,
-    ) -> Result<yougile_client::models::StickerStateId, SDKError> {
+        update_string_sticker_state: yougile_client::models::StringStateUpdate,
+    ) -> Result<yougile_client::models::Id, SDKError> {
         self.client
             .update_string_sticker_state(sticker_id, sticker_state_id, update_string_sticker_state)
             .await
