@@ -1,8 +1,5 @@
 pub mod auth;
-pub use self::auth::{
-    AuthKey, AuthKeyWithDetails, CredentialsWithCompany, CredentialsWithCompanyOptional,
-    CredentialsWithName,
-};
+pub use self::auth::{AuthCredentials, AuthKey, AuthKeyWithDetails};
 pub mod boards;
 pub use self::boards::{
     Board, BoardList, BoardPermissions, Column, ColumnList, CreateBoard, CreateColumn, UpdateBoard,

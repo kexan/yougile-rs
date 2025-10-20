@@ -2,12 +2,11 @@ use crate::{
     YougileError,
     apis::configuration::Configuration,
     models::{
-        self, AuthKey, AuthKeyWithDetails, Board, BoardList, ChatId, ChatMessage, ChatMessageList,
-        Column, ColumnList, Company, CompanyList, CreateBoard, CreateChatMessage, CreateColumn,
-        CreateGroupChat, CreateProject, CreateProjectRole, CreateSprintSticker,
+        self, AuthCredentials, AuthKey, AuthKeyWithDetails, Board, BoardList, ChatId, ChatMessage,
+        ChatMessageList, Column, ColumnList, Company, CompanyList, CreateBoard, CreateChatMessage,
+        CreateColumn, CreateGroupChat, CreateProject, CreateProjectRole, CreateSprintSticker,
         CreateSprintStickerState, CreateStringSticker, CreateStringStickerState, CreateTask,
-        CreateUser, CreateWebhook, CredentialsWithCompany, CredentialsWithCompanyOptional,
-        CredentialsWithName, FileUpload, GroupChat, GroupChatList, Id, Project, ProjectList,
+        CreateUser, CreateWebhook, FileUpload, GroupChat, GroupChatList, Id, Project, ProjectList,
         ProjectRole, ProjectRoleList, SprintStickerState, SprintStickerWithStates,
         SprintStickerWithStatesList, StickerStateId, StringStickerState, StringStickerWithStates,
         StringStickerWithStatesList, Task, TaskChatSubscribers, TaskList, UpdateBoard,
@@ -39,7 +38,7 @@ impl YouGileClient {
     // Authentication methods
     pub async fn create_auth_key(
         &self,
-        credentials: CredentialsWithCompany,
+        credentials: AuthCredentials,
     ) -> Result<AuthKey, YougileError> {
         crate::apis::auth::create_auth_key(&self.configuration, credentials).await
     }
@@ -50,7 +49,7 @@ impl YouGileClient {
 
     pub async fn search_auth_keys(
         &self,
-        credentials: CredentialsWithCompanyOptional,
+        credentials: AuthCredentials,
     ) -> Result<Vec<AuthKeyWithDetails>, YougileError> {
         crate::apis::auth::search_auth_keys(&self.configuration, credentials).await
     }
@@ -65,7 +64,7 @@ impl YouGileClient {
 
     pub async fn get_companies(
         &self,
-        credentials: CredentialsWithName,
+        credentials: AuthCredentials,
         limit: Option<f64>,
         offset: Option<f64>,
     ) -> Result<CompanyList, YougileError> {

@@ -15,7 +15,9 @@ pub enum YougileError {
     #[error("Yougile API error: status {status}, content: {content}")]
     ApiError { status: StatusCode, content: String },
 
+    #[error("Input error: {0}")]
+    InvalidInput(String),
+
     #[error("Other error: {0}")]
     Other(String),
 }
-

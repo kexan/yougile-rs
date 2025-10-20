@@ -15,7 +15,7 @@ impl AuthAPI {
     /// Create an authentication key
     pub async fn create_auth_key(
         &self,
-        credentials: yougile_client::models::CredentialsWithCompany,
+        credentials: yougile_client::models::AuthCredentials,
     ) -> Result<yougile_client::models::AuthKey, SDKError> {
         self.client
             .create_auth_key(credentials)
@@ -34,7 +34,7 @@ impl AuthAPI {
     /// Search for authentication keys
     pub async fn search_auth_keys(
         &self,
-        credentials: yougile_client::models::CredentialsWithCompanyOptional,
+        credentials: yougile_client::models::AuthCredentials,
     ) -> Result<Vec<yougile_client::models::AuthKeyWithDetails>, SDKError> {
         self.client
             .search_auth_keys(credentials)
@@ -61,7 +61,7 @@ impl AuthAPI {
     /// Get companies
     pub async fn get_companies(
         &self,
-        credentials: yougile_client::models::CredentialsWithName,
+        credentials: yougile_client::models::AuthCredentials,
         limit: Option<f64>,
         offset: Option<f64>,
     ) -> Result<yougile_client::models::CompanyList, SDKError> {
@@ -71,4 +71,3 @@ impl AuthAPI {
             .map_err(SDKError::from)
     }
 }
-

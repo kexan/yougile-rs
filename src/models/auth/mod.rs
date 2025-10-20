@@ -6,4 +6,5 @@ pub use credentials::*;
 
 // Explicit re-exports for clarity
 pub use auth_key::{AuthKey, AuthKeyWithDetails};
-pub use credentials::{CredentialsWithCompany, CredentialsWithCompanyOptional, CredentialsWithName};
+pub use credentials::AuthCredentials;
+

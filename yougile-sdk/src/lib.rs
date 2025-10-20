@@ -61,6 +61,7 @@ pub use yougile_client::{
     // Re-export the low-level client in case users need direct access
     YouGileClient,
     models::{
+        AuthCredentials,
         // Auth models
         AuthKey,
         AuthKeyWithDetails,
@@ -89,9 +90,6 @@ pub use yougile_client::{
         CreateTask,
         CreateUser,
         CreateWebhook,
-        CredentialsWithCompany,
-        CredentialsWithCompanyOptional,
-        CredentialsWithName,
         // Department models
         Department,
         DepartmentList,
@@ -130,4 +128,3 @@ pub use yougile_client::{
         Webhook,
     },
 };
-
