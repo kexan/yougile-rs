@@ -14,17 +14,23 @@ pub struct Deadline {
     pub with_time: Option<bool>,
     /// История изменений дедлайна
     #[serde(rename = "history", skip_serializing_if = "Option::is_none")]
-    pub history: Option<Vec<String>>,
+    pub history: Option<Vec<DeadlineHistory>>,
     /// Точки, которые блокируют дату дедлайна (Начало или Конец)
-    #[serde(rename = "blockedPoints")]
-    pub blocked_points: Vec<String>,
+    #[serde(rename = "blockedPoints", skip_serializing_if = "Option::is_none")]
+    //FIXME: вообще-то это поле указано как обязательно в доке, но фактически это не так
+    pub blocked_points: Option<Vec<String>>,
     /// Связанные задачи
-    #[serde(rename = "links")]
-    pub links: Vec<String>,
+    #[serde(rename = "links", skip_serializing_if = "Option::is_none")]
+    //FIXME: вообще-то это поле указано как обязательно в доке, но фактически это не так
+    pub links: Option<Vec<String>>,
 }
 
 impl Deadline {
-    pub fn new(deadline: f64, blocked_points: Vec<String>, links: Vec<String>) -> Deadline {
+    pub fn new(
+        deadline: f64,
+        blocked_points: Option<Vec<String>>,
+        links: Option<Vec<String>>,
+    ) -> Deadline {
         Deadline {
             deadline,
             start_date: None,
@@ -49,7 +55,7 @@ pub struct UpdateDeadline {
     pub with_time: Option<bool>,
     /// История изменений дедлайна
     #[serde(rename = "history", skip_serializing_if = "Option::is_none")]
-    pub history: Option<Vec<String>>,
+    pub history: Option<Vec<DeadlineHistory>>,
     /// Точки, которые блокируют дату дедлайна (Начало или Конец)
     #[serde(rename = "blockedPoints")]
     pub blocked_points: Vec<String>,
@@ -77,4 +83,15 @@ impl UpdateDeadline {
             empty: None,
         }
     }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct DeadlineHistory {
+    pub deadline: f64,
+    pub timestamp: f64,
+    #[serde(rename = "notifyBefore")]
+    pub notify_before: i64,
+    #[serde(rename = "withTime")]
+    pub with_time: bool,
+    pub by: String,
 }

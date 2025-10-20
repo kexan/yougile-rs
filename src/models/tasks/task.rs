@@ -51,7 +51,7 @@ pub struct Task {
     pub created_by: Option<String>,
     /// Стикер \"Дэдлайн\". Указывает на крайний срок выполнения задачи. Имеется возможность кроме даты указать время, а так же дату начала задачи.
     #[serde(rename = "deadline", skip_serializing_if = "Option::is_none")]
-    pub deadline: Option<Box<Deadline>>,
+    pub deadline: Option<Deadline>,
     /// Стикер \"Таймтрекинг\". Используется для указания ожидаемого и реального времени на выполнение задачи.
     #[serde(rename = "timeTracking", skip_serializing_if = "Option::is_none")]
     pub time_tracking: Option<Box<TimeTracking>>,
@@ -130,7 +130,7 @@ pub struct CreateTask {
     pub assigned: Option<Vec<String>>,
     /// Стикер \"Дэдлайн\". Указывает на крайний срок выполнения задачи. Имеется возможность кроме даты указать время, а так же дату начала задачи.
     #[serde(rename = "deadline", skip_serializing_if = "Option::is_none")]
-    pub deadline: Option<Box<Deadline>>,
+    pub deadline: Option<Deadline>,
     /// Стикер \"Таймтрекинг\". Используется для указания ожидаемого и реального времени на выполнение задачи.
     #[serde(rename = "timeTracking", skip_serializing_if = "Option::is_none")]
     pub time_tracking: Option<Box<TimeTracking>>,
@@ -208,7 +208,7 @@ pub struct UpdateTask {
     pub assigned: Option<Vec<String>>,
     /// Стикер \"Дэдлайн\". Указывает на крайний срок выполнения задачи. Имеется возможность кроме даты указать время, а так же дату начала задачи.
     #[serde(rename = "deadline", skip_serializing_if = "Option::is_none")]
-    pub deadline: Option<Box<UpdateDeadline>>,
+    pub deadline: Option<UpdateDeadline>,
     /// Стикер \"Таймтрекинг\". Используется для указания ожидаемого и реального времени на выполнение задачи.
     #[serde(rename = "timeTracking", skip_serializing_if = "Option::is_none")]
     pub time_tracking: Option<Box<UpdateTimeTracking>>,
