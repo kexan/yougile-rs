@@ -7,8 +7,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create a new client using the builder pattern
     let client = YouGileSDK::builder()
-        .token("dIGhpLEQ38CUh-SjUGDNtz0PxkzcrIn-IESOt47jy6EzD4Nt93rHvdwrsLz37oFF") // Replace with your actual token
-        .base_url("https://yougile.kexan.ru")
+        .token("JI0NR9RZJg64alRGKciFVcpItkY2RHtzdoJd2qPQdMdu8hARd0pFzX2bL+Cgz7Xn") // Replace with your actual token
+        .base_url("https://ru.yougile.com")
         .build()?;
 
     // Example: Authentication and company operations

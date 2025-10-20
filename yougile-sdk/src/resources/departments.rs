@@ -66,4 +66,3 @@ impl DepartmentsAPI {
         self.search(None, Some(100.0), Some(0.0), None, None).await
     }
 }
-
