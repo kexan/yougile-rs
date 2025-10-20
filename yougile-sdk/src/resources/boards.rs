@@ -26,13 +26,15 @@ impl BoardsAPI {
     }
 
     /// Create a new board
-    pub fn create(&self) -> BoardCreateBuilder {
-        BoardCreateBuilder::new(self.client.clone())
+    pub async fn create(&self, create_board: CreateBoard) -> Result<Board, SDKError> {
+        let created_board = self.client.create_board(create_board).await?;
+        self.get(&created_board.id).await
     }
 
     /// Update an existing board
-    pub fn update(&self, id: impl Into<String>) -> BoardUpdateBuilder {
-        BoardUpdateBuilder::new(self.client.clone(), id.into())
+    pub async fn update(&self, id: &str, update_board: UpdateBoard) -> Result<Board, SDKError> {
+        let updated_board = self.client.update_board(id, update_board).await?;
+        self.get(&updated_board.id).await
     }
 
     /// Search for boards with various filters
@@ -99,100 +101,5 @@ impl BoardSearchBuilder {
             )
             .await
             .map_err(SDKError::from)
-    }
-}
-
-pub struct BoardCreateBuilder {
-    client: Arc<YouGileClient>,
-    data: CreateBoard,
-}
-
-impl BoardCreateBuilder {
-    pub fn new(client: Arc<YouGileClient>) -> Self {
-        Self {
-            client,
-            data: CreateBoard {
-                title: "".into(),
-                project_id: "".into(),
-                stickers: None,
-            },
-        }
-    }
-
-    pub fn title(mut self, title: impl Into<String>) -> Self {
-        self.data.title = title.into();
-        self
-    }
-
-    pub fn project_id(mut self, project_id: impl Into<String>) -> Self {
-        self.data.project_id = project_id.into();
-        self
-    }
-
-    pub fn stickers(mut self, stickers: yougile_client::models::Stickers) -> Self {
-        self.data.stickers = Some(Box::new(stickers));
-        self
-    }
-
-    pub async fn execute(self) -> Result<yougile_client::models::Id, SDKError> {
-        self.client
-            .create_board(self.data)
-            .await
-            .map_err(SDKError::from)
-    }
-}
-
-pub struct BoardUpdateBuilder {
-    client: Arc<YouGileClient>,
-    id: String,
-    data: UpdateBoard,
-}
-
-impl BoardUpdateBuilder {
-    pub fn new(client: Arc<YouGileClient>, id: String) -> Self {
-        Self {
-            client,
-            id,
-            data: UpdateBoard::new(),
-        }
-    }
-
-    pub fn title(mut self, title: impl Into<String>) -> Self {
-        self.data.title = Some(title.into());
-        self
-    }
-
-    pub fn deleted(mut self, deleted: bool) -> Self {
-        self.data.deleted = Some(deleted);
-        self
-    }
-
-    pub fn project_id(mut self, project_id: impl Into<String>) -> Self {
-        self.data.project_id = Some(project_id.into());
-        self
-    }
-
-    pub fn stickers(mut self, stickers: yougile_client::models::Stickers) -> Self {
-        self.data.stickers = Some(Box::new(stickers));
-        self
-    }
-
-    pub async fn execute(self) -> Result<yougile_client::models::Id, SDKError> {
-        self.client
-            .update_board(&self.id, self.data)
-            .await
-            .map_err(SDKError::from)
-    }
-}
-
-//TODO: надо сделать так, чтобы можно было вызывать update на Board
-pub trait BoardExt {
-    /// Begin updating this board via the SDK.
-    fn update(&self, client: Arc<YouGileClient>) -> BoardUpdateBuilder;
-}
-
-impl BoardExt for Board {
-    fn update(&self, client: Arc<YouGileClient>) -> BoardUpdateBuilder {
-        BoardUpdateBuilder::new(client.clone(), self.id.clone())
     }
 }
