@@ -5,13 +5,13 @@ pub use self::auth::{
 };
 pub mod boards;
 pub use self::boards::{
-    Board, BoardList, BoardPermissions, Column, ColumnList, ColumnListBase, CreateBoard,
-    CreateColumn, UpdateBoard, UpdateColumn,
+    Board, BoardList, BoardPermissions, Column, ColumnList, CreateBoard, CreateColumn, UpdateBoard,
+    UpdateColumn,
 };
 pub mod chats;
 pub use self::chats::{
-    ChatId, ChatMessage, ChatMessageList, ChatMessageListBase, CreateChatMessage, CreateGroupChat,
-    GroupChat, GroupChatList, GroupChatListBase, React, UpdateChatMessage, UpdateGroupChat,
+    ChatId, ChatMessage, ChatMessageList, CreateChatMessage, CreateGroupChat, GroupChat,
+    GroupChatList, React, UpdateChatMessage, UpdateGroupChat,
 };
 pub mod common;
 pub use self::common::{Company, CompanyList, Id, PagingMetadata, UpdateCompany};
@@ -21,17 +21,17 @@ pub mod files;
 pub use self::files::FileUpload;
 pub mod projects;
 pub use self::projects::{
-    CreateProject, CreateProjectRole, Project, ProjectList, ProjectListBase, ProjectPermissions,
-    ProjectRole, ProjectRoleList, ProjectRoleListBase, UpdateProject, UpdateProjectRole,
+    CreateProject, CreateProjectRole, Project, ProjectList, ProjectPermissions, ProjectRole,
+    ProjectRoleList, UpdateProject, UpdateProjectRole,
 };
 pub mod stickers;
 pub use self::stickers::{
     CreateSprintSticker, CreateSprintStickerState, CreateStringSticker, CreateStringStickerState,
     Icon, SprintStickerState, SprintStickerStateNoId, SprintStickerWithStates,
-    SprintStickerWithStatesList, SprintStickerWithStatesListBase, StickerStateId, Stickers,
-    StringStickerState, StringStickerStateNoId, StringStickerWithStates,
-    StringStickerWithStatesList, StringStickerWithStatesListBase, UpdateSprintSticker,
-    UpdateSprintStickerState, UpdateStringSticker, UpdateStringStickerState,
+    SprintStickerWithStatesList, StickerStateId, Stickers, StringStickerState,
+    StringStickerStateNoId, StringStickerWithStates, StringStickerWithStatesList,
+    StringStickerWithStatesListBase, UpdateSprintSticker, UpdateSprintStickerState,
+    UpdateStringSticker, UpdateStringStickerState,
 };
 pub mod tasks;
 pub use self::tasks::{

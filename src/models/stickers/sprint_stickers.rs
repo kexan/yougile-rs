@@ -93,44 +93,17 @@ pub struct SprintStickerWithStatesList {
     pub paging: Box<PagingMetadata>,
     /// Список спринтовых стикеров компании
     #[serde(rename = "content")]
-    pub content: Vec<SprintStickerWithStatesListBase>,
+    pub content: Vec<SprintStickerWithStates>,
 }
 
 impl SprintStickerWithStatesList {
     pub fn new(
         paging: PagingMetadata,
-        content: Vec<SprintStickerWithStatesListBase>,
+        content: Vec<SprintStickerWithStates>,
     ) -> SprintStickerWithStatesList {
         SprintStickerWithStatesList {
             paging: Box::new(paging),
             content,
-        }
-    }
-}
-
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SprintStickerWithStatesListBase {
-    /// ID объекта
-    #[serde(rename = "id")]
-    pub id: String,
-    /// Если true, значит объект удален
-    #[serde(rename = "deleted", skip_serializing_if = "Option::is_none")]
-    pub deleted: Option<bool>,
-    /// Имя стикера
-    #[serde(rename = "name")]
-    pub name: String,
-    /// Состояния стикера.
-    #[serde(rename = "states", skip_serializing_if = "Option::is_none")]
-    pub states: Option<Vec<SprintStickerState>>,
-}
-
-impl SprintStickerWithStatesListBase {
-    pub fn new(id: String, name: String) -> SprintStickerWithStatesListBase {
-        SprintStickerWithStatesListBase {
-            id,
-            deleted: None,
-            name,
-            states: None,
         }
     }
 }

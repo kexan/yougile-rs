@@ -62,33 +62,14 @@ pub struct CompanyList {
     pub paging: Box<models::PagingMetadata>,
     /// Список компаний пользователя
     #[serde(rename = "content")]
-    pub content: Vec<CompanyListBase>,
+    pub content: Vec<CompanyList>,
 }
 
 impl CompanyList {
-    pub fn new(paging: models::PagingMetadata, content: Vec<CompanyListBase>) -> CompanyList {
+    pub fn new(paging: models::PagingMetadata, content: Vec<CompanyList>) -> CompanyList {
         CompanyList {
             paging: Box::new(paging),
             content,
         }
-    }
-}
-
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct CompanyListBase {
-    /// ID объекта
-    #[serde(rename = "id")]
-    pub id: String,
-    /// Название компании
-    #[serde(rename = "name")]
-    pub name: String,
-    /// Права администратора в компании
-    #[serde(rename = "isAdmin")]
-    pub is_admin: bool,
-}
-
-impl CompanyListBase {
-    pub fn new(id: String, name: String, is_admin: bool) -> CompanyListBase {
-        CompanyListBase { id, name, is_admin }
     }
 }

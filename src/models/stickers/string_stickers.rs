@@ -113,13 +113,13 @@ pub struct StringStickerWithStatesList {
     pub paging: Box<PagingMetadata>,
     /// Список текстовых стикеров компании
     #[serde(rename = "content")]
-    pub content: Vec<StringStickerWithStatesListBase>,
+    pub content: Vec<StringStickerWithStates>,
 }
 
 impl StringStickerWithStatesList {
     pub fn new(
         paging: PagingMetadata,
-        content: Vec<StringStickerWithStatesListBase>,
+        content: Vec<StringStickerWithStates>,
     ) -> StringStickerWithStatesList {
         StringStickerWithStatesList {
             paging: Box::new(paging),
@@ -235,4 +235,3 @@ impl StringStickerWithStatesListBase {
         }
     }
 }
-

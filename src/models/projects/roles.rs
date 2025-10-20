@@ -83,14 +83,11 @@ pub struct ProjectRoleList {
     pub paging: Box<models::PagingMetadata>,
     /// Список ролей в проекте
     #[serde(rename = "content")]
-    pub content: Vec<ProjectRoleListBase>,
+    pub content: Vec<ProjectRole>,
 }
 
 impl ProjectRoleList {
-    pub fn new(
-        paging: models::PagingMetadata,
-        content: Vec<ProjectRoleListBase>,
-    ) -> ProjectRoleList {
+    pub fn new(paging: models::PagingMetadata, content: Vec<ProjectRole>) -> ProjectRoleList {
         ProjectRoleList {
             paging: Box::new(paging),
             content,
@@ -98,29 +95,3 @@ impl ProjectRoleList {
     }
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ProjectRoleListBase {
-    /// ID объекта
-    #[serde(rename = "id")]
-    pub id: String,
-    /// Название роли
-    #[serde(rename = "name")]
-    pub name: String,
-    /// Описание роли
-    #[serde(rename = "description", skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-    /// Права в проекте
-    #[serde(rename = "permissions")]
-    pub permissions: Box<ProjectPermissions>,
-}
-
-impl ProjectRoleListBase {
-    pub fn new(id: String, name: String, permissions: ProjectPermissions) -> ProjectRoleListBase {
-        ProjectRoleListBase {
-            id,
-            name,
-            description: None,
-            permissions: Box::new(permissions),
-        }
-    }
-}
