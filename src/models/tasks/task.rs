@@ -1,5 +1,6 @@
 use crate::models::{
     self, CheckList, Deadline, Stopwatch, TimeTracking, Timer,
+    common::Page,
     tasks::{
         CreateStopwatch, CreateTimer, UpdateDeadline, UpdateStopwatch, UpdateTimeTracking,
         UpdateTimer,
@@ -271,21 +272,4 @@ impl TaskChatSubscribers {
     }
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct TaskList {
-    /// Дополнительная информация о странице
-    #[serde(rename = "paging")]
-    pub paging: Box<models::PagingMetadata>,
-    /// Список задач
-    #[serde(rename = "content")]
-    pub content: Vec<Task>,
-}
-
-impl TaskList {
-    pub fn new(paging: models::PagingMetadata, content: Vec<Task>) -> TaskList {
-        TaskList {
-            paging: Box::new(paging),
-            content,
-        }
-    }
-}
+pub type TaskList = Page<Task>;

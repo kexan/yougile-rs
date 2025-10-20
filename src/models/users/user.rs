@@ -1,4 +1,4 @@
-use crate::models::{self, PagingMetadata};
+use crate::models::{self, PagingMetadata, common::Page};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -61,24 +61,7 @@ impl CreateUser {
     }
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct UserList {
-    /// Дополнительная информация о странице
-    #[serde(rename = "paging")]
-    pub paging: Box<PagingMetadata>,
-    /// Список сотрудников
-    #[serde(rename = "content")]
-    pub content: Vec<User>,
-}
-
-impl UserList {
-    pub fn new(paging: PagingMetadata, content: Vec<User>) -> UserList {
-        UserList {
-            paging: Box::new(paging),
-            content,
-        }
-    }
-}
+pub type UserList = Page<User>;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct UpdateUser {

@@ -1,4 +1,4 @@
-use crate::models::{self, PagingMetadata};
+use crate::models::{self, PagingMetadata, common::Page};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -105,22 +105,4 @@ impl UpdateGroupChat {
     }
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct GroupChatList {
-    /// Дополнительная информация о странице
-    #[serde(rename = "paging")]
-    pub paging: Box<models::PagingMetadata>,
-    /// Список чатов
-    #[serde(rename = "content")]
-    pub content: Vec<GroupChat>,
-}
-
-impl GroupChatList {
-    pub fn new(paging: models::PagingMetadata, content: Vec<GroupChat>) -> GroupChatList {
-        GroupChatList {
-            paging: Box::new(paging),
-            content,
-        }
-    }
-}
-
+pub type GroupChatList = Page<GroupChat>;

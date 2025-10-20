@@ -1,4 +1,4 @@
-use crate::models::{self, tasks::TaskPermissions};
+use crate::models::{self, common::Page, tasks::TaskPermissions};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -32,24 +32,7 @@ impl Column {
     }
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ColumnList {
-    /// Дополнительная информация о странице
-    #[serde(rename = "paging")]
-    pub paging: Box<models::PagingMetadata>,
-    /// Список колонок
-    #[serde(rename = "content")]
-    pub content: Vec<Column>,
-}
-
-impl ColumnList {
-    pub fn new(paging: models::PagingMetadata, content: Vec<Column>) -> ColumnList {
-        ColumnList {
-            paging: Box::new(paging),
-            content,
-        }
-    }
-}
+pub type ColumnList = Page<Column>;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CreateColumn {

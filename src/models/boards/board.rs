@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::models::{
-    boards::permissions::ColumnPermissions, common::PagingMetadata, stickers::Stickers,
+    boards::permissions::ColumnPermissions,
+    common::{Page, PagingMetadata},
+    stickers::Stickers,
 };
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -35,24 +37,7 @@ impl Board {
     }
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct BoardList {
-    /// Дополнительная информация о странице
-    #[serde(rename = "paging")]
-    pub paging: Box<PagingMetadata>,
-    /// Список досок
-    #[serde(rename = "content")]
-    pub content: Vec<Board>,
-}
-
-impl BoardList {
-    pub fn new(paging: PagingMetadata, content: Vec<Board>) -> BoardList {
-        BoardList {
-            paging: Box::new(paging),
-            content,
-        }
-    }
-}
+pub type BoardList = Page<Board>;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CreateBoard {

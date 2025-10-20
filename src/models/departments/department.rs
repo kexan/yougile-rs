@@ -1,4 +1,4 @@
-use crate::models::{self, PagingMetadata};
+use crate::models::{self, PagingMetadata, common::Page};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -32,24 +32,8 @@ impl Department {
     }
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct DepartmentList {
-    /// Дополнительная информация о странице
-    #[serde(rename = "paging")]
-    pub paging: Box<PagingMetadata>,
-    /// Список отделов
-    #[serde(rename = "content")]
-    pub content: Vec<Department>,
-}
+pub type DepartmentList = Page<Department>;
 
-impl DepartmentList {
-    pub fn new(paging: PagingMetadata, content: Vec<Department>) -> DepartmentList {
-        DepartmentList {
-            paging: Box::new(paging),
-            content,
-        }
-    }
-}
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CreateDepartment {
     /// Название отдела

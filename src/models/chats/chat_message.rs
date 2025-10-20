@@ -1,4 +1,4 @@
-use crate::models::{self, PagingMetadata};
+use crate::models::{self, PagingMetadata, common::Page};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -52,25 +52,7 @@ impl ChatMessage {
     }
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ChatMessageList {
-    /// Дополнительная информация о странице
-    #[serde(rename = "paging")]
-    pub paging: Box<PagingMetadata>,
-    /// История сообщений
-    #[serde(rename = "content")]
-    pub content: Vec<ChatMessage>,
-}
-
-impl ChatMessageList {
-    pub fn new(paging: PagingMetadata, content: Vec<ChatMessage>) -> ChatMessageList {
-        ChatMessageList {
-            paging: Box::new(paging),
-            content,
-        }
-    }
-}
-
+pub type ChatMessageList = Page<ChatMessage>;
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CreateChatMessage {
     /// Текст сообщения
@@ -157,4 +139,3 @@ impl ChatId {
         ChatId { id }
     }
 }
-

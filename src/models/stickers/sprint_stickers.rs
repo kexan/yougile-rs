@@ -1,4 +1,4 @@
-use crate::models::{self, PagingMetadata};
+use crate::models::{self, PagingMetadata, common::Page};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -86,27 +86,7 @@ impl SprintStickerStateNoId {
     }
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SprintStickerWithStatesList {
-    /// Дополнительная информация о странице
-    #[serde(rename = "paging")]
-    pub paging: Box<PagingMetadata>,
-    /// Список спринтовых стикеров компании
-    #[serde(rename = "content")]
-    pub content: Vec<SprintStickerWithStates>,
-}
-
-impl SprintStickerWithStatesList {
-    pub fn new(
-        paging: PagingMetadata,
-        content: Vec<SprintStickerWithStates>,
-    ) -> SprintStickerWithStatesList {
-        SprintStickerWithStatesList {
-            paging: Box::new(paging),
-            content,
-        }
-    }
-}
+pub type SprintStickerWithStatesList = Page<SprintStickerWithStates>;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct UpdateSprintSticker {

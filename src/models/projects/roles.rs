@@ -1,4 +1,4 @@
-use crate::models::{self};
+use crate::models::{self, common::Page};
 use serde::{Deserialize, Serialize};
 
 use super::permissions::ProjectPermissions;
@@ -76,22 +76,4 @@ impl UpdateProjectRole {
     }
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ProjectRoleList {
-    /// Дополнительная информация о странице
-    #[serde(rename = "paging")]
-    pub paging: Box<models::PagingMetadata>,
-    /// Список ролей в проекте
-    #[serde(rename = "content")]
-    pub content: Vec<ProjectRole>,
-}
-
-impl ProjectRoleList {
-    pub fn new(paging: models::PagingMetadata, content: Vec<ProjectRole>) -> ProjectRoleList {
-        ProjectRoleList {
-            paging: Box::new(paging),
-            content,
-        }
-    }
-}
-
+pub type ProjectRoleList = Page<ProjectRole>;

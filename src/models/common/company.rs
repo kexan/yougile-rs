@@ -1,4 +1,4 @@
-use crate::models;
+use crate::models::{self, common::Page};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -55,21 +55,4 @@ impl UpdateCompany {
     }
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct CompanyList {
-    /// Дополнительная информация о странице
-    #[serde(rename = "paging")]
-    pub paging: Box<models::PagingMetadata>,
-    /// Список компаний пользователя
-    #[serde(rename = "content")]
-    pub content: Vec<CompanyList>,
-}
-
-impl CompanyList {
-    pub fn new(paging: models::PagingMetadata, content: Vec<CompanyList>) -> CompanyList {
-        CompanyList {
-            paging: Box::new(paging),
-            content,
-        }
-    }
-}
+pub type CompanyList = Page<Company>;

@@ -30,8 +30,7 @@ pub use self::stickers::{
     Icon, SprintStickerState, SprintStickerStateNoId, SprintStickerWithStates,
     SprintStickerWithStatesList, StickerStateId, Stickers, StringStickerState,
     StringStickerStateNoId, StringStickerWithStates, StringStickerWithStatesList,
-    StringStickerWithStatesListBase, UpdateSprintSticker, UpdateSprintStickerState,
-    UpdateStringSticker, UpdateStringStickerState,
+    UpdateSprintSticker, UpdateSprintStickerState, UpdateStringSticker, UpdateStringStickerState,
 };
 pub mod tasks;
 pub use self::tasks::{

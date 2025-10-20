@@ -14,6 +14,6 @@ pub use sprint_stickers::{
 };
 pub use string_stickers::{
     CreateStringSticker, CreateStringStickerState, StringStickerState, StringStickerStateNoId,
-    StringStickerWithStates, StringStickerWithStatesList, StringStickerWithStatesListBase,
-    UpdateStringSticker, UpdateStringStickerState,
+    StringStickerWithStates, StringStickerWithStatesList, UpdateStringSticker,
+    UpdateStringStickerState,
 };

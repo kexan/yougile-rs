@@ -1,4 +1,7 @@
-use crate::models::{self, PagingMetadata};
+use crate::{
+    SprintStickerWithStates,
+    models::{self, PagingMetadata, common::Page},
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -106,27 +109,7 @@ impl StringStickerWithStates {
     }
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct StringStickerWithStatesList {
-    /// Дополнительная информация о странице
-    #[serde(rename = "paging")]
-    pub paging: Box<PagingMetadata>,
-    /// Список текстовых стикеров компании
-    #[serde(rename = "content")]
-    pub content: Vec<StringStickerWithStates>,
-}
-
-impl StringStickerWithStatesList {
-    pub fn new(
-        paging: PagingMetadata,
-        content: Vec<StringStickerWithStates>,
-    ) -> StringStickerWithStatesList {
-        StringStickerWithStatesList {
-            paging: Box::new(paging),
-            content,
-        }
-    }
-}
+pub type StringStickerWithStatesList = Page<SprintStickerWithStates>;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct UpdateStringSticker {
@@ -193,45 +176,6 @@ impl StringStickerStateNoId {
             deleted: None,
             name,
             color: None,
-        }
-    }
-}
-
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct StringStickerWithStatesListBase {
-    /// ID объекта
-    #[serde(rename = "id")]
-    pub id: String,
-    /// Если true, значит объект удален
-    #[serde(rename = "deleted", skip_serializing_if = "Option::is_none")]
-    pub deleted: Option<bool>,
-    /// Имя стикера
-    #[serde(rename = "name")]
-    pub name: String,
-    /// Иконка стикера
-    #[serde(rename = "icon", skip_serializing_if = "Option::is_none")]
-    pub icon: Option<super::Icon>,
-    /// Состояния стикера.
-    #[serde(rename = "states", skip_serializing_if = "Option::is_none")]
-    pub states: Option<Vec<StringStickerState>>,
-    /// Количество элементов, которые хочется получить. Максимум 1000.
-    #[serde(rename = "limit", skip_serializing_if = "Option::is_none")]
-    pub limit: Option<f64>,
-    /// Индекс первого элемента страницы
-    #[serde(rename = "offset", skip_serializing_if = "Option::is_none")]
-    pub offset: Option<f64>,
-}
-
-impl StringStickerWithStatesListBase {
-    pub fn new(id: String, name: String) -> StringStickerWithStatesListBase {
-        StringStickerWithStatesListBase {
-            id,
-            deleted: None,
-            name,
-            icon: None,
-            states: None,
-            limit: None,
-            offset: None,
         }
     }
 }
