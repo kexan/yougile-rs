@@ -100,8 +100,8 @@ pub use yougile_client::{
         Project,
         ProjectList,
         // Sticker models
-        SprintStickerWithStates,
-        SprintStickerWithStatesList,
+        SprintSticker,
+        SprintStickerList,
         StickerStateId,
         StringStickerWithStates,
         StringStickerWithStatesList,

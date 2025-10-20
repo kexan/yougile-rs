@@ -27,7 +27,7 @@ impl StickersAPI {
     pub async fn get_sprint_sticker(
         &self,
         id: &str,
-    ) -> Result<yougile_client::models::SprintStickerWithStates, SDKError> {
+    ) -> Result<yougile_client::models::SprintSticker, SDKError> {
         self.client
             .get_sprint_sticker(id)
             .await
@@ -42,7 +42,7 @@ impl StickersAPI {
         offset: Option<f64>,
         name: Option<&str>,
         board_id: Option<&str>,
-    ) -> Result<yougile_client::models::SprintStickerWithStatesList, SDKError> {
+    ) -> Result<yougile_client::models::SprintStickerList, SDKError> {
         self.client
             .search_sprint_stickers(include_deleted, limit, offset, name, board_id)
             .await

@@ -7,10 +7,10 @@ use crate::{
         CreateColumn, CreateGroupChat, CreateProject, CreateProjectRole, CreateSprintSticker,
         CreateStringSticker, CreateStringStickerState, CreateTask, CreateUser, CreateWebhook,
         FileUpload, GroupChat, GroupChatList, Id, Project, ProjectList, ProjectRole,
-        ProjectRoleList, SprintStickerState, SprintStickerWithStates, SprintStickerWithStatesList,
-        StickerStateId, StringStickerState, StringStickerWithStates, StringStickerWithStatesList,
-        Task, TaskChatSubscribers, TaskList, UpdateBoard, UpdateChatMessage, UpdateColumn,
-        UpdateCompany, UpdateGroupChat, UpdateProject, UpdateProjectRole, UpdateSprintSticker,
+        ProjectRoleList, SprintSticker, SprintStickerList, SprintStickerState, StickerStateId,
+        StringStickerState, StringStickerWithStates, StringStickerWithStatesList, Task,
+        TaskChatSubscribers, TaskList, UpdateBoard, UpdateChatMessage, UpdateColumn, UpdateCompany,
+        UpdateGroupChat, UpdateProject, UpdateProjectRole, UpdateSprintSticker,
         UpdateStringSticker, UpdateStringStickerState, UpdateTask, UpdateUser, UpdateWebhook, User,
         UserList, Webhook,
     },
@@ -454,10 +454,7 @@ impl YouGileClient {
             .await
     }
 
-    pub async fn get_sprint_sticker(
-        &self,
-        id: &str,
-    ) -> Result<SprintStickerWithStates, YougileError> {
+    pub async fn get_sprint_sticker(&self, id: &str) -> Result<SprintSticker, YougileError> {
         crate::apis::stickers::get_sprint_sticker(&self.configuration, id).await
     }
 
@@ -468,7 +465,7 @@ impl YouGileClient {
         offset: Option<f64>,
         name: Option<&str>,
         board_id: Option<&str>,
-    ) -> Result<SprintStickerWithStatesList, YougileError> {
+    ) -> Result<SprintStickerList, YougileError> {
         crate::apis::stickers::search_sprint_sticker(
             &self.configuration,
             include_deleted,

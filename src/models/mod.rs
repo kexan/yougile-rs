@@ -24,8 +24,8 @@ pub use self::projects::{
 pub mod stickers;
 pub use self::stickers::{
     CreateSprintSticker, CreateStringSticker, CreateStringStickerState, Icon, SprintStateData,
-    SprintStateUpdate, SprintStickerState, SprintStickerWithStates, SprintStickerWithStatesList,
-    StickerStateId, Stickers, StringStickerState, StringStickerStateNoId, StringStickerWithStates,
+    SprintStateUpdate, SprintSticker, SprintStickerList, SprintStickerState, StickerStateId,
+    Stickers, StringStickerState, StringStickerStateNoId, StringStickerWithStates,
     StringStickerWithStatesList, UpdateSprintSticker, UpdateStringSticker,
     UpdateStringStickerState,
 };

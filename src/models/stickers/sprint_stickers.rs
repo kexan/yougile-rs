@@ -2,6 +2,82 @@ use crate::models::{PagingMetadata, common::Page};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SprintSticker {
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(flatten)]
+    pub data: SprintStickerData,
+    #[serde(rename = "states", skip_serializing_if = "Option::is_none")]
+    pub states: Option<Vec<SprintStickerState>>,
+}
+
+impl SprintSticker {
+    pub fn new(id: String, name: String) -> Self {
+        Self {
+            id,
+            data: SprintStickerData::new(name),
+            states: None,
+        }
+    }
+}
+
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CreateSprintSticker {
+    #[serde(rename = "name")]
+    pub name: String,
+    #[serde(rename = "states", skip_serializing_if = "Option::is_none")]
+    pub states: Option<Vec<SprintStateData>>,
+}
+
+impl CreateSprintSticker {
+    pub fn new(name: String) -> Self {
+        Self { name, states: None }
+    }
+}
+
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub struct UpdateSprintSticker {
+    #[serde(rename = "deleted", skip_serializing_if = "Option::is_none")]
+    pub deleted: Option<bool>,
+    #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+}
+
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SprintStickerData {
+    #[serde(rename = "deleted", skip_serializing_if = "Option::is_none")]
+    pub deleted: Option<bool>,
+    #[serde(rename = "name")]
+    pub name: String,
+}
+
+impl SprintStickerData {
+    pub fn new(name: String) -> Self {
+        Self {
+            name,
+            deleted: None,
+        }
+    }
+}
+
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SprintStickerState {
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(flatten)]
+    pub data: SprintStateData,
+}
+
+impl SprintStickerState {
+    pub fn new(id: String, name: String) -> Self {
+        Self {
+            id,
+            data: SprintStateData::new(name),
+        }
+    }
+}
+
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SprintStateData {
     /// Если true, значит объект удалён
     #[serde(rename = "deleted", skip_serializing_if = "Option::is_none")]
@@ -40,80 +116,4 @@ pub struct SprintStateUpdate {
     pub end: Option<f64>,
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SprintStickerState {
-    #[serde(rename = "id")]
-    pub id: String,
-    #[serde(flatten)]
-    pub data: SprintStateData,
-}
-
-impl SprintStickerState {
-    pub fn new(id: String, name: String) -> Self {
-        Self {
-            id,
-            data: SprintStateData::new(name),
-        }
-    }
-}
-
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SprintStickerWithStates {
-    #[serde(rename = "id")]
-    pub id: String,
-    #[serde(flatten)]
-    pub data: SprintStickerData,
-    #[serde(rename = "states", skip_serializing_if = "Option::is_none")]
-    pub states: Option<Vec<SprintStickerState>>,
-}
-
-impl SprintStickerWithStates {
-    pub fn new(id: String, name: String) -> Self {
-        Self {
-            id,
-            data: SprintStickerData::new(name),
-            states: None,
-        }
-    }
-}
-
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SprintStickerData {
-    #[serde(rename = "deleted", skip_serializing_if = "Option::is_none")]
-    pub deleted: Option<bool>,
-    #[serde(rename = "name")]
-    pub name: String,
-}
-
-impl SprintStickerData {
-    pub fn new(name: String) -> Self {
-        Self {
-            name,
-            deleted: None,
-        }
-    }
-}
-
-pub type SprintStickerWithStatesList = Page<SprintStickerWithStates>;
-
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct CreateSprintSticker {
-    #[serde(rename = "name")]
-    pub name: String,
-    #[serde(rename = "states", skip_serializing_if = "Option::is_none")]
-    pub states: Option<Vec<SprintStateData>>,
-}
-
-impl CreateSprintSticker {
-    pub fn new(name: String) -> Self {
-        Self { name, states: None }
-    }
-}
-
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct UpdateSprintSticker {
-    #[serde(rename = "deleted", skip_serializing_if = "Option::is_none")]
-    pub deleted: Option<bool>,
-    #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-}
+pub type SprintStickerList = Page<SprintSticker>;

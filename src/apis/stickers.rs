@@ -2,8 +2,8 @@ use crate::{
     SprintStateData, SprintStateUpdate, YougileError,
     apis::{RequestBuilderExt, configuration::Configuration, parse_response},
     models::{
-        CreateSprintSticker, CreateStringSticker, CreateStringStickerState, Id, SprintStickerState,
-        SprintStickerWithStates, SprintStickerWithStatesList, StickerStateId, StringStickerState,
+        CreateSprintSticker, CreateStringSticker, CreateStringStickerState, Id, SprintSticker,
+        SprintStickerList, SprintStickerState, StickerStateId, StringStickerState,
         StringStickerWithStates, StringStickerWithStatesList, UpdateSprintSticker,
         UpdateStringSticker, UpdateStringStickerState, common::Page,
     },
@@ -31,7 +31,7 @@ pub async fn create_sprint_sticker(
 pub async fn get_sprint_sticker(
     configuration: &Configuration,
     id: &str,
-) -> Result<SprintStickerWithStates, YougileError> {
+) -> Result<SprintSticker, YougileError> {
     let encoded_id = crate::apis::urlencode(id);
     let url = format!(
         "{}{}/{}",
@@ -55,7 +55,7 @@ pub async fn search_sprint_sticker(
     offset: Option<f64>,
     name: Option<&str>,
     board_id: Option<&str>,
-) -> Result<Page<SprintStickerWithStates>, YougileError> {
+) -> Result<Page<SprintSticker>, YougileError> {
     let url = format!("{}{}", configuration.base_path, SPRINT_STICKERS_PATH);
 
     let mut query_params = vec![];

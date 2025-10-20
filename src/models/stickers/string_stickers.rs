@@ -1,5 +1,5 @@
 use crate::{
-    SprintStickerWithStates,
+    SprintSticker,
     models::{self, PagingMetadata, common::Page},
 };
 use serde::{Deserialize, Serialize};
@@ -109,7 +109,7 @@ impl StringStickerWithStates {
     }
 }
 
-pub type StringStickerWithStatesList = Page<SprintStickerWithStates>;
+pub type StringStickerWithStatesList = Page<SprintSticker>;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct UpdateStringSticker {

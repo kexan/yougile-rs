@@ -9,8 +9,8 @@ pub use string_stickers::*;
 // Explicit re-exports for clarity
 pub use common::{Icon, StickerStateId, Stickers};
 pub use sprint_stickers::{
-    CreateSprintSticker, SprintStateData, SprintStateUpdate, SprintStickerState,
-    SprintStickerWithStates, SprintStickerWithStatesList, UpdateSprintSticker,
+    CreateSprintSticker, SprintStateData, SprintStateUpdate, SprintSticker, SprintStickerList,
+    SprintStickerState, UpdateSprintSticker,
 };
 pub use string_stickers::{
     CreateStringSticker, CreateStringStickerState, StringStickerState, StringStickerStateNoId,
