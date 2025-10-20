@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Deadline {
     /// Timestamp дэдлайна
-    #[serde(rename = "deadline")]
     pub deadline: f64,
     /// Timestamp начала задачи
     #[serde(rename = "startDate", skip_serializing_if = "Option::is_none")]
@@ -13,14 +12,14 @@ pub struct Deadline {
     #[serde(rename = "withTime", skip_serializing_if = "Option::is_none")]
     pub with_time: Option<bool>,
     /// История изменений дедлайна
-    #[serde(rename = "history", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub history: Option<Vec<DeadlineHistory>>,
     /// Точки, которые блокируют дату дедлайна (Начало или Конец)
     #[serde(rename = "blockedPoints", skip_serializing_if = "Option::is_none")]
     //FIXME: вообще-то это поле указано как обязательно в доке, но фактически это не так
     pub blocked_points: Option<Vec<String>>,
     /// Связанные задачи
-    #[serde(rename = "links", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     //FIXME: вообще-то это поле указано как обязательно в доке, но фактически это не так
     pub links: Option<Vec<String>>,
 }
@@ -45,7 +44,7 @@ impl Deadline {
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct UpdateDeadline {
     /// Timestamp дэдлайна
-    #[serde(rename = "deadline", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub deadline: Option<f64>,
     /// Timestamp начала задачи
     #[serde(rename = "startDate", skip_serializing_if = "Option::is_none")]
@@ -54,16 +53,16 @@ pub struct UpdateDeadline {
     #[serde(rename = "withTime", skip_serializing_if = "Option::is_none")]
     pub with_time: Option<bool>,
     /// История изменений дедлайна
-    #[serde(rename = "history", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub history: Option<Vec<DeadlineHistory>>,
     /// Точки, которые блокируют дату дедлайна (Начало или Конец)
-    #[serde(rename = "blockedPoints")]
-    pub blocked_points: Vec<String>,
+    #[serde(rename = "blockedPoints", skip_serializing_if = "Option::is_none")]
+    pub blocked_points: Option<Vec<String>>,
     /// Связанные задачи
-    #[serde(rename = "links")]
-    pub links: Vec<String>,
-    /// Открепить стикер от задачи (true)
-    #[serde(rename = "deleted", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub links: Option<Vec<String>>,
+    /// Открепить стикер от задачи
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub deleted: Option<bool>,
     /// Прикрепить стикер дедлайна без значения
     #[serde(rename = "empty", skip_serializing_if = "Option::is_none")]
@@ -71,14 +70,14 @@ pub struct UpdateDeadline {
 }
 
 impl UpdateDeadline {
-    pub fn new(blocked_points: Vec<String>, links: Vec<String>) -> UpdateDeadline {
+    pub fn new() -> UpdateDeadline {
         UpdateDeadline {
             deadline: None,
             start_date: None,
             with_time: None,
             history: None,
-            blocked_points,
-            links,
+            blocked_points: None,
+            links: None,
             deleted: None,
             empty: None,
         }
