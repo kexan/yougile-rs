@@ -130,7 +130,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(stickers) => {
             log::info!("Found {} sprint stickers", stickers.content.len());
             for sticker in stickers.content.iter().take(3) {
-                log::info!("  - {}: {}", sticker.id, sticker.name);
+                log::info!("  - {}: {}", sticker.id, sticker.data.name);
             }
         }
         Err(e) => {

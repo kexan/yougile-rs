@@ -1,13 +1,12 @@
 use crate::{
-    apis::{configuration::Configuration, parse_response, RequestBuilderExt},
+    SprintStateData, SprintStateUpdate, YougileError,
+    apis::{RequestBuilderExt, configuration::Configuration, parse_response},
     models::{
-        CreateSprintSticker, CreateSprintStickerState, CreateStringSticker,
-        CreateStringStickerState, SprintStickerState, SprintStickerWithStates,
-        SprintStickerWithStatesList, StickerStateId, StringStickerState, StringStickerWithStates,
-        StringStickerWithStatesList, UpdateSprintSticker, UpdateSprintStickerState,
-        UpdateStringSticker, UpdateStringStickerState,
+        CreateSprintSticker, CreateStringSticker, CreateStringStickerState, Id, SprintStickerState,
+        SprintStickerWithStates, SprintStickerWithStatesList, StickerStateId, StringStickerState,
+        StringStickerWithStates, StringStickerWithStatesList, UpdateSprintSticker,
+        UpdateStringSticker, UpdateStringStickerState, common::Page,
     },
-    YougileError,
 };
 
 const SPRINT_STICKERS_PATH: &str = "/api-v2/sprint-stickers";
@@ -15,7 +14,7 @@ const SPRINT_STICKERS_PATH: &str = "/api-v2/sprint-stickers";
 pub async fn create_sprint_sticker(
     configuration: &Configuration,
     create_sprint_sticker: CreateSprintSticker,
-) -> Result<crate::models::Id, YougileError> {
+) -> Result<Id, YougileError> {
     let url = format!("{}{}", configuration.base_path, SPRINT_STICKERS_PATH);
 
     let resp = configuration
@@ -56,7 +55,7 @@ pub async fn search_sprint_sticker(
     offset: Option<f64>,
     name: Option<&str>,
     board_id: Option<&str>,
-) -> Result<SprintStickerWithStatesList, YougileError> {
+) -> Result<Page<SprintStickerWithStates>, YougileError> {
     let url = format!("{}{}", configuration.base_path, SPRINT_STICKERS_PATH);
 
     let mut query_params = vec![];
@@ -91,7 +90,7 @@ pub async fn update_sprint_sticker(
     configuration: &Configuration,
     id: &str,
     update_sprint_sticker: UpdateSprintSticker,
-) -> Result<crate::models::Id, YougileError> {
+) -> Result<Id, YougileError> {
     let encoded_id = crate::apis::urlencode(id);
     let url = format!(
         "{}{}/{}",
@@ -109,14 +108,11 @@ pub async fn update_sprint_sticker(
     parse_response(resp).await
 }
 
-//TODO: сделать нормально
-const SPRINT_STICKER_STATES_PATH: &str = "/api-v2/sprint-stickers/{}/states";
-
 pub async fn create_sprint_sticker_state(
     configuration: &Configuration,
     sticker_id: &str,
-    create_sprint_sticker_state: CreateSprintStickerState,
-) -> Result<StickerStateId, YougileError> {
+    state_data: SprintStateData,
+) -> Result<Id, YougileError> {
     let encoded_sticker_id = crate::apis::urlencode(sticker_id);
     let url = format!(
         "{}/api-v2/sprint-stickers/{}/states",
@@ -126,7 +122,7 @@ pub async fn create_sprint_sticker_state(
     let resp = configuration
         .client
         .post(&url)
-        .json(&create_sprint_sticker_state)
+        .json(&state_data) // ← сериализуется как { "name": "...", "begin": ... }
         .with_auth_headers(configuration)
         .send()
         .await?;
@@ -167,8 +163,8 @@ pub async fn update_sprint_sticker_state(
     configuration: &Configuration,
     sticker_id: &str,
     sticker_state_id: &str,
-    update_sprint_sticker_state: UpdateSprintStickerState,
-) -> Result<StickerStateId, YougileError> {
+    update: SprintStateUpdate,
+) -> Result<Id, YougileError> {
     let encoded_sticker_id = crate::apis::urlencode(sticker_id);
     let encoded_sticker_state_id = crate::apis::urlencode(sticker_state_id);
     let url = format!(
@@ -179,7 +175,7 @@ pub async fn update_sprint_sticker_state(
     let resp = configuration
         .client
         .put(&url)
-        .json(&update_sprint_sticker_state)
+        .json(&update)
         .with_auth_headers(configuration)
         .send()
         .await?;

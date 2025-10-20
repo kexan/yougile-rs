@@ -83,7 +83,6 @@ pub use yougile_client::{
         CreateGroupChat,
         CreateProject,
         CreateSprintSticker,
-        CreateSprintStickerState,
         CreateStringSticker,
         CreateStringStickerState,
         // Request models
@@ -116,7 +115,6 @@ pub use yougile_client::{
         UpdateGroupChat,
         UpdateProject,
         UpdateSprintSticker,
-        UpdateSprintStickerState,
         UpdateStringSticker,
         UpdateStringStickerState,
         UpdateTask,

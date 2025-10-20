@@ -1,18 +1,18 @@
 use crate::{
-    YougileError,
+    SprintStateData, SprintStateUpdate, YougileError,
     apis::configuration::Configuration,
     models::{
         self, AuthCredentials, AuthKey, AuthKeyWithDetails, Board, BoardList, ChatId, ChatMessage,
         ChatMessageList, Column, ColumnList, Company, CompanyList, CreateBoard, CreateChatMessage,
         CreateColumn, CreateGroupChat, CreateProject, CreateProjectRole, CreateSprintSticker,
-        CreateSprintStickerState, CreateStringSticker, CreateStringStickerState, CreateTask,
-        CreateUser, CreateWebhook, FileUpload, GroupChat, GroupChatList, Id, Project, ProjectList,
-        ProjectRole, ProjectRoleList, SprintStickerState, SprintStickerWithStates,
-        SprintStickerWithStatesList, StickerStateId, StringStickerState, StringStickerWithStates,
-        StringStickerWithStatesList, Task, TaskChatSubscribers, TaskList, UpdateBoard,
-        UpdateChatMessage, UpdateColumn, UpdateCompany, UpdateGroupChat, UpdateProject,
-        UpdateProjectRole, UpdateSprintSticker, UpdateSprintStickerState, UpdateStringSticker,
-        UpdateStringStickerState, UpdateTask, UpdateUser, UpdateWebhook, User, UserList, Webhook,
+        CreateStringSticker, CreateStringStickerState, CreateTask, CreateUser, CreateWebhook,
+        FileUpload, GroupChat, GroupChatList, Id, Project, ProjectList, ProjectRole,
+        ProjectRoleList, SprintStickerState, SprintStickerWithStates, SprintStickerWithStatesList,
+        StickerStateId, StringStickerState, StringStickerWithStates, StringStickerWithStatesList,
+        Task, TaskChatSubscribers, TaskList, UpdateBoard, UpdateChatMessage, UpdateColumn,
+        UpdateCompany, UpdateGroupChat, UpdateProject, UpdateProjectRole, UpdateSprintSticker,
+        UpdateStringSticker, UpdateStringStickerState, UpdateTask, UpdateUser, UpdateWebhook, User,
+        UserList, Webhook,
     },
 };
 use std::sync::Arc;
@@ -493,8 +493,8 @@ impl YouGileClient {
     pub async fn create_sprint_sticker_state(
         &self,
         sticker_id: &str,
-        create_sprint_sticker_state: CreateSprintStickerState,
-    ) -> Result<StickerStateId, YougileError> {
+        create_sprint_sticker_state: SprintStateData,
+    ) -> Result<Id, YougileError> {
         crate::apis::stickers::create_sprint_sticker_state(
             &self.configuration,
             sticker_id,
@@ -522,8 +522,8 @@ impl YouGileClient {
         &self,
         sticker_id: &str,
         sticker_state_id: &str,
-        update_sprint_sticker_state: UpdateSprintStickerState,
-    ) -> Result<StickerStateId, YougileError> {
+        update_sprint_sticker_state: SprintStateUpdate,
+    ) -> Result<Id, YougileError> {
         crate::apis::stickers::update_sprint_sticker_state(
             &self.configuration,
             sticker_id,

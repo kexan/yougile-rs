@@ -65,8 +65,8 @@ impl StickersAPI {
     pub async fn create_sprint_sticker_state(
         &self,
         sticker_id: &str,
-        create_sprint_sticker_state: yougile_client::models::CreateSprintStickerState,
-    ) -> Result<yougile_client::models::StickerStateId, SDKError> {
+        create_sprint_sticker_state: yougile_client::models::SprintStateData,
+    ) -> Result<yougile_client::models::Id, SDKError> {
         self.client
             .create_sprint_sticker_state(sticker_id, create_sprint_sticker_state)
             .await
@@ -91,8 +91,8 @@ impl StickersAPI {
         &self,
         sticker_id: &str,
         sticker_state_id: &str,
-        update_sprint_sticker_state: yougile_client::models::UpdateSprintStickerState,
-    ) -> Result<yougile_client::models::StickerStateId, SDKError> {
+        update_sprint_sticker_state: yougile_client::models::SprintStateUpdate,
+    ) -> Result<yougile_client::models::Id, SDKError> {
         self.client
             .update_sprint_sticker_state(sticker_id, sticker_state_id, update_sprint_sticker_state)
             .await
@@ -186,4 +186,3 @@ impl StickersAPI {
             .map_err(SDKError::from)
     }
 }
-
