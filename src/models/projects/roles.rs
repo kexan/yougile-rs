@@ -16,7 +16,7 @@ pub struct ProjectRole {
     pub description: Option<String>,
     /// Права в проекте
     #[serde(rename = "permissions")]
-    pub permissions: Box<ProjectPermissions>,
+    pub permissions: ProjectPermissions,
 }
 
 impl ProjectRole {
@@ -25,7 +25,7 @@ impl ProjectRole {
             id,
             name,
             description: None,
-            permissions: Box::new(permissions),
+            permissions,
         }
     }
 }
@@ -40,7 +40,7 @@ pub struct CreateProjectRole {
     pub description: Option<String>,
     /// Права в проекте
     #[serde(rename = "permissions")]
-    pub permissions: Box<ProjectPermissions>,
+    pub permissions: ProjectPermissions,
 }
 
 impl CreateProjectRole {
@@ -48,7 +48,7 @@ impl CreateProjectRole {
         CreateProjectRole {
             name,
             description: None,
-            permissions: Box::new(permissions),
+            permissions,
         }
     }
 }
@@ -63,7 +63,7 @@ pub struct UpdateProjectRole {
     pub description: Option<String>,
     /// Права в проекте
     #[serde(rename = "permissions", skip_serializing_if = "Option::is_none")]
-    pub permissions: Option<Box<ProjectPermissions>>,
+    pub permissions: Option<ProjectPermissions>,
 }
 
 impl UpdateProjectRole {

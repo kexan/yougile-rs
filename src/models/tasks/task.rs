@@ -54,7 +54,7 @@ pub struct Task {
     pub deadline: Option<Deadline>,
     /// Стикер \"Таймтрекинг\". Используется для указания ожидаемого и реального времени на выполнение задачи.
     #[serde(rename = "timeTracking", skip_serializing_if = "Option::is_none")]
-    pub time_tracking: Option<Box<TimeTracking>>,
+    pub time_tracking: Option<TimeTracking>,
     /// Чеклисты. К задаче всегда будет присвоен переданный объект. Если необходимо внести изменения, нужно сначала получить чеклисты, затем произвести корректировку, а затем записать в задачу заново.
     #[serde(rename = "checklists", skip_serializing_if = "Option::is_none")]
     pub checklists: Option<Vec<CheckList>>,
@@ -71,9 +71,9 @@ pub struct Task {
     #[serde(rename = "idTaskProject", skip_serializing_if = "Option::is_none")]
     pub id_task_project: Option<String>,
     #[serde(rename = "stopwatch", skip_serializing_if = "Option::is_none")]
-    pub stopwatch: Option<Box<Stopwatch>>,
+    pub stopwatch: Option<Stopwatch>,
     #[serde(rename = "timer", skip_serializing_if = "Option::is_none")]
-    pub timer: Option<Box<Timer>>,
+    pub timer: Option<Timer>,
 }
 
 impl Task {
@@ -133,7 +133,7 @@ pub struct CreateTask {
     pub deadline: Option<Deadline>,
     /// Стикер \"Таймтрекинг\". Используется для указания ожидаемого и реального времени на выполнение задачи.
     #[serde(rename = "timeTracking", skip_serializing_if = "Option::is_none")]
-    pub time_tracking: Option<Box<TimeTracking>>,
+    pub time_tracking: Option<TimeTracking>,
     /// Чеклисты. К задаче всегда будет присвоен переданный объект. Если необходимо внести изменения, нужно сначала получить чеклисты, затем произвести корректировку, а затем записать в задачу заново.
     #[serde(rename = "checklists", skip_serializing_if = "Option::is_none")]
     pub checklists: Option<Vec<CheckList>>,
@@ -151,10 +151,10 @@ pub struct CreateTask {
     pub id_task_project: Option<String>,
     /// Стикер \"Секундомер\". Позволяет запустить секундомер, а так же ставить его на паузу и запускать заново.
     #[serde(rename = "stopwatch", skip_serializing_if = "Option::is_none")]
-    pub stopwatch: Option<Box<CreateStopwatch>>,
+    pub stopwatch: Option<CreateStopwatch>,
     /// Стикер \"Таймер\". Позволяет установить таймер на заданное время, а также возможность ставить его на паузу и запускать заново
     #[serde(rename = "timer", skip_serializing_if = "Option::is_none")]
-    pub timer: Option<Box<CreateTimer>>,
+    pub timer: Option<CreateTimer>,
 }
 
 impl CreateTask {
@@ -211,7 +211,7 @@ pub struct UpdateTask {
     pub deadline: Option<UpdateDeadline>,
     /// Стикер \"Таймтрекинг\". Используется для указания ожидаемого и реального времени на выполнение задачи.
     #[serde(rename = "timeTracking", skip_serializing_if = "Option::is_none")]
-    pub time_tracking: Option<Box<UpdateTimeTracking>>,
+    pub time_tracking: Option<UpdateTimeTracking>,
     /// Чеклисты. К задаче всегда будет присвоен переданный объект. Если необходимо внести изменения, нужно сначала получить чеклисты, затем произвести корректировку, а затем записать в задачу заново.
     #[serde(rename = "checklists", skip_serializing_if = "Option::is_none")]
     pub checklists: Option<Vec<CheckList>>,
@@ -229,10 +229,10 @@ pub struct UpdateTask {
     pub id_task_project: Option<String>,
     /// Стикер \"Таймер\". Позволяет установить таймер на заданное время, а также возможность ставить его на паузу и запускать заново
     #[serde(rename = "timer", skip_serializing_if = "Option::is_none")]
-    pub timer: Option<Box<UpdateTimer>>,
+    pub timer: Option<UpdateTimer>,
     /// Стикер \"Секундомер\". Позволяет запустить секундомер, а так же ставить его на паузу и запускать заново.
     #[serde(rename = "stopwatch", skip_serializing_if = "Option::is_none")]
-    pub stopwatch: Option<Box<UpdateStopwatch>>,
+    pub stopwatch: Option<UpdateStopwatch>,
 }
 
 impl UpdateTask {

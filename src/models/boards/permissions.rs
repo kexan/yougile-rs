@@ -1,4 +1,4 @@
-use crate::models::{tasks::TaskPermissions, stickers::Stickers};
+use crate::models::{stickers::Stickers, tasks::TaskPermissions};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -16,7 +16,7 @@ pub struct BoardPermissions {
     #[serde(rename = "addColumn")]
     pub add_column: bool,
     #[serde(rename = "columns")]
-    pub columns: Box<ColumnPermissions>,
+    pub columns: ColumnPermissions,
     #[serde(rename = "settings")]
     pub settings: bool,
 }
@@ -39,7 +39,7 @@ impl BoardPermissions {
             show_stickers,
             edit_stickers,
             add_column,
-            columns: Box::new(columns),
+            columns,
             settings,
         }
     }
@@ -56,13 +56,13 @@ pub struct ColumnPermissions {
     #[serde(rename = "addTask")]
     pub add_task: bool,
     #[serde(rename = "allTasks")]
-    pub all_tasks: Box<TaskPermissions>,
+    pub all_tasks: TaskPermissions,
     #[serde(rename = "withMeTasks")]
-    pub with_me_tasks: Box<TaskPermissions>,
+    pub with_me_tasks: TaskPermissions,
     #[serde(rename = "myTasks")]
-    pub my_tasks: Box<TaskPermissions>,
+    pub my_tasks: TaskPermissions,
     #[serde(rename = "createdByMeTasks")]
-    pub created_by_me_tasks: Box<TaskPermissions>,
+    pub created_by_me_tasks: TaskPermissions,
 }
 
 impl ColumnPermissions {
@@ -81,10 +81,10 @@ impl ColumnPermissions {
             delete,
             r#move,
             add_task,
-            all_tasks: Box::new(all_tasks),
-            with_me_tasks: Box::new(with_me_tasks),
-            my_tasks: Box::new(my_tasks),
-            created_by_me_tasks: Box::new(created_by_me_tasks),
+            all_tasks,
+            with_me_tasks,
+            my_tasks,
+            created_by_me_tasks,
         }
     }
 }
@@ -104,3 +104,4 @@ impl Default for Move {
         Self::No
     }
 }
+

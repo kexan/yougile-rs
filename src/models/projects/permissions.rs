@@ -10,7 +10,7 @@ pub struct ProjectPermissions {
     #[serde(rename = "addBoard")]
     pub add_board: bool,
     #[serde(rename = "boards")]
-    pub boards: Box<BoardPermissions>,
+    pub boards: BoardPermissions,
     #[serde(rename = "children")]
     pub children: serde_json::Value,
 }
@@ -27,8 +27,9 @@ impl ProjectPermissions {
             edit_title,
             delete,
             add_board,
-            boards: Box::new(boards),
+            boards,
             children,
         }
     }
 }
+
