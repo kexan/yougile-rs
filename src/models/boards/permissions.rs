@@ -89,19 +89,15 @@ impl ColumnPermissions {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, Default,
+)]
 pub enum Move {
     #[serde(rename = "no")]
+    #[default]
     No,
     #[serde(rename = "project")]
     Project,
     #[serde(rename = "yes")]
     Yes,
 }
-
-impl Default for Move {
-    fn default() -> Move {
-        Self::No
-    }
-}
-

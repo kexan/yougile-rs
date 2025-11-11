@@ -72,9 +72,12 @@ impl TaskPermissions {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, Default,
+)]
 pub enum AssignUsers {
     #[serde(rename = "no")]
+    #[default]
     No,
     #[serde(rename = "yes")]
     Yes,
@@ -86,15 +89,12 @@ pub enum AssignUsers {
     ChangeFromSelf,
 }
 
-impl Default for AssignUsers {
-    fn default() -> AssignUsers {
-        Self::No
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, Default,
+)]
 pub enum EditSubtasks {
     #[serde(rename = "no")]
+    #[default]
     No,
     #[serde(rename = "yes")]
     Yes,
@@ -102,14 +102,12 @@ pub enum EditSubtasks {
     Complete,
 }
 
-impl Default for EditSubtasks {
-    fn default() -> EditSubtasks {
-        Self::No
-    }
-}
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, Default,
+)]
 pub enum Move {
     #[serde(rename = "no")]
+    #[default]
     No,
     #[serde(rename = "project")]
     Project,
@@ -119,23 +117,15 @@ pub enum Move {
     Board,
 }
 
-impl Default for Move {
-    fn default() -> Move {
-        Self::No
-    }
-}
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, Default,
+)]
 pub enum EditWhoToNotify {
     #[serde(rename = "no")]
+    #[default]
     No,
     #[serde(rename = "yes")]
     Yes,
     #[serde(rename = "self")]
     VariantSelf,
-}
-
-impl Default for EditWhoToNotify {
-    fn default() -> EditWhoToNotify {
-        Self::No
-    }
 }

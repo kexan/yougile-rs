@@ -53,9 +53,12 @@ impl StickerStateId {
 }
 
 /// Иконка стикера
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize, Default,
+)]
 pub enum Icon {
     #[serde(rename = "")]
+    #[default]
     Empty,
     #[serde(rename = "star")]
     Star,
@@ -141,8 +144,3 @@ pub enum Icon {
     Calendar,
 }
 
-impl Default for Icon {
-    fn default() -> Icon {
-        Self::Empty
-    }
-}
