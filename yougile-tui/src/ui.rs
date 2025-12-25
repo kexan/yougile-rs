@@ -243,10 +243,48 @@ fn wrap_text(text: &str, max_width: usize) -> Vec<String> {
     lines
 }
 
-/// Calculate card height (number of lines) for a task
-fn calculate_card_height(task_title: &str, max_width: usize) -> usize {
-    let wrapped = wrap_text(task_title, max_width);
-    3 + wrapped.len() // top border + content lines + bottom border
+/// Calculate card height (number of lines) for a task, including stickers
+fn calculate_card_height(task: &yougile_client::models::Task, max_width: usize) -> usize {
+    let wrapped = wrap_text(&task.title, max_width);
+    let title_lines = wrapped.len();
+    let sticker_lines = if task.stickers.is_some() && !task.stickers.as_ref().unwrap().is_empty() {
+        1 // One line for stickers
+    } else {
+        0
+    };
+    3 + title_lines + sticker_lines // top border + title + stickers + bottom border
+}
+
+/// Format stickers as a compact display string
+fn format_stickers(stickers: &std::collections::HashMap<String, serde_json::Value>) -> String {
+    let mut parts: Vec<String> = Vec::new();
+    
+    for (key, value) in stickers.iter() {
+        let display = match value {
+            serde_json::Value::String(s) => {
+                // Short labels for common stickers
+                if key.contains("deadline") {
+                    format!("⏰{}", &s[..s.len().min(10)])
+                } else if key.contains("priority") || key.contains("Prior") {
+                    format!("!{}", s)
+                } else if key.contains("status") || key.contains("Status") {
+                    format!("●{}", &s[..s.len().min(8)])
+                } else {
+                    format!("{}:{}", &key[..key.len().min(6)], &s[..s.len().min(6)])
+                }
+            }
+            serde_json::Value::Number(n) => format!("{}:{}", &key[..key.len().min(6)], n),
+            serde_json::Value::Bool(b) if *b => format!("✓{}", &key[..key.len().min(6)]),
+            _ => continue,
+        };
+        parts.push(display);
+    }
+    
+    if parts.is_empty() {
+        String::new()
+    } else {
+        parts.join(" ")
+    }
 }
 
 fn draw_kanban_view(f: &mut Frame, app: &App) {
@@ -408,7 +446,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             // If this is the selected column, calculate scroll
             if is_selected && app.selected_task_idx > 0 {
                 for (idx, (_, task)) in sorted_tasks.iter().enumerate() {
-                    let card_height = calculate_card_height(&task.title, max_width);
+                    let card_height = calculate_card_height(task, max_width);
                     if idx < app.selected_task_idx {
                         cumulative_height += card_height;
                         // Scroll if selected task would be below visible area
@@ -426,7 +464,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             let mut has_tasks_below = false;
             let mut current_height = 0;
             for (_, task) in sorted_tasks.iter().skip(visible_task_start) {
-                let card_height = calculate_card_height(&task.title, max_width);
+                let card_height = calculate_card_height(task, max_width);
                 current_height += card_height;
                 if current_height > available_height {
                     has_tasks_below = true;
@@ -497,6 +535,30 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                         } else {
                             let card_line = format!("│{}{}│", padded, " ".repeat(padding_right));
                             lines.push(Line::from(Span::styled(card_line, content_style)));
+                        }
+                    }
+                    
+                    // Stickers line
+                    if let Some(ref stickers) = task.stickers {
+                        if !stickers.is_empty() {
+                            let sticker_text = format_stickers(stickers);
+                            if !sticker_text.is_empty() {
+                                let padded = format!(" {} ", sticker_text);
+                                let padding_right = (max_width + 2).saturating_sub(padded.chars().count());
+                                
+                                let sticker_style = Style::default().fg(Color::Cyan);
+                                
+                                if let Some(color) = task_color {
+                                    lines.push(Line::from(vec![
+                                        Span::styled("│", Style::default().fg(color)),
+                                        Span::styled(format!("{}{}", padded, " ".repeat(padding_right)), sticker_style),
+                                        Span::styled("│", Style::default().fg(color)),
+                                    ]));
+                                } else {
+                                    let sticker_line = format!("│{}{}│", padded, " ".repeat(padding_right));
+                                    lines.push(Line::from(Span::styled(sticker_line, sticker_style)));
+                                }
+                            }
                         }
                     }
                     
@@ -593,9 +655,37 @@ fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
             Span::raw(status),
         ]));
 
+        // Stickers - display in detail view
+        if let Some(ref stickers) = task.stickers {
+            if !stickers.is_empty() {
+                details.push(Line::from(""));
+                details.push(Line::from(vec![
+                    Span::styled("Stickers:", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
+                ]));
+                
+                for (key, value) in stickers.iter() {
+                    let value_str = match value {
+                        serde_json::Value::String(s) => s.clone(),
+                        serde_json::Value::Number(n) => n.to_string(),
+                        serde_json::Value::Bool(b) => b.to_string(),
+                        serde_json::Value::Array(_) => "[array]".to_string(),
+                        serde_json::Value::Object(_) => "[object]".to_string(),
+                        serde_json::Value::Null => "null".to_string(),
+                    };
+                    
+                    details.push(Line::from(vec![
+                        Span::raw("  • "),
+                        Span::styled(format!("{}: ", key), Style::default().fg(Color::Cyan)),
+                        Span::raw(value_str),
+                    ]));
+                }
+            }
+        }
+
         // Assigned users - show names if available, otherwise count
         if let Some(ref assigned) = task.assigned {
             if !assigned.is_empty() {
+                details.push(Line::from(""));
                 // Try to get names
                 let assignee_names: Vec<String> = assigned
                     .iter()
@@ -698,7 +788,7 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from("Note: Logs are written to ~/.cache/yougile-tui/yougile-tui.log"),
         Line::from(""),
         Line::from("Columns: Color-coded by API (1-16 hex colors) • Count shows non-archived tasks only"),
-        Line::from("Tasks: Card borders colored by task-* colors • Archived tasks dimmed"),
+        Line::from("Tasks: Card borders colored by task-* • Stickers shown in cyan • Archived dimmed"),
     ];
 
     let block = Block::default()
