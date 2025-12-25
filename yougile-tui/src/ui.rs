@@ -459,14 +459,16 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                         let padding_right = (max_width + 2).saturating_sub(padded.chars().count());
                         let card_line = format!("│{}{}│", padded, " ".repeat(padding_right));
                         
-                        let style = if is_archived {
-                            // Archived tasks are dimmed
-                            Style::default().fg(Color::DarkGray)
-                        } else if is_task_selected {
+                        let style = if is_task_selected {
+                            // Selected tasks always yellow and bold, regardless of archive status
                             Style::default()
                                 .fg(Color::Yellow)
                                 .add_modifier(Modifier::BOLD)
+                        } else if is_archived {
+                            // Non-selected archived tasks are dimmed
+                            Style::default().fg(Color::DarkGray)
                         } else {
+                            // Normal tasks
                             Style::default().fg(Color::White)
                         };
                         
