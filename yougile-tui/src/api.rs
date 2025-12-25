@@ -1,4 +1,5 @@
 use crate::config::Config;
+use crate::app::ColumnWithTasks;
 use log::{error, info};
 use yougile_client::models::{Project, Board, Task, Column};
 use yougile_client::apis::configuration::Configuration;
@@ -65,8 +66,8 @@ impl YouGileAPI {
         }
     }
 
-    pub async fn fetch_board_tasks(&self, board_id: &str) -> Result<Vec<Task>, String> {
-        info!("Fetching tasks for board: {}", board_id);
+    pub async fn fetch_columns_with_tasks(&self, board_id: &str) -> Result<Vec<ColumnWithTasks>, String> {
+        info!("Fetching columns with tasks for board: {}", board_id);
         
         // First, get all columns for this board
         let columns = match self.client.search_columns(None, Some(100.0), None, None, Some(board_id)).await {
@@ -79,10 +80,10 @@ impl YouGileAPI {
 
         info!("Found {} columns in board", columns.len());
 
-        // Now fetch tasks from all columns
-        let mut all_tasks = Vec::new();
+        // Now fetch tasks for each column
+        let mut columns_with_tasks = Vec::new();
         for column in columns {
-            match self.client.search_tasks(
+            let tasks = match self.client.search_tasks(
                 None,       // include_deleted
                 Some(100.0), // limit
                 None,       // offset
@@ -93,18 +94,22 @@ impl YouGileAPI {
                 None,       // sticker_state_id
             ).await {
                 Ok(page) => {
-                    let tasks = page.content;
-                    info!("Found {} tasks in column {}", tasks.len(), column.title);
-                    all_tasks.extend(tasks);
+                    info!("Found {} tasks in column {}", page.content.len(), column.title);
+                    page.content
                 }
                 Err(e) => {
                     error!("Failed to fetch tasks for column {}: {}", column.id, e);
-                    // Continue with other columns even if one fails
+                    Vec::new() // Continue with empty tasks if fetch fails
                 }
-            }
+            };
+
+            columns_with_tasks.push(ColumnWithTasks {
+                column,
+                tasks,
+            });
         }
 
-        info!("Successfully fetched {} total tasks for board", all_tasks.len());
-        Ok(all_tasks)
+        info!("Successfully fetched {} columns with tasks", columns_with_tasks.len());
+        Ok(columns_with_tasks)
     }
 }
