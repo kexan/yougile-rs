@@ -48,7 +48,7 @@ impl DepartmentsAPI {
         parent_id: Option<&str>,
     ) -> Result<DepartmentList, SDKError> {
         self.client
-            .search_department(include_deleted, limit, offset, title, parent_id)
+            .search_departments(include_deleted, limit, offset, title, parent_id)
             .await
             .map_err(SDKError::from)
     }
