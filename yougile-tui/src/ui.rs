@@ -258,47 +258,43 @@ fn has_stickers(stickers: Option<&serde_json::Value>) -> bool {
     false
 }
 
-/// Calculate card height (number of lines) for a task, including stickers
-fn calculate_card_height(task: &yougile_client::models::Task, max_width: usize) -> usize {
-    let wrapped = wrap_text(&task.title, max_width);
-    let title_lines = wrapped.len();
-    let sticker_lines = if has_stickers(task.stickers.as_ref()) {
-        1 // One line for stickers
-    } else {
-        0
-    };
-    3 + title_lines + sticker_lines // top border + title + stickers + bottom border
-}
-
-/// Format stickers as a compact display string using metadata from app
-fn format_stickers(app: &App, stickers: &serde_json::Value) -> String {
-    let mut parts: Vec<String> = Vec::new();
-    
-    if let Some(obj) = stickers.as_object() {
-        for (sticker_id, state_value) in obj.iter() {
-            // Get sticker title from metadata
-            let sticker_title = app.get_sticker_title(sticker_id);
-            
-            // Format based on value type
-            let display = match state_value {
-                serde_json::Value::String(state_id) => {
-                    // Get state title from sticker metadata
-                    let state_title = app.get_sticker_state_title(sticker_id, state_id);
-                    format!("{}:{}", truncate_str(&sticker_title, 10), truncate_str(&state_title, 10))
-                }
-                serde_json::Value::Number(n) => format!("{}:{}", truncate_str(&sticker_title, 10), n),
-                serde_json::Value::Bool(b) if *b => format!("✓{}", truncate_str(&sticker_title, 10)),
-                _ => continue,
-            };
-            parts.push(display);
+/// Count how many sticker lines a task has
+fn count_sticker_lines(app: &App, stickers: Option<&serde_json::Value>) -> usize {
+    if let Some(value) = stickers {
+        if let Some(obj) = value.as_object() {
+            return obj.len();
         }
     }
+    0
+}
+
+/// Calculate card height (number of lines) for a task, including stickers
+fn calculate_card_height(app: &App, task: &yougile_client::models::Task, max_width: usize) -> usize {
+    let wrapped = wrap_text(&task.title, max_width);
+    let title_lines = wrapped.len();
+    let sticker_lines = count_sticker_lines(app, task.stickers.as_ref());
+    3 + title_lines + sticker_lines // top border + title + stickers (one per line) + bottom border
+}
+
+/// Format single sticker as display string with box
+fn format_single_sticker(app: &App, sticker_id: &str, state_value: &serde_json::Value, max_width: usize) -> String {
+    // Get sticker title from metadata
+    let sticker_title = app.get_sticker_title(sticker_id);
     
-    if parts.is_empty() {
-        String::new()
-    } else {
-        parts.join(" ")
-    }
+    // Format based on value type
+    let display = match state_value {
+        serde_json::Value::String(state_id) => {
+            // Get state title from sticker metadata
+            let state_title = app.get_sticker_state_title(sticker_id, state_id);
+            format!("[{}:{}]", truncate_str(&sticker_title, 15), truncate_str(&state_title, 15))
+        }
+        serde_json::Value::Number(n) => format!("[{}:{}]", truncate_str(&sticker_title, 15), n),
+        serde_json::Value::Bool(b) if *b => format!("[✓{}]", truncate_str(&sticker_title, 15)),
+        _ => return String::new(),
+    };
+    
+    // Truncate if too long for card width
+    truncate_str(&display, max_width)
 }
 
 fn draw_kanban_view(f: &mut Frame, app: &App) {
@@ -460,7 +456,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             // If this is the selected column, calculate scroll
             if is_selected && app.selected_task_idx > 0 {
                 for (idx, (_, task)) in sorted_tasks.iter().enumerate() {
-                    let card_height = calculate_card_height(task, max_width);
+                    let card_height = calculate_card_height(app, task, max_width);
                     if idx < app.selected_task_idx {
                         cumulative_height += card_height;
                         // Scroll if selected task would be below visible area
@@ -478,7 +474,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             let mut has_tasks_below = false;
             let mut current_height = 0;
             for (_, task) in sorted_tasks.iter().skip(visible_task_start) {
-                let card_height = calculate_card_height(task, max_width);
+                let card_height = calculate_card_height(app, task, max_width);
                 current_height += card_height;
                 if current_height > available_height {
                     has_tasks_below = true;
@@ -552,25 +548,27 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                         }
                     }
                     
-                    // Stickers line - use app to resolve sticker names
+                    // Stickers - each on separate line
                     if let Some(ref stickers) = task.stickers {
-                        if has_stickers(Some(stickers)) {
-                            let sticker_text = format_stickers(app, stickers);
-                            if !sticker_text.is_empty() {
-                                let padded = format!(" {} ", sticker_text);
-                                let padding_right = (max_width + 2).saturating_sub(padded.chars().count());
-                                
-                                let sticker_style = Style::default().fg(Color::Cyan);
-                                
-                                if let Some(color) = task_color {
-                                    lines.push(Line::from(vec![
-                                        Span::styled("│", Style::default().fg(color)),
-                                        Span::styled(format!("{}{}", padded, " ".repeat(padding_right)), sticker_style),
-                                        Span::styled("│", Style::default().fg(color)),
-                                    ]));
-                                } else {
-                                    let sticker_line = format!("│{}{}│", padded, " ".repeat(padding_right));
-                                    lines.push(Line::from(Span::styled(sticker_line, sticker_style)));
+                        if let Some(obj) = stickers.as_object() {
+                            for (sticker_id, state_value) in obj.iter() {
+                                let sticker_text = format_single_sticker(app, sticker_id, state_value, max_width);
+                                if !sticker_text.is_empty() {
+                                    let padded = format!(" {} ", sticker_text);
+                                    let padding_right = (max_width + 2).saturating_sub(padded.chars().count());
+                                    
+                                    let sticker_style = Style::default().fg(Color::Cyan);
+                                    
+                                    if let Some(color) = task_color {
+                                        lines.push(Line::from(vec![
+                                            Span::styled("│", Style::default().fg(color)),
+                                            Span::styled(format!("{}{}", padded, " ".repeat(padding_right)), sticker_style),
+                                            Span::styled("│", Style::default().fg(color)),
+                                        ]));
+                                    } else {
+                                        let sticker_line = format!("│{}{}│", padded, " ".repeat(padding_right));
+                                        lines.push(Line::from(Span::styled(sticker_line, sticker_style)));
+                                    }
                                 }
                             }
                         }
@@ -809,7 +807,7 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from("Note: Logs are written to ~/.cache/yougile-tui/yougile-tui.log"),
         Line::from(""),
         Line::from("Columns: Color-coded by API (1-16 hex colors) • Count shows non-archived tasks only"),
-        Line::from("Tasks: Card borders colored by task-* • Stickers shown in cyan • Archived dimmed"),
+        Line::from("Tasks: Card borders colored by task-* • Stickers shown in cyan boxes • Archived dimmed"),
     ];
 
     let block = Block::default()
