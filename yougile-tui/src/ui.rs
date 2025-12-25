@@ -7,6 +7,9 @@ use ratatui::{
     Frame,
 };
 
+// Fixed width for each column in characters
+const COLUMN_WIDTH: u16 = 30;
+
 pub fn draw(f: &mut Frame, app: &App) {
     match app.current_view {
         View::Projects => draw_projects_view(f, app),
@@ -174,7 +177,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
         .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
     f.render_widget(header, chunks[0]);
 
-    // Kanban board - columns displayed horizontally
+    // Kanban board - columns with fixed width and horizontal scrolling
     if app.columns.is_empty() {
         let empty_msg = Paragraph::new("No columns found")
             .block(
@@ -185,18 +188,37 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             .style(Style::default().fg(Color::Yellow));
         f.render_widget(empty_msg, chunks[1]);
     } else {
-        // Create constraints for each column (equal width)
-        let column_count = app.columns.len();
-        let constraints: Vec<Constraint> = vec![Constraint::Ratio(1, column_count as u32); column_count];
+        // Calculate how many columns fit on screen
+        let available_width = chunks[1].width;
+        let columns_on_screen = (available_width / COLUMN_WIDTH).max(1) as usize;
+        
+        // Calculate scroll offset based on selected column
+        let scroll_offset = if app.selected_column_idx >= columns_on_screen {
+            app.selected_column_idx - columns_on_screen + 1
+        } else {
+            0
+        };
+        
+        // Get visible columns
+        let visible_columns: Vec<_> = app.columns
+            .iter()
+            .skip(scroll_offset)
+            .take(columns_on_screen)
+            .enumerate()
+            .collect();
+
+        // Create fixed width constraints for visible columns
+        let constraints: Vec<Constraint> = vec![Constraint::Length(COLUMN_WIDTH); visible_columns.len()];
         
         let column_chunks = Layout::default()
             .direction(Direction::Horizontal)
             .constraints(constraints)
             .split(chunks[1]);
 
-        // Draw each column
-        for (col_idx, column_with_tasks) in app.columns.iter().enumerate() {
-            let is_selected = col_idx == app.selected_column_idx;
+        // Draw each visible column
+        for (visible_idx, (col_idx, column_with_tasks)) in visible_columns.iter().enumerate() {
+            let actual_col_idx = scroll_offset + col_idx;
+            let is_selected = actual_col_idx == app.selected_column_idx;
             
             let border_style = if is_selected {
                 Style::default().fg(Color::Green)
@@ -211,36 +233,72 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                 .border_type(ratatui::widgets::BorderType::Rounded)
                 .border_style(border_style);
 
-            // Create task list items
+            // Create task card items with borders and padding
             let items: Vec<ListItem> = column_with_tasks
                 .tasks
                 .iter()
                 .enumerate()
                 .map(|(task_idx, task)| {
-                    let name = task.title.clone();
                     let is_task_selected = is_selected && task_idx == app.selected_task_idx;
                     
-                    let content = if is_task_selected {
-                        Line::from(vec![Span::styled(
-                            format!("▶ {}", name),
+                    // Truncate task name to fit in card width (accounting for borders and padding)
+                    let max_width = (COLUMN_WIDTH - 4) as usize; // -4 for borders and padding
+                    let task_name = if task.title.len() > max_width {
+                        format!("{}...", &task.title[..max_width - 3])
+                    } else {
+                        task.title.clone()
+                    };
+                    
+                    // Create card lines
+                    let mut lines = vec![];
+                    
+                    // Top border of card
+                    lines.push(Line::from("┌".to_string() + &"─".repeat(max_width) + "┐"));
+                    
+                    // Task title with padding
+                    let padded_title = format!(" {}", task_name);
+                    let padding_right = max_width.saturating_sub(padded_title.len());
+                    let card_line = format!("│{}{} │", padded_title, " ".repeat(padding_right));
+                    
+                    if is_task_selected {
+                        lines.push(Line::from(Span::styled(
+                            card_line,
                             Style::default()
                                 .fg(Color::Yellow)
                                 .add_modifier(Modifier::BOLD),
-                        )])
+                        )));
                     } else {
-                        Line::from(vec![Span::raw(format!("  {}", name))])
-                    };
-                    ListItem::new(content)
+                        lines.push(Line::from(Span::styled(
+                            card_line,
+                            Style::default().fg(Color::White),
+                        )));
+                    }
+                    
+                    // Bottom border of card
+                    lines.push(Line::from("└".to_string() + &"─".repeat(max_width) + "┘"));
+                    
+                    // Empty line for spacing between cards
+                    lines.push(Line::from(""));
+                    
+                    ListItem::new(lines)
                 })
                 .collect();
 
             let tasks_list = List::new(items).block(block);
-            f.render_widget(tasks_list, column_chunks[col_idx]);
+            f.render_widget(tasks_list, column_chunks[visible_idx]);
         }
     }
 
     // Footer with instructions
-    let footer_text = "↵: open task | Tab/←/→: switch columns | ↑/↓ or j/k: navigate | r: refresh | Esc: back | q: quit";
+    let scroll_indicator = if app.columns.len() > 1 {
+        format!(" ({}/{})", app.selected_column_idx + 1, app.columns.len())
+    } else {
+        String::new()
+    };
+    let footer_text = format!(
+        "↵: open{} | Tab/←/→/h/l: columns | ↑/↓/j/k: tasks | r: refresh | Esc: back | q: quit",
+        scroll_indicator
+    );
     let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
     f.render_widget(footer, chunks[2]);
 
