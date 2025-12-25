@@ -16,6 +16,8 @@ const COLUMN_PADDING: u16 = 1;
 const MAX_COLUMNS_VISIBLE: usize = 4;
 // Minimum width for task detail panel
 const TASK_DETAIL_MIN_WIDTH: u16 = 50;
+// Padding between columns area and task detail panel
+const PANEL_PADDING: u16 = 2;
 
 pub fn draw(f: &mut Frame, app: &App) {
     match app.current_view {
@@ -232,13 +234,32 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
         .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
     f.render_widget(header, chunks[0]);
 
+    // Calculate how many columns can fit and their total width
+    let available_width = chunks[1].width;
+    let column_with_padding = COLUMN_WIDTH + COLUMN_PADDING;
+    
     // Split main area into columns and task detail if task is open
     let main_chunks: Rc<[Rect]> = if app.current_task.is_some() {
+        // Calculate columns area width:
+        // We want to show up to MAX_COLUMNS_VISIBLE columns
+        let visible_columns = app.columns.len().min(MAX_COLUMNS_VISIBLE);
+        let columns_width = if visible_columns > 0 {
+            (visible_columns as u16 * COLUMN_WIDTH) + ((visible_columns.saturating_sub(1)) as u16 * COLUMN_PADDING)
+        } else {
+            COLUMN_WIDTH
+        };
+        
+        // Task detail panel gets remaining space (but at least minimum width)
+        // Total width = columns_width + padding + task_detail_width
+        // So: task_detail_width = available_width - columns_width - padding
+        let task_detail_width = available_width.saturating_sub(columns_width).saturating_sub(PANEL_PADDING).max(TASK_DETAIL_MIN_WIDTH);
+        
         Layout::default()
             .direction(Direction::Horizontal)
             .constraints([
-                Constraint::Min(COLUMN_WIDTH),
-                Constraint::Length(TASK_DETAIL_MIN_WIDTH),
+                Constraint::Length(columns_width),
+                Constraint::Length(PANEL_PADDING),
+                Constraint::Min(task_detail_width),
             ])
             .split(chunks[1])
     } else {
@@ -437,9 +458,9 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
         }
     }
 
-    // Draw task detail panel on the right if task is open
-    if app.current_task.is_some() && main_chunks.len() > 1 {
-        draw_task_detail_panel(f, app, main_chunks[1]);
+    // Draw task detail panel on the right if task is open (skip padding area at index 1)
+    if app.current_task.is_some() && main_chunks.len() > 2 {
+        draw_task_detail_panel(f, app, main_chunks[2]);
     }
 
     // Footer with instructions
