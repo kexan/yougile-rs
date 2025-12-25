@@ -7,8 +7,15 @@
     rust-overlay.url = "github:oxalica/rust-overlay";
   };
 
-  outputs = { self, nixpkgs, flake-utils, rust-overlay }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      rust-overlay,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
         overlays = [ (import rust-overlay) ];
         pkgs = import nixpkgs {
@@ -16,7 +23,10 @@
         };
 
         rust = pkgs.rust-bin.stable.latest.default.override {
-          extensions = [ "rust-src" "rust-analyzer" ];
+          extensions = [
+            "rust-src"
+            "rust-analyzer"
+          ];
         };
 
         nativeBuildInputs = with pkgs; [
@@ -35,7 +45,7 @@
           libxcb
           libxkbcommon
           libGL
-          
+
           # For development
           git
           cargo-edit
@@ -45,7 +55,7 @@
       {
         devShells.default = pkgs.mkShell {
           inherit buildInputs nativeBuildInputs;
-          
+
           shellHook = ''
             echo "YouGile Rust Project Development Environment"
             echo "================================================"
@@ -60,7 +70,7 @@
             echo "  cargo doc --open      - Build and open documentation"
             echo ""
             echo "Environment variables for TUI:"
-            echo "  YOUGILE_API_URL       - API endpoint (default: https://api.yougile.com)"
+            echo "  YOUGILE_API_URL       - API endpoint"
             echo "  YOUGILE_API_TOKEN     - Your API token (REQUIRED)"
             echo "  RUST_LOG              - Log level: error, warn, info, debug, trace"
             echo ""
