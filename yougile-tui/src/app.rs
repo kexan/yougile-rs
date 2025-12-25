@@ -141,9 +141,10 @@ impl App {
                         if self.selected_board_idx < self.boards.len() {
                             if let Some(board) = self.boards.get(self.selected_board_idx) {
                                 log::info!("Selected board: {:?}", board.title);
+                                let board_id = board.id.clone();
                                 self.current_board = Some(board.clone());
                                 // Load stickers for this board specifically
-                                self.load_stickers_for_board(&board.id).await?;
+                                self.load_stickers_for_board(&board_id).await?;
                                 self.load_columns_with_tasks().await?;
                                 self.current_view = View::Tasks;
                             }
@@ -205,7 +206,8 @@ impl App {
                     View::Tasks | View::TaskDetail => {
                         // Reload stickers and tasks when refreshing
                         if let Some(ref board) = self.current_board {
-                            self.load_stickers_for_board(&board.id).await?;
+                            let board_id = board.id.clone();
+                            self.load_stickers_for_board(&board_id).await?;
                         }
                         self.load_columns_with_tasks().await?
                     },
