@@ -29,25 +29,25 @@ pub fn draw(f: &mut Frame, app: &App) {
     }
 }
 
-/// Map column color index (0-15) to ratatui Color
-fn get_column_color(color_index: Option<u8>) -> Color {
-    match color_index {
-        Some(0) => Color::Gray,
-        Some(1) => Color::Red,
-        Some(2) => Color::LightRed,
-        Some(3) => Color::Green,
-        Some(4) => Color::LightGreen,
-        Some(5) => Color::Yellow,
-        Some(6) => Color::LightYellow,
-        Some(7) => Color::Blue,
-        Some(8) => Color::LightBlue,
-        Some(9) => Color::Magenta,
-        Some(10) => Color::LightMagenta,
-        Some(11) => Color::Cyan,
-        Some(12) => Color::LightCyan,
-        Some(13) => Color::White,
-        Some(14) => Color::DarkGray,
-        Some(15) => Color::Rgb(138, 43, 226), // BlueViolet
+/// Map column color index (1-16) to ratatui Color using exact hex codes from API docs
+fn get_column_color(color_index: Option<f64>) -> Color {
+    match color_index.map(|c| c as u8) {
+        Some(1) => Color::Rgb(0x7B, 0x86, 0x9E),  // #7B869E
+        Some(2) => Color::Rgb(0xFF, 0x8C, 0x8C),  // #FF8C8C
+        Some(3) => Color::Rgb(0xE9, 0xA2, 0x4F),  // #E9A24F
+        Some(4) => Color::Rgb(0xFC, 0xE2, 0x58),  // #FCE258
+        Some(5) => Color::Rgb(0x7C, 0xAE, 0x5E),  // #7CAE5E
+        Some(6) => Color::Rgb(0x49, 0xC5, 0xBC),  // #49C5BC
+        Some(7) => Color::Rgb(0x8C, 0xAC, 0xFF),  // #8CACFF
+        Some(8) => Color::Rgb(0xCC, 0x8C, 0xFF),  // #CC8CFF
+        Some(9) => Color::Rgb(0x66, 0x70, 0x85),  // #667085
+        Some(10) => Color::Rgb(0xEB, 0x37, 0x37), // #EB3737
+        Some(11) => Color::Rgb(0xF2, 0x73, 0x2B), // #F2732B
+        Some(12) => Color::Rgb(0xF5, 0xCC, 0x00), // #F5CC00
+        Some(13) => Color::Rgb(0x5C, 0xDC, 0x11), // #5CDC11
+        Some(14) => Color::Rgb(0x08, 0xA7, 0xA9), // #08A7A9
+        Some(15) => Color::Rgb(0x50, 0x89, 0xF2), // #5089F2
+        Some(16) => Color::Rgb(0xE2, 0x5E, 0xF2), // #E25EF2
         _ => Color::White, // Default
     }
 }
@@ -665,7 +665,7 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from(""),
         Line::from("Note: Logs are written to ~/.cache/yougile-tui/yougile-tui.log"),
         Line::from(""),
-        Line::from("Columns: Color-coded by API • Count shows non-archived tasks only"),
+        Line::from("Columns: Color-coded by API (1-16 hex colors) • Count shows non-archived tasks only"),
         Line::from("Tasks: Archived tasks are dimmed and sorted to bottom"),
     ];
 
