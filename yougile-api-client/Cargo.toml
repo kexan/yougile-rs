@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["OpenAPI Generator team and contributors"]
 description = "A Rust client for the YouGile API v2.0. Provides a more idiomatic Rust interface for interacting with YouGile services."
 license = "Unlicense"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 serde = { version = "^1.0", features = ["derive"] }
