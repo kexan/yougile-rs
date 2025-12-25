@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::app::{ColumnWithTasks, StickerMeta};
-use log::{error, info};
+use log::{error, info, debug};
 use yougile_client::models::{Project, Board, User};
 use yougile_client::apis::configuration::Configuration;
 use yougile_client::YouGileClient;
@@ -143,14 +143,17 @@ impl YouGileAPI {
                     let mut states = HashMap::new();
                     if let Some(sticker_states) = sticker.states {
                         for state in sticker_states {
-                            // SprintStickerState has data.name
+                            debug!("Sprint sticker state: id={}, name={}", state.id, state.data.name);
                             states.insert(state.id.clone(), state.data.name.clone());
                         }
                     }
                     
+                    debug!("Sprint sticker: id={}, name={}, states_count={}", 
+                        sticker.id, sticker.data.name, states.len());
+                    
                     all_stickers.push(StickerMeta {
-                        id: sticker.id,
-                        title: sticker.data.name,  // SprintSticker has data.name
+                        id: sticker.id.clone(),
+                        title: sticker.data.name.clone(),
                         states,
                     });
                 }
@@ -170,14 +173,17 @@ impl YouGileAPI {
                     let mut states = HashMap::new();
                     if let Some(sticker_states) = sticker.states {
                         for state in sticker_states {
-                            // StringStickerState has data.name
+                            debug!("String sticker state: id={}, name={}", state.id, state.data.name);
                             states.insert(state.id.clone(), state.data.name.clone());
                         }
                     }
                     
+                    debug!("String sticker: id={}, name={}, states_count={}", 
+                        sticker.id, sticker.data.name, states.len());
+                    
                     all_stickers.push(StickerMeta {
-                        id: sticker.id,
-                        title: sticker.data.name,  // StringSticker has data.name
+                        id: sticker.id.clone(),
+                        title: sticker.data.name.clone(),
                         states,
                     });
                 }
@@ -190,6 +196,13 @@ impl YouGileAPI {
         }
         
         info!("Successfully fetched {} total stickers", all_stickers.len());
+        
+        // Log all loaded stickers for debugging
+        for sticker in &all_stickers {
+            debug!("Loaded sticker: id='{}', title='{}', states={}", 
+                sticker.id, sticker.title, sticker.states.len());
+        }
+        
         Ok(all_stickers)
     }
 }
