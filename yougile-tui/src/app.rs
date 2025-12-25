@@ -103,19 +103,6 @@ impl App {
             KeyCode::Char('q') => {
                 self.quit = true;
             }
-            KeyCode::Tab => {
-                if self.current_view == View::Tasks || self.current_view == View::TaskDetail {
-                    self.next_column();
-                } else {
-                    self.toggle_focus();
-                }
-                log::debug!("Toggled focus to: {:?}", self.focus);
-            }
-            KeyCode::BackTab => {
-                if self.current_view == View::Tasks || self.current_view == View::TaskDetail {
-                    self.prev_column();
-                }
-            }
             KeyCode::Up | KeyCode::Char('k') => {
                 self.move_up();
             }
@@ -151,20 +138,12 @@ impl App {
                         }
                     }
                     View::Tasks | View::TaskDetail => {
-                        // Toggle task detail panel
-                        if self.current_task.is_some() {
-                            // Close task detail
-                            self.current_task = None;
-                            self.current_view = View::Tasks;
-                            log::info!("Closed task detail");
-                        } else {
-                            // Open task detail
-                            if let Some(column) = self.columns.get(self.selected_column_idx) {
-                                if let Some(task) = column.tasks.get(self.selected_task_idx) {
-                                    log::info!("Opening task: {:?}", task.title);
-                                    self.current_task = Some(task.clone());
-                                    self.current_view = View::TaskDetail;
-                                }
+                        // Open selected task (replaces current task if any)
+                        if let Some(column) = self.columns.get(self.selected_column_idx) {
+                            if let Some(task) = column.tasks.get(self.selected_task_idx) {
+                                log::info!("Opening task: {:?}", task.title);
+                                self.current_task = Some(task.clone());
+                                self.current_view = View::TaskDetail;
                             }
                         }
                     }
@@ -286,9 +265,7 @@ impl App {
             self.selected_column_idx += 1;
             self.selected_task_idx = 0;
             self.task_scroll_offset = 0;
-            // Close task detail when switching columns
-            self.current_task = None;
-            self.current_view = View::Tasks;
+            // Keep task detail open when switching columns
         }
     }
 
@@ -297,9 +274,7 @@ impl App {
             self.selected_column_idx -= 1;
             self.selected_task_idx = 0;
             self.task_scroll_offset = 0;
-            // Close task detail when switching columns
-            self.current_task = None;
-            self.current_view = View::Tasks;
+            // Keep task detail open when switching columns
         }
     }
 
