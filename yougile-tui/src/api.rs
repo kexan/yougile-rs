@@ -1,7 +1,8 @@
 use crate::config::Config;
 use log::{error, info};
-use yougile_client::models::ProjectResponse;
-use yougile_sdk::YouGileClient;
+use yougile_client::models::{Project, ProjectList};
+use yougile_client::apis::configuration::Configuration;
+use yougile_client::YouGileClient;
 
 pub struct YouGileAPI {
     client: YouGileClient,
@@ -9,15 +10,21 @@ pub struct YouGileAPI {
 
 impl YouGileAPI {
     pub fn new(config: &Config) -> Result<Self, String> {
-        let client = YouGileClient::new(&config.api_url, &config.api_token);
+        // Create configuration with token
+        let mut configuration = Configuration::new();
+        configuration.bearer_access_token = Some(config.api_token.clone());
+        configuration.base_path = config.api_url.clone();
+
+        let client = YouGileClient::new(configuration);
         Ok(YouGileAPI { client })
     }
 
-    pub async fn fetch_projects(&self) -> Result<Vec<ProjectResponse>, String> {
+    pub async fn fetch_projects(&self) -> Result<Vec<Project>, String> {
         info!("Fetching projects from YouGile API");
         
-        match self.client.get_projects().await {
-            Ok(projects) => {
+        match self.client.search_projects(None, Some(100.0), None, None).await {
+            Ok(project_list) => {
+                let projects = project_list.items.unwrap_or_default();
                 info!("Successfully fetched {} projects", projects.len());
                 Ok(projects)
             }
@@ -28,7 +35,7 @@ impl YouGileAPI {
         }
     }
 
-    pub async fn get_project_details(&self, project_id: &str) -> Result<ProjectResponse, String> {
+    pub async fn get_project_details(&self, project_id: &str) -> Result<Project, String> {
         info!("Fetching details for project: {}", project_id);
         
         match self.client.get_project(project_id).await {
