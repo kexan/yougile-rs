@@ -33,8 +33,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         std::fs::create_dir_all(parent)?;
     }
 
+    // Read log level from RUST_LOG environment variable, default to Info
+    let log_level = std::env::var("RUST_LOG")
+        .unwrap_or_else(|_| "info".to_string())
+        .parse::<log::LevelFilter>()
+        .unwrap_or(log::LevelFilter::Info);
+
     env_logger::builder()
-        .filter_level(log::LevelFilter::Info)
+        .filter_level(log_level)
         .target(env_logger::Target::Pipe(Box::new(std::fs::OpenOptions::new()
             .create(true)
             .append(true)
@@ -43,6 +49,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     log::info!("Starting YouGile TUI application");
     log::info!("Log file: {:?}", log_file);
+    log::info!("Log level: {:?}", log_level);
 
     // Load configuration
     let config = match Config::load() {
