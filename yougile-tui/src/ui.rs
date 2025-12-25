@@ -68,6 +68,11 @@ fn get_task_color(color: Option<&String>) -> Option<Color> {
     }
 }
 
+/// Truncate string to max_chars characters (not bytes!)
+fn truncate_str(s: &str, max_chars: usize) -> String {
+    s.chars().take(max_chars).collect()
+}
+
 fn draw_projects_view(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
@@ -279,10 +284,10 @@ fn format_stickers(app: &App, stickers: &serde_json::Value) -> String {
                 serde_json::Value::String(state_id) => {
                     // Get state title from sticker metadata
                     let state_title = app.get_sticker_state_title(sticker_id, state_id);
-                    format!("{}:{}", &sticker_title[..sticker_title.len().min(10)], &state_title[..state_title.len().min(10)])
+                    format!("{}:{}", truncate_str(&sticker_title, 10), truncate_str(&state_title, 10))
                 }
-                serde_json::Value::Number(n) => format!("{}:{}", &sticker_title[..sticker_title.len().min(10)], n),
-                serde_json::Value::Bool(b) if *b => format!("✓{}", &sticker_title[..sticker_title.len().min(10)]),
+                serde_json::Value::Number(n) => format!("{}:{}", truncate_str(&sticker_title, 10), n),
+                serde_json::Value::Bool(b) if *b => format!("✓{}", truncate_str(&sticker_title, 10)),
                 _ => continue,
             };
             parts.push(display);
