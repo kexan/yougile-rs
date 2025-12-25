@@ -448,17 +448,11 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
     } else {
         String::new()
     };
-    let footer_text = if app.current_task.is_some() {
-        format!(
-            "↵: close task{} | Tab/←/→/h/l: columns | ↑/↓/j/k: tasks | r: refresh | Esc: back | q: quit",
-            scroll_indicator
-        )
-    } else {
-        format!(
-            "↵: open{} | Tab/←/→/h/l: columns | ↑/↓/j/k: tasks | r: refresh | Esc: back | q: quit",
-            scroll_indicator
-        )
-    };
+    let footer_text = format!(
+        "↵: open task{} | ←/→/h/l: columns | ↑/↓/j/k: tasks | r: refresh | Esc: {} | q: quit",
+        scroll_indicator,
+        if app.current_task.is_some() { "close task" } else { "back" }
+    );
     let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
     f.render_widget(footer, chunks[2]);
 
@@ -595,13 +589,12 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from("Navigation:"),
         Line::from("  j/↓   Move down in current column/list"),
         Line::from("  k/↑   Move up in current column/list"),
-        Line::from("  Tab   Switch to next column (Kanban view)"),
         Line::from("  h/←   Previous column (Kanban view)"),
         Line::from("  l/→   Next column (Kanban view)"),
         Line::from(""),
         Line::from("Actions:"),
-        Line::from("  ↵     Open/close task details"),
-        Line::from("  Esc   Back to previous view / Close error"),
+        Line::from("  ↵     Open task details (replaces current if open)"),
+        Line::from("  Esc   Close task / Back to previous view / Close error"),
         Line::from("  r     Refresh current view"),
         Line::from(""),
         Line::from("Views:"),
