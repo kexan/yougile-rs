@@ -104,7 +104,7 @@ impl App {
                 self.quit = true;
             }
             KeyCode::Tab => {
-                if self.current_view == View::Tasks {
+                if self.current_view == View::Tasks || self.current_view == View::TaskDetail {
                     self.next_column();
                 } else {
                     self.toggle_focus();
@@ -112,7 +112,7 @@ impl App {
                 log::debug!("Toggled focus to: {:?}", self.focus);
             }
             KeyCode::BackTab => {
-                if self.current_view == View::Tasks {
+                if self.current_view == View::Tasks || self.current_view == View::TaskDetail {
                     self.prev_column();
                 }
             }
@@ -122,10 +122,10 @@ impl App {
             KeyCode::Down | KeyCode::Char('j') => {
                 self.move_down();
             }
-            KeyCode::Left | KeyCode::Char('h') if self.current_view == View::Tasks => {
+            KeyCode::Left | KeyCode::Char('h') if self.current_view == View::Tasks || self.current_view == View::TaskDetail => {
                 self.prev_column();
             }
-            KeyCode::Right | KeyCode::Char('l') if self.current_view == View::Tasks => {
+            KeyCode::Right | KeyCode::Char('l') if self.current_view == View::Tasks || self.current_view == View::TaskDetail => {
                 self.next_column();
             }
             KeyCode::Enter => {
@@ -150,13 +150,21 @@ impl App {
                             }
                         }
                     }
-                    View::Tasks => {
-                        // Open task detail
-                        if let Some(column) = self.columns.get(self.selected_column_idx) {
-                            if let Some(task) = column.tasks.get(self.selected_task_idx) {
-                                log::info!("Opening task: {:?}", task.title);
-                                self.current_task = Some(task.clone());
-                                self.current_view = View::TaskDetail;
+                    View::Tasks | View::TaskDetail => {
+                        // Toggle task detail panel
+                        if self.current_task.is_some() {
+                            // Close task detail
+                            self.current_task = None;
+                            self.current_view = View::Tasks;
+                            log::info!("Closed task detail");
+                        } else {
+                            // Open task detail
+                            if let Some(column) = self.columns.get(self.selected_column_idx) {
+                                if let Some(task) = column.tasks.get(self.selected_task_idx) {
+                                    log::info!("Opening task: {:?}", task.title);
+                                    self.current_task = Some(task.clone());
+                                    self.current_view = View::TaskDetail;
+                                }
                             }
                         }
                     }
@@ -178,17 +186,21 @@ impl App {
                             self.boards.clear();
                             self.selected_board_idx = 0;
                         }
-                        View::Tasks => {
-                            self.current_view = View::Boards;
-                            self.current_board = None;
-                            self.columns.clear();
-                            self.selected_column_idx = 0;
-                            self.selected_task_idx = 0;
-                            self.task_scroll_offset = 0;
-                        }
-                        View::TaskDetail => {
-                            self.current_view = View::Tasks;
-                            self.current_task = None;
+                        View::Tasks | View::TaskDetail => {
+                            // If task detail is open, close it first
+                            if self.current_task.is_some() {
+                                self.current_task = None;
+                                self.current_view = View::Tasks;
+                                log::info!("Closed task detail");
+                            } else {
+                                // Otherwise go back to boards
+                                self.current_view = View::Boards;
+                                self.current_board = None;
+                                self.columns.clear();
+                                self.selected_column_idx = 0;
+                                self.selected_task_idx = 0;
+                                self.task_scroll_offset = 0;
+                            }
                         }
                         View::Help => self.current_view = View::Projects,
                     }
@@ -199,7 +211,7 @@ impl App {
                 match self.current_view {
                     View::Projects => self.load_projects().await?,
                     View::Boards => self.load_boards().await?,
-                    View::Tasks => self.load_columns_with_tasks().await?,
+                    View::Tasks | View::TaskDetail => self.load_columns_with_tasks().await?,
                     _ => {},
                 }
             }
@@ -237,7 +249,7 @@ impl App {
                     self.selected_board_idx -= 1;
                 }
             }
-            View::Tasks => {
+            View::Tasks | View::TaskDetail => {
                 if self.selected_task_idx > 0 {
                     self.selected_task_idx -= 1;
                 }
@@ -258,7 +270,7 @@ impl App {
                     self.selected_board_idx += 1;
                 }
             }
-            View::Tasks => {
+            View::Tasks | View::TaskDetail => {
                 if let Some(column) = self.columns.get(self.selected_column_idx) {
                     if self.selected_task_idx < column.tasks.len().saturating_sub(1) {
                         self.selected_task_idx += 1;
@@ -274,6 +286,9 @@ impl App {
             self.selected_column_idx += 1;
             self.selected_task_idx = 0;
             self.task_scroll_offset = 0;
+            // Close task detail when switching columns
+            self.current_task = None;
+            self.current_view = View::Tasks;
         }
     }
 
@@ -282,6 +297,9 @@ impl App {
             self.selected_column_idx -= 1;
             self.selected_task_idx = 0;
             self.task_scroll_offset = 0;
+            // Close task detail when switching columns
+            self.current_task = None;
+            self.current_view = View::Tasks;
         }
     }
 
