@@ -11,10 +11,11 @@ use std::error::Error;
 use std::io;
 use std::time::Duration;
 
+mod api;
 mod app;
-mod ui;
-mod handlers;
 mod config;
+mod handlers;
+mod ui;
 
 use app::App;
 use config::Config;
@@ -26,8 +27,25 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .filter_level(log::LevelFilter::Info)
         .try_init()?;
 
+    log::info!("Starting YouGile TUI application");
+
     // Load configuration
-    let config = Config::load()?;
+    let config = match Config::load() {
+        Ok(cfg) => {
+            log::info!("Configuration loaded successfully");
+            cfg
+        }
+        Err(e) => {
+            eprintln!("Failed to load configuration: {}", e);
+            eprintln!("\nPlease set environment variables:");
+            eprintln!("  export YOUGILE_API_URL=\"https://api.yougile.com\"");
+            eprintln!("  export YOUGILE_API_TOKEN=\"your_token\"");
+            eprintln!("\nOr create ~/.config/yougile-tui/config.toml with:");
+            eprintln!("  api_url = \"https://api.yougile.com\"");
+            eprintln!("  api_token = \"your_token\"");
+            std::process::exit(1);
+        }
+    };
 
     // Setup terminal
     enable_raw_mode()?;
@@ -37,7 +55,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut terminal = Terminal::new(backend)?;
 
     // Create app and run it
-    let app = App::new(config)?;
+    let app = match App::new(config).await {
+        Ok(app) => app,
+        Err(e) => {
+            // Restore terminal before exiting
+            disable_raw_mode()?;
+            execute!(
+                terminal.backend_mut(),
+                LeaveAlternateScreen,
+                DisableMouseCapture
+            )?;
+            terminal.show_cursor()?;
+            
+            eprintln!("Failed to initialize app: {}", e);
+            std::process::exit(1);
+        }
+    };
+
     let res = run_app(&mut terminal, app).await;
 
     // Restore terminal
@@ -54,6 +88,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         std::process::exit(1);
     }
 
+    log::info!("Application closed successfully");
     Ok(())
 }
 
@@ -67,6 +102,7 @@ async fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Re
             if let Event::Key(key) = event::read()? {
                 // Handle quit
                 if key.code == KeyCode::Char('q') || key.code == KeyCode::Esc {
+                    log::info!("User initiated quit");
                     return Ok(());
                 }
 
