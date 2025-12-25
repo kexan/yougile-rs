@@ -142,13 +142,14 @@ impl YouGileAPI {
                     let mut states = HashMap::new();
                     if let Some(sticker_states) = sticker.states {
                         for state in sticker_states {
-                            states.insert(state.id.clone(), state.title.clone());
+                            // SprintStickerState has data.name
+                            states.insert(state.id.clone(), state.data.name.clone());
                         }
                     }
                     
                     all_stickers.push(StickerMeta {
                         id: sticker.id,
-                        title: sticker.title,
+                        title: sticker.data.name,  // SprintSticker has data.name
                         states,
                     });
                 }
@@ -167,13 +168,14 @@ impl YouGileAPI {
                     let mut states = HashMap::new();
                     if let Some(sticker_states) = sticker.states {
                         for state in sticker_states {
-                            states.insert(state.id.clone(), state.title.clone());
+                            // StringStickerState has data.title
+                            states.insert(state.id.clone(), state.data.title.clone());
                         }
                     }
                     
                     all_stickers.push(StickerMeta {
                         id: sticker.id,
-                        title: sticker.title,
+                        title: sticker.data.name,  // StringSticker has data.name
                         states,
                     });
                 }
