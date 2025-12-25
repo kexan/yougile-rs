@@ -2,7 +2,7 @@ use crate::api::YouGileAPI;
 use crate::config::Config;
 use crossterm::event::KeyEvent;
 use std::io;
-use yougile_client::models::ProjectResponse;
+use yougile_client::models::Project;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum View {
@@ -15,7 +15,7 @@ pub struct App {
     config: Config,
     api: Option<YouGileAPI>,
     pub current_view: View,
-    pub projects: Vec<ProjectResponse>,
+    pub projects: Vec<Project>,
     pub selected_project_idx: usize,
     pub quit: bool,
     pub loading: bool,
@@ -83,10 +83,7 @@ impl App {
             KeyCode::Enter => {
                 if self.selected_project_idx < self.projects.len() {
                     if let Some(project) = self.projects.get(self.selected_project_idx) {
-                        log::info!(
-                            "Selected project: {:?}",
-                            project.title.as_ref().unwrap_or(&"Unknown".to_string())
-                        );
+                        log::info!("Selected project: {:?}", project.title);
                     }
                 }
             }
