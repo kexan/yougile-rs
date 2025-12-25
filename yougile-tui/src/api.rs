@@ -1,9 +1,10 @@
 use crate::config::Config;
-use crate::app::ColumnWithTasks;
+use crate::app::{ColumnWithTasks, StickerMeta};
 use log::{error, info};
 use yougile_client::models::{Project, Board, User};
 use yougile_client::apis::configuration::Configuration;
 use yougile_client::YouGileClient;
+use std::collections::HashMap;
 
 pub struct YouGileAPI {
     client: YouGileClient,
@@ -125,6 +126,40 @@ impl YouGileAPI {
             Err(e) => {
                 error!("Failed to fetch users: {}", e);
                 Err(format!("Failed to fetch users: {}", e))
+            }
+        }
+    }
+
+    pub async fn fetch_stickers(&self) -> Result<Vec<StickerMeta>, String> {
+        info!("Fetching stickers from YouGile API");
+        
+        match self.client.search_stickers(Some(100.0), None).await {
+            Ok(page) => {
+                let stickers: Vec<StickerMeta> = page.content
+                    .into_iter()
+                    .map(|sticker| {
+                        // Extract states from sticker
+                        let mut states = HashMap::new();
+                        if let Some(sticker_states) = sticker.states {
+                            for state in sticker_states {
+                                states.insert(state.id.clone(), state.title.clone());
+                            }
+                        }
+                        
+                        StickerMeta {
+                            id: sticker.id,
+                            title: sticker.title,
+                            states,
+                        }
+                    })
+                    .collect();
+                
+                info!("Successfully fetched {} stickers", stickers.len());
+                Ok(stickers)
+            }
+            Err(e) => {
+                error!("Failed to fetch stickers: {}", e);
+                Err(format!("Failed to fetch stickers: {}", e))
             }
         }
     }
