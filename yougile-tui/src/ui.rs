@@ -52,6 +52,22 @@ fn get_column_color(color_index: Option<f64>) -> Color {
     }
 }
 
+/// Map task color string to ratatui Color
+fn get_task_color(color: Option<&String>) -> Option<Color> {
+    match color.map(|s| s.as_str()) {
+        Some("task-primary") => Some(Color::White),
+        Some("task-gray") => Some(Color::Gray),
+        Some("task-red") => Some(Color::Red),
+        Some("task-pink") => Some(Color::Magenta),
+        Some("task-yellow") => Some(Color::Yellow),
+        Some("task-green") => Some(Color::Green),
+        Some("task-turquoise") => Some(Color::Cyan),
+        Some("task-blue") => Some(Color::Blue),
+        Some("task-violet") => Some(Color::Rgb(138, 43, 226)), // BlueViolet
+        _ => None,
+    }
+}
+
 fn draw_projects_view(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
@@ -434,6 +450,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     let actual_task_idx = display_idx + visible_task_start;
                     let is_task_selected = is_selected && actual_task_idx == app.selected_task_idx;
                     let is_archived = task.archived.unwrap_or(false);
+                    let task_color = get_task_color(task.color.as_ref());
                     
                     // Wrap task name to fit in card width
                     let wrapped_lines = wrap_text(&task.title, max_width);
@@ -451,7 +468,13 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     } else {
                         format!("┌{}┐", "─".repeat(max_width + 2))
                     };
-                    lines.push(Line::from(top_border));
+                    
+                    // Apply task color to borders if set
+                    if let Some(color) = task_color {
+                        lines.push(Line::from(Span::styled(top_border, Style::default().fg(color))));
+                    } else {
+                        lines.push(Line::from(top_border));
+                    }
                     
                     // Task title lines with padding
                     for line_text in wrapped_lines {
@@ -459,8 +482,8 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                         let padding_right = (max_width + 2).saturating_sub(padded.chars().count());
                         let card_line = format!("│{}{}│", padded, " ".repeat(padding_right));
                         
-                        let style = if is_task_selected {
-                            // Selected tasks always yellow and bold, regardless of archive status
+                        let mut style = if is_task_selected {
+                            // Selected tasks always yellow and bold
                             Style::default()
                                 .fg(Color::Yellow)
                                 .add_modifier(Modifier::BOLD)
@@ -472,11 +495,32 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                             Style::default().fg(Color::White)
                         };
                         
-                        lines.push(Line::from(Span::styled(card_line, style)));
+                        // Apply task color to borders
+                        if let Some(color) = task_color {
+                            // Get the border characters (left and right pipes)
+                            let left_border = &card_line[0.."│".len()];
+                            let content_start = "│".len();
+                            let content_end = card_line.len() - "│".len();
+                            let content = &card_line[content_start..content_end];
+                            let right_border = &card_line[content_end..];
+                            
+                            lines.push(Line::from(vec![
+                                Span::styled(left_border, Style::default().fg(color)),
+                                Span::styled(content, style),
+                                Span::styled(right_border, Style::default().fg(color)),
+                            ]));
+                        } else {
+                            lines.push(Line::from(Span::styled(card_line, style)));
+                        }
                     }
                     
                     // Bottom border of card
-                    lines.push(Line::from(format!("└{}┘", "─".repeat(max_width + 2))));
+                    let bottom_border = format!("└{}┘", "─".repeat(max_width + 2));
+                    if let Some(color) = task_color {
+                        lines.push(Line::from(Span::styled(bottom_border, Style::default().fg(color))));
+                    } else {
+                        lines.push(Line::from(bottom_border));
+                    }
                     
                     ListItem::new(lines)
                 })
@@ -668,7 +712,7 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from("Note: Logs are written to ~/.cache/yougile-tui/yougile-tui.log"),
         Line::from(""),
         Line::from("Columns: Color-coded by API (1-16 hex colors) • Count shows non-archived tasks only"),
-        Line::from("Tasks: Archived tasks are dimmed and sorted to bottom"),
+        Line::from("Tasks: Card borders colored by task-* colors • Archived tasks dimmed"),
     ];
 
     let block = Block::default()
