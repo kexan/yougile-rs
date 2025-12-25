@@ -38,7 +38,6 @@
           
           # For development
           git
-          Just
           cargo-edit
           cargo-outdated
         ];
@@ -49,18 +48,26 @@
           
           shellHook = ''
             echo "YouGile Rust Project Development Environment"
+            echo "================================================"
+            echo ""
             echo "Available commands:"
-            echo "  cargo build       - Build the project"
-            echo "  cargo build -p yougile-tui --release - Build TUI app"
-            echo "  cargo run -p yougile-tui - Run TUI with env vars"
-            echo "  cargo test        - Run tests"
-            echo "  cargo fmt         - Format code"
-            echo "  cargo clippy      - Run linter"
+            echo "  cargo build           - Build the project"
+            echo "  cargo build -p yougile-tui --release - Build TUI app for release"
+            echo "  cargo run -p yougile-tui - Run TUI application"
+            echo "  cargo test            - Run tests"
+            echo "  cargo fmt             - Format code"
+            echo "  cargo clippy          - Run linter"
+            echo "  cargo doc --open      - Build and open documentation"
             echo ""
             echo "Environment variables for TUI:"
-            echo "  YOUGILE_API_URL - API endpoint (default: https://api.yougile.com)"
-            echo "  YOUGILE_API_TOKEN - Your API token"
-            echo "  RUST_LOG - Log level (info, debug, trace)"
+            echo "  YOUGILE_API_URL       - API endpoint (default: https://api.yougile.com)"
+            echo "  YOUGILE_API_TOKEN     - Your API token (REQUIRED)"
+            echo "  RUST_LOG              - Log level: error, warn, info, debug, trace"
+            echo ""
+            echo "Setup:"
+            echo "  1. Set YOUGILE_API_TOKEN: export YOUGILE_API_TOKEN=\"your_token\""
+            echo "  2. Run TUI: cargo run -p yougile-tui"
+            echo ""
           '';
 
           PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
