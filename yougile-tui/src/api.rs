@@ -196,8 +196,32 @@ impl YouGileAPI {
             }
         }
         
-        info!("Successfully fetched {} total stickers (sprint + string)", all_stickers.len());
-        debug!("Note: Number-type custom stickers show as plain values if not in sprint/string types");
+        // Fetch number stickers (with board filter if provided)
+        match self.client.search_number_stickers(None, Some(100.0), None, None, board_id).await {
+            Ok(page) => {
+                let count = page.content.len();
+                for sticker in page.content {
+                    // Number stickers don't have states, just store empty states map
+                    let states = HashMap::new();
+                    
+                    debug!("Number sticker: id={}, name={}", 
+                        sticker.id, sticker.data.name);
+                    
+                    all_stickers.push(StickerMeta {
+                        id: sticker.id.clone(),
+                        title: sticker.data.name.clone(),
+                        states,
+                    });
+                }
+                info!("Fetched {} number stickers", count);
+            }
+            Err(e) => {
+                error!("Failed to fetch number stickers: {}", e);
+                // Don't fail completely
+            }
+        }
+        
+        info!("Successfully fetched {} total stickers (sprint + string + number)", all_stickers.len());
         
         // Log all loaded stickers for debugging
         for sticker in &all_stickers {
