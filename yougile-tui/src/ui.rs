@@ -7,8 +7,10 @@ use ratatui::{
     Frame,
 };
 
-// Fixed width for each column in characters
-const COLUMN_WIDTH: u16 = 30;
+// Fixed width for each column in characters (increased from 30 to 40)
+const COLUMN_WIDTH: u16 = 40;
+// Padding between columns
+const COLUMN_PADDING: u16 = 1;
 
 pub fn draw(f: &mut Frame, app: &App) {
     match app.current_view {
@@ -195,6 +197,12 @@ fn wrap_text(text: &str, max_width: usize) -> Vec<String> {
     lines
 }
 
+/// Calculate card height (number of lines) for a task
+fn calculate_card_height(task_title: &str, max_width: usize) -> usize {
+    let wrapped = wrap_text(task_title, max_width);
+    3 + wrapped.len() // top border + content lines + bottom border
+}
+
 fn draw_kanban_view(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
@@ -230,9 +238,10 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             .style(Style::default().fg(Color::Yellow));
         f.render_widget(empty_msg, chunks[1]);
     } else {
-        // Calculate how many columns fit on screen
+        // Calculate how many columns fit on screen (with padding)
         let available_width = chunks[1].width;
-        let columns_on_screen = (available_width / COLUMN_WIDTH).max(1) as usize;
+        let column_with_padding = COLUMN_WIDTH + COLUMN_PADDING;
+        let columns_on_screen = ((available_width + COLUMN_PADDING) / column_with_padding).max(1) as usize;
         
         // Calculate scroll offset based on selected column
         let scroll_offset = if app.selected_column_idx >= columns_on_screen {
@@ -253,8 +262,14 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             .take(columns_on_screen)
             .collect();
 
-        // Create fixed width constraints for visible columns
-        let constraints: Vec<Constraint> = vec![Constraint::Length(COLUMN_WIDTH); visible_columns.len()];
+        // Create constraints with padding
+        let mut constraints = Vec::new();
+        for i in 0..visible_columns.len() {
+            constraints.push(Constraint::Length(COLUMN_WIDTH));
+            if i < visible_columns.len() - 1 {
+                constraints.push(Constraint::Length(COLUMN_PADDING));
+            }
+        }
         
         let column_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -270,6 +285,9 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             } else {
                 Style::default()
             };
+
+            // Calculate which chunk to use (accounting for padding)
+            let chunk_idx = visible_idx * 2;
 
             // Add scroll indicators to title
             let left_indicator = if visible_idx == 0 && has_left_columns { "◀ " } else { "" };
@@ -288,23 +306,68 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                 .border_type(ratatui::widgets::BorderType::Rounded)
                 .border_style(border_style);
 
+            // Calculate available height for tasks
+            let available_height = column_chunks[chunk_idx].height.saturating_sub(2) as usize; // -2 for borders
+            
+            // Calculate which tasks to show based on scroll offset
+            let max_width = (COLUMN_WIDTH - 6) as usize;
+            let mut task_scroll_offset = 0;
+            let mut cumulative_height = 0;
+            let mut visible_task_start = 0;
+            
+            // If this is the selected column, calculate scroll
+            if is_selected && app.selected_task_idx > 0 {
+                for (idx, task) in column_with_tasks.tasks.iter().enumerate() {
+                    let card_height = calculate_card_height(&task.title, max_width);
+                    if idx < app.selected_task_idx {
+                        cumulative_height += card_height;
+                        // Scroll if selected task would be below visible area
+                        if cumulative_height > available_height.saturating_sub(card_height) {
+                            visible_task_start = idx + 1;
+                            task_scroll_offset = cumulative_height;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+            
+            // Check if there are tasks above/below visible area
+            let has_tasks_above = visible_task_start > 0;
+            let mut has_tasks_below = false;
+            let mut current_height = 0;
+            for (idx, task) in column_with_tasks.tasks.iter().enumerate().skip(visible_task_start) {
+                let card_height = calculate_card_height(&task.title, max_width);
+                current_height += card_height;
+                if current_height > available_height {
+                    has_tasks_below = true;
+                    break;
+                }
+            }
+
             // Create task card items with borders and text wrapping
             let items: Vec<ListItem> = column_with_tasks
                 .tasks
                 .iter()
                 .enumerate()
+                .skip(visible_task_start)
                 .map(|(task_idx, task)| {
                     let is_task_selected = is_selected && task_idx == app.selected_task_idx;
                     
-                    // Wrap task name to fit in card width (accounting for borders and padding)
-                    let max_width = (COLUMN_WIDTH - 6) as usize; // -6 for borders and padding
+                    // Wrap task name to fit in card width
                     let wrapped_lines = wrap_text(&task.title, max_width);
                     
                     // Create card lines
                     let mut lines = vec![];
                     
-                    // Top border of card
-                    lines.push(Line::from("┌".to_string() + &"─".repeat(max_width + 2) + "┐"));
+                    // Top border of card with scroll indicators
+                    let mut top_border = "┌".to_string() + &"─".repeat(max_width + 2) + "┐";
+                    if task_idx == visible_task_start && has_tasks_above {
+                        // Add up arrow indicator
+                        let indicator_pos = (max_width + 2) / 2;
+                        top_border.replace_range(indicator_pos..indicator_pos+1, "▲");
+                    }
+                    lines.push(Line::from(top_border));
                     
                     // Task title lines with padding
                     for line_text in wrapped_lines {
@@ -330,14 +393,23 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     // Bottom border of card
                     lines.push(Line::from("└".to_string() + &"─".repeat(max_width + 2) + "┘"));
                     
-                    // Reduced spacing between cards (empty line removed, now cards are closer)
-                    
                     ListItem::new(lines)
                 })
                 .collect();
 
-            let tasks_list = List::new(items).block(block);
-            f.render_widget(tasks_list, column_chunks[visible_idx]);
+            // Add scroll indicator at bottom if needed
+            let tasks_list = if has_tasks_below {
+                let mut items_with_indicator = items;
+                items_with_indicator.push(ListItem::new(Line::from(Span::styled(
+                    format!("{:^width$}", "▼", width = max_width + 4),
+                    Style::default().fg(Color::DarkGray),
+                ))));
+                List::new(items_with_indicator).block(block)
+            } else {
+                List::new(items).block(block)
+            };
+
+            f.render_widget(tasks_list, column_chunks[chunk_idx]);
         }
     }
 
