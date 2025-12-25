@@ -6,6 +6,7 @@ use ratatui::{
     widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
     Frame,
 };
+use std::rc::Rc;
 
 // Fixed width for each column in characters
 const COLUMN_WIDTH: u16 = 40;
@@ -232,7 +233,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
     f.render_widget(header, chunks[0]);
 
     // Split main area into columns and task detail if task is open
-    let main_chunks = if app.current_task.is_some() {
+    let main_chunks: Rc<[Rect]> = if app.current_task.is_some() {
         Layout::default()
             .direction(Direction::Horizontal)
             .constraints([
@@ -241,7 +242,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             ])
             .split(chunks[1])
     } else {
-        vec![chunks[1]]
+        Rc::from(vec![chunks[1]].as_slice())
     };
 
     let columns_area = main_chunks[0];
