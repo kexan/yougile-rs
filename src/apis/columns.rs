@@ -61,7 +61,8 @@ pub async fn search_column(
         query_params.push(("title", val.to_string()));
     }
     if let Some(val) = board_id {
-        query_params.push(("board_id", val.to_string()));
+        // Use camelCase 'boardId' to match API expectations (like projectId in boards API)
+        query_params.push(("boardId", val.to_string()));
     }
 
     let resp = configuration
