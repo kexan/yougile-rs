@@ -47,6 +47,28 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .open(&log_file)?)))
         .try_init()?;
 
+    // Set up panic handler to log panics
+    let log_file_clone = log_file.clone();
+    std::panic::set_hook(Box::new(move |panic_info| {
+        let msg = format!("{}", panic_info);
+        log::error!("PANIC: {}", msg);
+        
+        // Also write to stderr and a separate panic file
+        eprintln!("\n\nPANIC: {}\n\n", msg);
+        
+        if let Ok(mut file) = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(log_file_clone.with_file_name("panic.log"))
+        {
+            use std::io::Write;
+            let _ = writeln!(file, "\n========== PANIC at {} ==========\n{}", 
+                chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
+                msg
+            );
+        }
+    }));
+
     log::info!("Starting YouGile TUI application");
     log::info!("Log file: {:?}", log_file);
     log::info!("Log level: {:?}", log_level);
@@ -107,6 +129,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     if let Err(err) = res {
         eprintln!("Fatal error: {}", err);
+        log::error!("Fatal error: {}", err);
         std::process::exit(1);
     }
 
