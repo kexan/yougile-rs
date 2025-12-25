@@ -259,7 +259,7 @@ fn has_stickers(stickers: Option<&serde_json::Value>) -> bool {
 }
 
 /// Count how many sticker lines a task has
-fn count_sticker_lines(app: &App, stickers: Option<&serde_json::Value>) -> usize {
+fn count_sticker_lines(_app: &App, stickers: Option<&serde_json::Value>) -> usize {
     if let Some(value) = stickers {
         if let Some(obj) = value.as_object() {
             return obj.len();
@@ -278,18 +278,41 @@ fn calculate_card_height(app: &App, task: &yougile_client::models::Task, max_wid
 
 /// Format single sticker as display string with box
 fn format_single_sticker(app: &App, sticker_id: &str, state_value: &serde_json::Value, max_width: usize) -> String {
-    // Get sticker title from metadata
+    // Get sticker title from metadata (or use fallback)
     let sticker_title = app.get_sticker_title(sticker_id);
+    
+    // If sticker_title still looks like an ID (starts with "Sticker("), it's a number sticker
+    // For number stickers, we don't have metadata, so just show the value
+    let is_unknown_sticker = sticker_title.starts_with("Sticker(");
     
     // Format based on value type
     let display = match state_value {
         serde_json::Value::String(state_id) => {
-            // Get state title from sticker metadata
-            let state_title = app.get_sticker_state_title(sticker_id, state_id);
-            format!("[{}:{}]", truncate_str(&sticker_title, 15), truncate_str(&state_title, 15))
+            if is_unknown_sticker {
+                // Unknown sticker with string value - show ID and value
+                format!("[{}:{}]", truncate_str(sticker_id, 8), truncate_str(state_id, 15))
+            } else {
+                // Known sticker - Get state title from sticker metadata
+                let state_title = app.get_sticker_state_title(sticker_id, state_id);
+                format!("[{}:{}]", truncate_str(&sticker_title, 15), truncate_str(&state_title, 15))
+            }
         }
-        serde_json::Value::Number(n) => format!("[{}:{}]", truncate_str(&sticker_title, 15), n),
-        serde_json::Value::Bool(b) if *b => format!("[✓{}]", truncate_str(&sticker_title, 15)),
+        serde_json::Value::Number(n) => {
+            if is_unknown_sticker {
+                // This is a number sticker without metadata - just show the value
+                format!("[№{}]", n)
+            } else {
+                // Known sticker with number value
+                format!("[{}:{}]", truncate_str(&sticker_title, 15), n)
+            }
+        }
+        serde_json::Value::Bool(b) if *b => {
+            if is_unknown_sticker {
+                format!("[✓{}]", truncate_str(sticker_id, 8))
+            } else {
+                format!("[✓{}]", truncate_str(&sticker_title, 15))
+            }
+        }
         _ => return String::new(),
     };
     
@@ -679,10 +702,15 @@ fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
                     for (sticker_id, state_value) in obj.iter() {
                         // Get sticker and state titles from metadata
                         let sticker_title = app.get_sticker_title(sticker_id);
+                        let is_unknown = sticker_title.starts_with("Sticker(");
                         
                         let value_str = match state_value {
                             serde_json::Value::String(state_id) => {
-                                app.get_sticker_state_title(sticker_id, state_id)
+                                if is_unknown {
+                                    state_id.clone()
+                                } else {
+                                    app.get_sticker_state_title(sticker_id, state_id)
+                                }
                             }
                             serde_json::Value::Number(n) => n.to_string(),
                             serde_json::Value::Bool(b) => b.to_string(),
@@ -691,9 +719,15 @@ fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
                             serde_json::Value::Null => "null".to_string(),
                         };
                         
+                        let display_title = if is_unknown {
+                            format!("Unknown ({})", truncate_str(sticker_id, 8))
+                        } else {
+                            sticker_title
+                        };
+                        
                         details.push(Line::from(vec![
                             Span::raw("  • "),
-                            Span::styled(format!("{}: ", sticker_title), Style::default().fg(Color::Cyan)),
+                            Span::styled(format!("{}: ", display_title), Style::default().fg(Color::Cyan)),
                             Span::raw(value_str),
                         ]));
                     }
