@@ -24,4 +24,3 @@ impl FilesAPI {
             .map_err(SDKError::from)
     }
 }
-

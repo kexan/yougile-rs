@@ -1,9 +1,6 @@
 use crate::SDKError;
 use std::sync::Arc;
-use yougile_client::{
-    YouGileClient,
-    models::{Board, BoardList, CreateBoard, UpdateBoard},
-};
+use yougile_client::{YouGileClient, models::{Board, BoardList, CreateBoard, UpdateBoard, Id}};
 
 /// API for working with boards
 pub struct BoardsAPI {
@@ -20,30 +17,37 @@ impl BoardsAPI {
         self.client.get_board(id).await.map_err(SDKError::from)
     }
 
+    /// Create a new board
+    pub async fn create(&self, create_board: CreateBoard) -> Result<Id, SDKError> {
+        self.client.create_board(create_board).await.map_err(SDKError::from)
+    }
+
+    /// Update an existing board
+    pub async fn update(&self, id: &str, update_board: UpdateBoard) -> Result<Id, SDKError> {
+        self.client.update_board(id, update_board).await.map_err(SDKError::from)
+    }
+
+    /// Search for boards with various filters using a fluent API
+    pub fn search(&self) -> BoardSearchBuilder {
+        BoardSearchBuilder::new(self.client.clone())
+    }
+
     /// List all boards (with default parameters)
     pub async fn list(&self) -> Result<BoardList, SDKError> {
         self.search().execute().await
     }
 
-    /// Create a new board
-    pub async fn create(&self, create_board: CreateBoard) -> Result<Board, SDKError> {
-        let created_board = self.client.create_board(create_board).await?;
-        self.get(&created_board.id).await
-    }
-
-    /// Update an existing board
-    pub async fn update(&self, id: &str, update_board: UpdateBoard) -> Result<Board, SDKError> {
-        let updated_board = self.client.update_board(id, update_board).await?;
-        self.get(&updated_board.id).await
-    }
-
-    /// Search for boards with various filters
-    pub fn search(&self) -> BoardSearchBuilder {
-        BoardSearchBuilder::new(self.client.clone())
+    /// List all boards for a specific project
+    pub async fn list_for_project(&self, project_id: &str) -> Result<Vec<Board>, SDKError> {
+        self.search()
+            .project_id(project_id)
+            .all()
+            .await
     }
 }
 
 /// Search builder for boards with fluent API
+#[derive(Clone)]
 pub struct BoardSearchBuilder {
     client: Arc<YouGileClient>,
     include_deleted: Option<bool>,
@@ -58,7 +62,7 @@ impl BoardSearchBuilder {
         Self {
             client,
             include_deleted: None,
-            limit: Some(50.0), // Default limit
+            limit: Some(100.0),
             offset: Some(0.0),
             title: None,
             project_id: None,
@@ -90,6 +94,7 @@ impl BoardSearchBuilder {
         self
     }
 
+    /// Execute the search with current parameters
     pub async fn execute(self) -> Result<BoardList, SDKError> {
         self.client
             .search_boards(
@@ -101,5 +106,25 @@ impl BoardSearchBuilder {
             )
             .await
             .map_err(SDKError::from)
+    }
+
+    /// Get all boards matching the search criteria with automatic pagination
+    pub async fn all(self) -> Result<Vec<Board>, SDKError> {
+        let mut all_boards = Vec::new();
+        let mut offset = 0.0;
+        let limit = self.limit.unwrap_or(100.0);
+
+        loop {
+            let result = self.clone().offset(offset).execute().await?;
+            let count = result.content.len() as f64;
+            all_boards.extend(result.content);
+
+            if count < limit {
+                break;
+            }
+            offset += limit;
+        }
+
+        Ok(all_boards)
     }
 }
