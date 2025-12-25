@@ -561,7 +561,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                                 Span::styled("│", Style::default().fg(color)),
                             ]));
                         } else {
-                            let card_line = format!("│{}{} │", padded, " ".repeat(padding_right));
+                            let card_line = format!("│{}{}│", padded, " ".repeat(padding_right));
                             lines.push(Line::from(Span::styled(card_line, content_style)));
                         }
                     }
@@ -584,7 +584,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                                             Span::styled("│", Style::default().fg(color)),
                                         ]));
                                     } else {
-                                        let sticker_line = format!("│{}{} │", padded, " ".repeat(padding_right));
+                                        let sticker_line = format!("│{}{}│", padded, " ".repeat(padding_right));
                                         lines.push(Line::from(Span::styled(sticker_line, sticker_style)));
                                     }
                                 }
