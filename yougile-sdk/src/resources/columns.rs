@@ -1,6 +1,8 @@
 use crate::SDKError;
 use std::sync::Arc;
-use yougile_client::{YouGileClient, models::{Column, ColumnList, CreateColumn, UpdateColumn, Id}};
+
+use yougile_api_client::YouGileClient;
+use yougile_api_client::models::*;
 
 /// API for working with columns
 pub struct ColumnsAPI {
@@ -19,12 +21,18 @@ impl ColumnsAPI {
 
     /// Create a new column
     pub async fn create(&self, create_column: CreateColumn) -> Result<Id, SDKError> {
-        self.client.create_column(create_column).await.map_err(SDKError::from)
+        self.client
+            .create_column(create_column)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Update an existing column
     pub async fn update(&self, id: &str, update_column: UpdateColumn) -> Result<Id, SDKError> {
-        self.client.update_column(id, update_column).await.map_err(SDKError::from)
+        self.client
+            .update_column(id, update_column)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Search for columns with various filters using a fluent API
@@ -39,10 +47,7 @@ impl ColumnsAPI {
 
     /// List all columns for a specific board
     pub async fn list_by_board(&self, board_id: &str) -> Result<Vec<Column>, SDKError> {
-        self.search()
-            .board_id(board_id)
-            .all()
-            .await
+        self.search().board_id(board_id).all().await
     }
 }
 

@@ -1,10 +1,8 @@
 use crate::SDKError;
 use std::sync::Arc;
-use yougile_client::{
-    YouGileClient,
-    models::{CreateGroupChat, GroupChat, GroupChatList, Id, UpdateGroupChat},
-};
 
+use yougile_api_client::YouGileClient;
+use yougile_api_client::models::*;
 /// API for working with group chats
 pub struct GroupChatsAPI {
     client: Arc<YouGileClient>,

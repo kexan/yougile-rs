@@ -1,9 +1,8 @@
 use crate::SDKError;
 use std::sync::Arc;
-use yougile_client::{
-    YouGileClient,
-    models::{ChatId, ChatMessage, ChatMessageList, CreateChatMessage, UpdateChatMessage},
-};
+
+use yougile_api_client::YouGileClient;
+use yougile_api_client::models::*;
 
 /// API for working with chats
 pub struct ChatsAPI {

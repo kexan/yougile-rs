@@ -1,11 +1,12 @@
 use thiserror::Error;
+use yougile_api_client::YougileError;
 
 /// Errors that can occur in the YouGile SDK
 #[derive(Debug, Error)]
 pub enum SDKError {
     /// Error from the underlying API client
     #[error("API client error: {0}")]
-    ClientError(#[from] yougile_client::YougileError),
+    ClientError(#[from] YougileError),
 
     /// Configuration error
     #[error("Configuration error: {0}")]
@@ -53,4 +54,3 @@ impl SDKError {
         SDKError::RateLimitExceeded(msg.into())
     }
 }
-
