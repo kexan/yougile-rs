@@ -250,7 +250,7 @@ impl App {
                 .cloned()
                 .unwrap_or_else(|| format!("State({})", &state_id[..8.min(state_id.len())]))
         } else {
-            format!("State({})", &state_id[..8.min(state_id.len())]))
+            format!("State({})", &state_id[..8.min(state_id.len())])
         }
     }
 
