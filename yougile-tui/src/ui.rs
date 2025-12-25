@@ -45,7 +45,7 @@ fn draw_projects_view(f: &mut Frame, app: &App) {
         .iter()
         .enumerate()
         .map(|(idx, project)| {
-            let name = project.title.clone().unwrap_or_else(|| "Unnamed".to_string());
+            let name = project.title.clone();
             let content = if idx == app.selected_project_idx {
                 Line::from(vec![Span::styled(
                     format!("▶ {}", name),
