@@ -153,14 +153,46 @@ fn draw_boards_view(f: &mut Frame, app: &App) {
     }
 }
 
-/// Truncate string by character count (not bytes) to avoid UTF-8 issues
-fn truncate_str(s: &str, max_chars: usize) -> String {
-    let char_count = s.chars().count();
-    if char_count > max_chars {
-        s.chars().take(max_chars - 3).collect::<String>() + "..."
-    } else {
-        s.to_string()
+/// Wrap text into lines of max_width characters
+fn wrap_text(text: &str, max_width: usize) -> Vec<String> {
+    let mut lines = Vec::new();
+    let mut current_line = String::new();
+    
+    for word in text.split_whitespace() {
+        let word_len = word.chars().count();
+        let current_len = current_line.chars().count();
+        
+        if current_len == 0 {
+            // First word in line
+            if word_len > max_width {
+                // Word too long, split it
+                let chars: Vec<char> = word.chars().collect();
+                for chunk in chars.chunks(max_width) {
+                    lines.push(chunk.iter().collect());
+                }
+            } else {
+                current_line = word.to_string();
+            }
+        } else if current_len + 1 + word_len <= max_width {
+            // Word fits in current line
+            current_line.push(' ');
+            current_line.push_str(word);
+        } else {
+            // Word doesn't fit, start new line
+            lines.push(current_line);
+            current_line = word.to_string();
+        }
     }
+    
+    if !current_line.is_empty() {
+        lines.push(current_line);
+    }
+    
+    if lines.is_empty() {
+        lines.push(String::new());
+    }
+    
+    lines
 }
 
 fn draw_kanban_view(f: &mut Frame, app: &App) {
@@ -209,6 +241,10 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             0
         };
         
+        // Check if there are hidden columns
+        let has_left_columns = scroll_offset > 0;
+        let has_right_columns = scroll_offset + columns_on_screen < app.columns.len();
+        
         // Get visible columns with their original indices
         let visible_columns: Vec<(usize, &crate::app::ColumnWithTasks)> = app.columns
             .iter()
@@ -235,14 +271,24 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                 Style::default()
             };
 
-            let title = format!(" {} ({}) ", column_with_tasks.column.title, column_with_tasks.tasks.len());
+            // Add scroll indicators to title
+            let left_indicator = if visible_idx == 0 && has_left_columns { "◀ " } else { "" };
+            let right_indicator = if visible_idx == visible_columns.len() - 1 && has_right_columns { " ▶" } else { "" };
+            let title = format!("{}{}{}({}) {}", 
+                left_indicator,
+                column_with_tasks.column.title, 
+                " ",
+                column_with_tasks.tasks.len(),
+                right_indicator
+            );
+            
             let block = Block::default()
                 .title(title)
                 .borders(Borders::ALL)
                 .border_type(ratatui::widgets::BorderType::Rounded)
                 .border_style(border_style);
 
-            // Create task card items with borders and padding
+            // Create task card items with borders and text wrapping
             let items: Vec<ListItem> = column_with_tasks
                 .tasks
                 .iter()
@@ -250,41 +296,41 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                 .map(|(task_idx, task)| {
                     let is_task_selected = is_selected && task_idx == app.selected_task_idx;
                     
-                    // Truncate task name to fit in card width (accounting for borders and padding)
-                    let max_width = (COLUMN_WIDTH - 4) as usize; // -4 for borders and padding
-                    let task_name = truncate_str(&task.title, max_width);
+                    // Wrap task name to fit in card width (accounting for borders and padding)
+                    let max_width = (COLUMN_WIDTH - 6) as usize; // -6 for borders and padding
+                    let wrapped_lines = wrap_text(&task.title, max_width);
                     
                     // Create card lines
                     let mut lines = vec![];
                     
                     // Top border of card
-                    lines.push(Line::from("┌".to_string() + &"─".repeat(max_width) + "┐"));
+                    lines.push(Line::from("┌".to_string() + &"─".repeat(max_width + 2) + "┐"));
                     
-                    // Task title with padding
-                    let padded_title = format!(" {}", task_name);
-                    let title_len = padded_title.chars().count();
-                    let padding_right = max_width.saturating_sub(title_len);
-                    let card_line = format!("│{}{} │", padded_title, " ".repeat(padding_right));
-                    
-                    if is_task_selected {
-                        lines.push(Line::from(Span::styled(
-                            card_line,
-                            Style::default()
-                                .fg(Color::Yellow)
-                                .add_modifier(Modifier::BOLD),
-                        )));
-                    } else {
-                        lines.push(Line::from(Span::styled(
-                            card_line,
-                            Style::default().fg(Color::White),
-                        )));
+                    // Task title lines with padding
+                    for line_text in wrapped_lines {
+                        let padded = format!(" {} ", line_text);
+                        let padding_right = (max_width + 2).saturating_sub(padded.chars().count());
+                        let card_line = format!("│{}{}│", padded, " ".repeat(padding_right));
+                        
+                        if is_task_selected {
+                            lines.push(Line::from(Span::styled(
+                                card_line,
+                                Style::default()
+                                    .fg(Color::Yellow)
+                                    .add_modifier(Modifier::BOLD),
+                            )));
+                        } else {
+                            lines.push(Line::from(Span::styled(
+                                card_line,
+                                Style::default().fg(Color::White),
+                            )));
+                        }
                     }
                     
                     // Bottom border of card
-                    lines.push(Line::from("└".to_string() + &"─".repeat(max_width) + "┘"));
+                    lines.push(Line::from("└".to_string() + &"─".repeat(max_width + 2) + "┘"));
                     
-                    // Empty line for spacing between cards
-                    lines.push(Line::from(""));
+                    // Reduced spacing between cards (empty line removed, now cards are closer)
                     
                     ListItem::new(lines)
                 })
