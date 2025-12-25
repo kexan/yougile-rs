@@ -360,13 +360,16 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     // Create card lines
                     let mut lines = vec![];
                     
-                    // Top border of card with scroll indicators
-                    let mut top_border = "┌".to_string() + &"─".repeat(max_width + 2) + "┐";
-                    if task_idx == visible_task_start && has_tasks_above {
-                        // Add up arrow indicator
-                        let indicator_pos = (max_width + 2) / 2;
-                        top_border.replace_range(indicator_pos..indicator_pos+1, "▲");
-                    }
+                    // Top border of card with scroll indicator
+                    let top_border = if task_idx == visible_task_start && has_tasks_above {
+                        // Add up arrow in the middle
+                        let half_width = max_width / 2;
+                        let left_part = "─".repeat(half_width);
+                        let right_part = "─".repeat(max_width - half_width);
+                        format!("┌{}▲{}┐", left_part, right_part)
+                    } else {
+                        format!("┌{}┐", "─".repeat(max_width + 2))
+                    };
                     lines.push(Line::from(top_border));
                     
                     // Task title lines with padding
@@ -391,7 +394,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     }
                     
                     // Bottom border of card
-                    lines.push(Line::from("└".to_string() + &"─".repeat(max_width + 2) + "┘"));
+                    lines.push(Line::from(format!("└{}┘", "─".repeat(max_width + 2))));
                     
                     ListItem::new(lines)
                 })
