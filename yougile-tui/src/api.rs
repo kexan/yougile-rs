@@ -138,6 +138,7 @@ impl YouGileAPI {
         // Fetch sprint stickers
         match self.client.search_sprint_stickers(None, Some(100.0), None, None, None).await {
             Ok(page) => {
+                let count = page.content.len();
                 for sticker in page.content {
                     let mut states = HashMap::new();
                     if let Some(sticker_states) = sticker.states {
@@ -153,7 +154,7 @@ impl YouGileAPI {
                         states,
                     });
                 }
-                info!("Fetched {} sprint stickers", page.content.len());
+                info!("Fetched {} sprint stickers", count);
             }
             Err(e) => {
                 error!("Failed to fetch sprint stickers: {}", e);
@@ -164,6 +165,7 @@ impl YouGileAPI {
         // Fetch string stickers
         match self.client.search_string_stickers(None, Some(100.0), None, None, None).await {
             Ok(page) => {
+                let count = page.content.len();
                 for sticker in page.content {
                     let mut states = HashMap::new();
                     if let Some(sticker_states) = sticker.states {
@@ -179,7 +181,7 @@ impl YouGileAPI {
                         states,
                     });
                 }
-                info!("Fetched {} string stickers", page.content.len());
+                info!("Fetched {} string stickers", count);
             }
             Err(e) => {
                 error!("Failed to fetch string stickers: {}", e);
