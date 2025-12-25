@@ -1,6 +1,7 @@
 use crate::SDKError;
 use std::sync::Arc;
-use yougile_client::YouGileClient;
+use yougile_api_client::YouGileClient;
+use yougile_api_client::models::*;
 
 /// API for authentication and company operations
 pub struct AuthAPI {
@@ -13,10 +14,7 @@ impl AuthAPI {
     }
 
     /// Create an authentication key
-    pub async fn create_auth_key(
-        &self,
-        credentials: yougile_client::models::AuthCredentials,
-    ) -> Result<yougile_client::models::AuthKey, SDKError> {
+    pub async fn create_auth_key(&self, credentials: AuthCredentials) -> Result<AuthKey, SDKError> {
         self.client
             .create_auth_key(credentials)
             .await
@@ -34,8 +32,8 @@ impl AuthAPI {
     /// Search for authentication keys
     pub async fn search_auth_keys(
         &self,
-        credentials: yougile_client::models::AuthCredentials,
-    ) -> Result<Vec<yougile_client::models::AuthKeyWithDetails>, SDKError> {
+        credentials: AuthCredentials,
+    ) -> Result<Vec<AuthKeyWithDetails>, SDKError> {
         self.client
             .search_auth_keys(credentials)
             .await
@@ -43,15 +41,12 @@ impl AuthAPI {
     }
 
     /// Get company information
-    pub async fn get_company(&self) -> Result<yougile_client::models::Company, SDKError> {
+    pub async fn get_company(&self) -> Result<Company, SDKError> {
         self.client.get_company().await.map_err(SDKError::from)
     }
 
     /// Update company information
-    pub async fn update_company(
-        &self,
-        update: yougile_client::models::UpdateCompany,
-    ) -> Result<yougile_client::models::Id, SDKError> {
+    pub async fn update_company(&self, update: UpdateCompany) -> Result<Id, SDKError> {
         self.client
             .update_company(update)
             .await
@@ -61,10 +56,10 @@ impl AuthAPI {
     /// Get companies
     pub async fn get_companies(
         &self,
-        credentials: yougile_client::models::AuthCredentials,
+        credentials: AuthCredentials,
         limit: Option<f64>,
         offset: Option<f64>,
-    ) -> Result<yougile_client::models::CompanyList, SDKError> {
+    ) -> Result<CompanyList, SDKError> {
         self.client
             .get_companies(credentials, limit, offset)
             .await

@@ -1,7 +1,8 @@
 use crate::SDKError;
 use std::sync::Arc;
-use yougile_client::YouGileClient;
 
+use yougile_api_client::YouGileClient;
+use yougile_api_client::models::*;
 /// API for working with tasks
 pub struct TasksAPI {
     client: Arc<YouGileClient>,
@@ -13,15 +14,12 @@ impl TasksAPI {
     }
 
     /// Get a specific task by ID
-    pub async fn get(&self, id: &str) -> Result<yougile_client::models::Task, SDKError> {
+    pub async fn get(&self, id: &str) -> Result<Task, SDKError> {
         self.client.get_task(id).await.map_err(SDKError::from)
     }
 
     /// Create a new task
-    pub async fn create(
-        &self,
-        create_task: yougile_client::models::CreateTask,
-    ) -> Result<yougile_client::models::Id, SDKError> {
+    pub async fn create(&self, create_task: CreateTask) -> Result<Id, SDKError> {
         self.client
             .create_task(create_task)
             .await
@@ -29,11 +27,7 @@ impl TasksAPI {
     }
 
     /// Update an existing task
-    pub async fn update(
-        &self,
-        id: &str,
-        update_task: yougile_client::models::UpdateTask,
-    ) -> Result<yougile_client::models::Id, SDKError> {
+    pub async fn update(&self, id: &str, update_task: UpdateTask) -> Result<Id, SDKError> {
         self.client
             .update_task(id, update_task)
             .await
@@ -46,15 +40,12 @@ impl TasksAPI {
     }
 
     /// List all tasks (with default parameters)
-    pub async fn list(&self) -> Result<yougile_client::models::TaskList, SDKError> {
+    pub async fn list(&self) -> Result<TaskList, SDKError> {
         self.search().execute().await
     }
 
     /// List all tasks for a specific column
-    pub async fn list_by_column(
-        &self,
-        column_id: &str,
-    ) -> Result<Vec<yougile_client::models::Task>, SDKError> {
+    pub async fn list_by_column(&self, column_id: &str) -> Result<Vec<Task>, SDKError> {
         self.search().column_id(column_id).all().await
     }
 
@@ -70,8 +61,8 @@ impl TasksAPI {
     pub async fn update_chat_subscribers(
         &self,
         id: &str,
-        subscribers: yougile_client::models::TaskChatSubscribers,
-    ) -> Result<yougile_client::models::Id, SDKError> {
+        subscribers: TaskChatSubscribers,
+    ) -> Result<Id, SDKError> {
         self.client
             .update_task_chat_subscribers(id, subscribers)
             .await
@@ -90,7 +81,7 @@ impl TasksAPI {
         assigned_to: Option<&str>,
         sticker_id: Option<&str>,
         sticker_state_id: Option<&str>,
-    ) -> Result<yougile_client::models::TaskList, SDKError> {
+    ) -> Result<TaskList, SDKError> {
         self.client
             .search_tasks_reversed(
                 include_deleted,
@@ -177,7 +168,7 @@ impl TaskSearchBuilder {
     }
 
     /// Execute the search with current parameters
-    pub async fn execute(self) -> Result<yougile_client::models::TaskList, SDKError> {
+    pub async fn execute(self) -> Result<TaskList, SDKError> {
         self.client
             .search_tasks(
                 self.include_deleted,
@@ -194,7 +185,7 @@ impl TaskSearchBuilder {
     }
 
     /// Get all tasks matching the search criteria with automatic pagination
-    pub async fn all(self) -> Result<Vec<yougile_client::models::Task>, SDKError> {
+    pub async fn all(self) -> Result<Vec<Task>, SDKError> {
         let mut all_tasks = Vec::new();
         let mut offset = 0.0;
         let limit = self.limit.unwrap_or(100.0);

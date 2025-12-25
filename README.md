@@ -1,7 +1,7 @@
 # YouGile Rust - API Client and Terminal UI
 
 A complete Rust solution for YouGile project management:
-- **yougile-client**: Low-level REST API client (auto-generated from OpenAPI spec)
+- **yougile-api-client**: Low-level REST API client (auto-generated from OpenAPI spec)
 - **yougile-sdk**: High-level SDK with builder patterns and convenience methods
 - **yougile-tui**: Terminal UI for managing projects and tasks
 

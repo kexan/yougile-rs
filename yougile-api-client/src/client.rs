@@ -5,11 +5,12 @@ use crate::{
     models::{
         self, AuthCredentials, AuthKey, AuthKeyWithDetails, Board, BoardList, ChatId, ChatMessage,
         ChatMessageList, Column, ColumnList, Company, CompanyList, CreateBoard, CreateChatMessage,
-        CreateColumn, CreateGroupChat, CreateProject, CreateProjectRole, CreateSprintSticker,
-        CreateStringSticker, CreateTask, CreateUser, CreateWebhook, FileUpload, GroupChat,
-        GroupChatList, Id, Project, ProjectList, ProjectRole, ProjectRoleList, SprintSticker,
-        SprintStickerList, SprintStickerState, StickerStateId, StringStickerState, Task,
-        TaskChatSubscribers, TaskList, UpdateBoard, UpdateChatMessage, UpdateColumn, UpdateCompany,
+        CreateColumn, CreateDepartment, CreateGroupChat, CreateProject, CreateProjectRole,
+        CreateSprintSticker, CreateStringSticker, CreateTask, CreateUser, CreateWebhook,
+        Department, DepartmentList, FileUpload, GroupChat, GroupChatList, Id, Project,
+        ProjectList, ProjectRole, ProjectRoleList, SprintSticker, SprintStickerList,
+        SprintStickerState, StickerStateId, StringStickerState, Task, TaskChatSubscribers,
+        TaskList, UpdateBoard, UpdateChatMessage, UpdateColumn, UpdateCompany, UpdateDepartment,
         UpdateGroupChat, UpdateProject, UpdateProjectRole, UpdateSprintSticker,
         UpdateStringSticker, UpdateTask, UpdateUser, UpdateWebhook, User, UserList, Webhook,
     },
@@ -239,6 +240,42 @@ impl YouGileClient {
 
     pub async fn update_user(&self, id: &str, update: UpdateUser) -> Result<Id, YougileError> {
         crate::apis::users::update_user(&self.configuration, id, update).await
+    }
+
+    // Department methods
+    pub async fn create_department(&self, create: CreateDepartment) -> Result<Id, YougileError> {
+        crate::apis::departments::create_department(&self.configuration, create).await
+    }
+
+    pub async fn get_department(&self, id: &str) -> Result<Department, YougileError> {
+        crate::apis::departments::get_department(&self.configuration, id).await
+    }
+
+    pub async fn search_departments(
+        &self,
+        include_deleted: Option<bool>,
+        limit: Option<f64>,
+        offset: Option<f64>,
+        title: Option<&str>,
+        parent_id: Option<&str>,
+    ) -> Result<DepartmentList, YougileError> {
+        crate::apis::departments::search_department(
+            &self.configuration,
+            include_deleted,
+            limit,
+            offset,
+            title,
+            parent_id,
+        )
+        .await
+    }
+
+    pub async fn update_department(
+        &self,
+        id: &str,
+        update: UpdateDepartment,
+    ) -> Result<Id, YougileError> {
+        crate::apis::departments::update_department(&self.configuration, id, update).await
     }
 
     // Project methods

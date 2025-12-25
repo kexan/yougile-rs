@@ -13,7 +13,7 @@ path = "src/main.rs"
 [dependencies]
 # SDK and API client from workspace
 yougile-sdk = { path = "../yougile-sdk" }
-yougile-client = { path = "../" }
+yougile-api-client = { path = "../yougile-api-client" }
 
 # Async runtime
 tokio = { version = "1", features = ["full"] }

@@ -1,6 +1,8 @@
 use crate::SDKError;
 use std::sync::Arc;
-use yougile_client::{YouGileClient, models::{Board, BoardList, CreateBoard, UpdateBoard, Id}};
+
+use yougile_api_client::YouGileClient;
+use yougile_api_client::models::*;
 
 /// API for working with boards
 pub struct BoardsAPI {
@@ -19,12 +21,18 @@ impl BoardsAPI {
 
     /// Create a new board
     pub async fn create(&self, create_board: CreateBoard) -> Result<Id, SDKError> {
-        self.client.create_board(create_board).await.map_err(SDKError::from)
+        self.client
+            .create_board(create_board)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Update an existing board
     pub async fn update(&self, id: &str, update_board: UpdateBoard) -> Result<Id, SDKError> {
-        self.client.update_board(id, update_board).await.map_err(SDKError::from)
+        self.client
+            .update_board(id, update_board)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Search for boards with various filters using a fluent API
@@ -39,10 +47,7 @@ impl BoardsAPI {
 
     /// List all boards for a specific project
     pub async fn list_for_project(&self, project_id: &str) -> Result<Vec<Board>, SDKError> {
-        self.search()
-            .project_id(project_id)
-            .all()
-            .await
+        self.search().project_id(project_id).all().await
     }
 }
 

@@ -1,12 +1,7 @@
 use crate::SDKError;
 use std::sync::Arc;
-use yougile_client::{
-    YouGileClient,
-    models::{
-        CreateProject, CreateProjectRole, Id, Project, ProjectList, ProjectRole, ProjectRoleList,
-        UpdateProject, UpdateProjectRole,
-    },
-};
+use yougile_api_client::YouGileClient;
+use yougile_api_client::models::*;
 
 /// API for working with projects
 pub struct ProjectsAPI {

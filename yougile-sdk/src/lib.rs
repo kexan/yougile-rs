@@ -55,4 +55,4 @@ mod resources;
 
 pub use builder::YouGileSDK;
 pub use error::SDKError;
-pub use yougile_client::{YouGileClient, models::*};
+pub use yougile_api_client::{YouGileClient, models::*};

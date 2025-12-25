@@ -6,7 +6,7 @@ use crate::{
     },
 };
 use std::sync::Arc;
-use yougile_client::{YouGileClient, apis::configuration::Configuration};
+use yougile_api_client::{YouGileClient, apis::configuration::Configuration, models::Company};
 
 /// Builder for creating a YouGileSDK instance
 pub struct YouGileSDKBuilder {
@@ -130,7 +130,7 @@ impl YouGileSDK {
     }
 
     /// Get the company information
-    pub async fn get_company(&self) -> Result<yougile_client::models::Company, SDKError> {
+    pub async fn get_company(&self) -> Result<Company, SDKError> {
         self.client.get_company().await.map_err(SDKError::from)
     }
 

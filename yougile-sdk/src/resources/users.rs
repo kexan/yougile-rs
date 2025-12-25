@@ -1,9 +1,7 @@
 use crate::SDKError;
 use std::sync::Arc;
-use yougile_client::{
-    YouGileClient,
-    models::{CreateUser, Id, UpdateUser, User, UserList},
-};
+use yougile_api_client::YouGileClient;
+use yougile_api_client::models::*;
 
 /// API for working with users
 pub struct UsersAPI {
