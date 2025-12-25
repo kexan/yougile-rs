@@ -1,8 +1,9 @@
 use crate::api::YouGileAPI;
 use crate::config::Config;
 use crossterm::event::KeyEvent;
+use std::collections::HashMap;
 use std::io;
-use yougile_client::models::{Project, Board, Task, Column};
+use yougile_client::models::{Project, Board, Task, Column, User};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum View {
@@ -32,6 +33,7 @@ pub struct App {
     pub selected_column_idx: usize,
     pub selected_task_idx: usize,
     pub current_task: Option<Task>,
+    pub users: HashMap<String, User>,  // Cache of users by ID
     pub quit: bool,
     pub loading: bool,
     pub error: Option<String>,
@@ -70,14 +72,16 @@ impl App {
             selected_column_idx: 0,
             selected_task_idx: 0,
             current_task: None,
+            users: HashMap::new(),
             quit: false,
             loading: false,
             error: None,
             focus: FocusedWidget::ProjectList,
         };
 
-        // Load projects on startup
+        // Load projects and users on startup
         app.load_projects().await?;
+        app.load_users().await?;
 
         Ok(app)
     }
@@ -209,6 +213,13 @@ impl App {
 
     pub fn should_quit(&self) -> bool {
         self.quit
+    }
+
+    pub fn get_user_name(&self, user_id: &str) -> String {
+        self.users
+            .get(user_id)
+            .map(|u| u.real_name.clone())
+            .unwrap_or_else(|| format!("User({})", &user_id[..8.min(user_id.len())]))
     }
 
     fn move_up(&mut self) {
@@ -365,6 +376,30 @@ impl App {
         }
 
         self.loading = false;
+        Ok(())
+    }
+
+    async fn load_users(&mut self) -> io::Result<()> {
+        log::info!("Loading users...");
+        
+        match &self.api {
+            Some(api) => {
+                match api.fetch_users().await {
+                    Ok(users) => {
+                        self.users = users.into_iter().map(|u| (u.id.clone(), u)).collect();
+                        log::info!("Loaded {} users", self.users.len());
+                    }
+                    Err(e) => {
+                        log::error!("Failed to load users: {}", e);
+                        // Don't show error to user, just log it
+                    }
+                }
+            }
+            None => {
+                log::error!("API client is not initialized");
+            }
+        }
+
         Ok(())
     }
 }
