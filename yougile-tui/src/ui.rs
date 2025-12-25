@@ -153,6 +153,16 @@ fn draw_boards_view(f: &mut Frame, app: &App) {
     }
 }
 
+/// Truncate string by character count (not bytes) to avoid UTF-8 issues
+fn truncate_str(s: &str, max_chars: usize) -> String {
+    let char_count = s.chars().count();
+    if char_count > max_chars {
+        s.chars().take(max_chars - 3).collect::<String>() + "..."
+    } else {
+        s.to_string()
+    }
+}
+
 fn draw_kanban_view(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
@@ -242,11 +252,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     
                     // Truncate task name to fit in card width (accounting for borders and padding)
                     let max_width = (COLUMN_WIDTH - 4) as usize; // -4 for borders and padding
-                    let task_name = if task.title.len() > max_width {
-                        format!("{}...", &task.title[..max_width - 3])
-                    } else {
-                        task.title.clone()
-                    };
+                    let task_name = truncate_str(&task.title, max_width);
                     
                     // Create card lines
                     let mut lines = vec![];
@@ -256,7 +262,8 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     
                     // Task title with padding
                     let padded_title = format!(" {}", task_name);
-                    let padding_right = max_width.saturating_sub(padded_title.len());
+                    let title_len = padded_title.chars().count();
+                    let padding_right = max_width.saturating_sub(title_len);
                     let card_line = format!("│{}{} │", padded_title, " ".repeat(padding_right));
                     
                     if is_task_selected {
