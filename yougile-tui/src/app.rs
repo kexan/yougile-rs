@@ -1,3 +1,4 @@
+use crate::api::YouGileAPI;
 use crate::config::Config;
 use crossterm::event::KeyEvent;
 use std::io;
@@ -12,6 +13,7 @@ pub enum View {
 
 pub struct App {
     config: Config,
+    api: Option<YouGileAPI>,
     pub current_view: View,
     pub projects: Vec<ProjectResponse>,
     pub selected_project_idx: usize,
@@ -28,9 +30,19 @@ pub enum FocusedWidget {
 }
 
 impl App {
-    pub fn new(config: Config) -> Result<Self, io::Error> {
-        Ok(App {
+    pub async fn new(config: Config) -> Result<Self, io::Error> {
+        // Initialize API client
+        let api = match YouGileAPI::new(&config) {
+            Ok(api) => Some(api),
+            Err(e) => {
+                log::warn!("Failed to initialize API client: {}", e);
+                None
+            }
+        };
+
+        let mut app = App {
             config,
+            api,
             current_view: View::Projects,
             projects: Vec::new(),
             selected_project_idx: 0,
@@ -38,7 +50,12 @@ impl App {
             loading: false,
             error: None,
             focus: FocusedWidget::ProjectList,
-        })
+        };
+
+        // Load projects on startup
+        app.load_projects().await?;
+
+        Ok(app)
     }
 
     pub async fn handle_key_event(&mut self, key: KeyEvent) -> io::Result<()> {
@@ -46,13 +63,16 @@ impl App {
 
         match key.code {
             KeyCode::Char('h') | KeyCode::F(1) => {
+                log::debug!("Switching to Help view");
                 self.current_view = View::Help;
             }
             KeyCode::Char('p') => {
+                log::debug!("Switching to Projects view");
                 self.current_view = View::Projects;
             }
             KeyCode::Tab => {
                 self.toggle_focus();
+                log::debug!("Toggled focus to: {:?}", self.focus);
             }
             KeyCode::Up | KeyCode::Char('k') => {
                 self.move_up();
@@ -61,11 +81,17 @@ impl App {
                 self.move_down();
             }
             KeyCode::Enter => {
-                // Handle selection logic here
-                log::debug!("Selected item at index: {}", self.selected_project_idx);
+                if self.selected_project_idx < self.projects.len() {
+                    if let Some(project) = self.projects.get(self.selected_project_idx) {
+                        log::info!(
+                            "Selected project: {:?}",
+                            project.title.as_ref().unwrap_or(&"Unknown".to_string())
+                        );
+                    }
+                }
             }
             KeyCode::Char('r') => {
-                // Refresh
+                log::info!("User requested refresh");
                 self.load_projects().await?;
             }
             _ => {}
@@ -76,7 +102,7 @@ impl App {
 
     pub async fn process_pending(&mut self) -> io::Result<()> {
         // Handle any pending async operations
-        // For now, this is a placeholder
+        // Currently unused, but placeholder for future improvements
         Ok(())
     }
 
@@ -87,12 +113,14 @@ impl App {
     fn move_up(&mut self) {
         if self.selected_project_idx > 0 {
             self.selected_project_idx -= 1;
+            log::debug!("Moved up, now at index: {}", self.selected_project_idx);
         }
     }
 
     fn move_down(&mut self) {
         if self.selected_project_idx < self.projects.len().saturating_sub(1) {
             self.selected_project_idx += 1;
+            log::debug!("Moved down, now at index: {}", self.selected_project_idx);
         }
     }
 
@@ -107,12 +135,25 @@ impl App {
         self.loading = true;
         self.error = None;
 
-        // TODO: Implement actual API call using yougile-sdk
-        // This is where you would:
-        // 1. Create a client from config
-        // 2. Call client.get_projects()
-        // 3. Update self.projects
-        // 4. Handle errors
+        match &self.api {
+            Some(api) => {
+                match api.fetch_projects().await {
+                    Ok(projects) => {
+                        self.projects = projects;
+                        self.selected_project_idx = 0;
+                        log::info!("Loaded {} projects", self.projects.len());
+                    }
+                    Err(e) => {
+                        self.error = Some(e);
+                        log::error!("Failed to load projects: {:?}", self.error);
+                    }
+                }
+            }
+            None => {
+                self.error = Some("API client not initialized".to_string());
+                log::error!("API client is not initialized");
+            }
+        }
 
         self.loading = false;
         Ok(())
