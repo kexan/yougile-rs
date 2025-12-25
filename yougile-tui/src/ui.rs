@@ -282,14 +282,16 @@ fn format_single_sticker(app: &App, sticker_id: &str, state_value: &serde_json::
     let sticker_meta = app.stickers.get(sticker_id);
     
     let display = if let Some(meta) = sticker_meta {
-        // We have metadata for this sticker (string or sprint type)
+        // We have metadata for this sticker
         match state_value {
-            serde_json::Value::String(state_id) => {
-                let state_title = meta.states
-                    .get(state_id)
+            serde_json::Value::String(state_id_or_text) => {
+                // Check if this is a state_id (exists in states map) or free-text
+                let value_display = meta.states
+                    .get(state_id_or_text)
                     .map(|s| s.as_str())
-                    .unwrap_or(state_id);
-                format!("[{}:{}]", truncate_str(&meta.title, 15), truncate_str(state_title, 15))
+                    .unwrap_or(state_id_or_text); // If not in states, it's free text - use as is
+                
+                format!("[{}:{}]", truncate_str(&meta.title, 15), truncate_str(value_display, 15))
             }
             serde_json::Value::Number(n) => {
                 format!("[{}:{}]", truncate_str(&meta.title, 15), n)
@@ -300,7 +302,7 @@ fn format_single_sticker(app: &App, sticker_id: &str, state_value: &serde_json::
             _ => return String::new(),
         }
     } else {
-        // No metadata - this is a number-type custom sticker, just show the raw value
+        // No metadata - unknown sticker, show raw value with ID hint
         match state_value {
             serde_json::Value::String(s) => format!("[{}]", truncate_str(s, 20)),
             serde_json::Value::Number(n) => format!("[№{}]", n),
@@ -559,7 +561,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                                 Span::styled("│", Style::default().fg(color)),
                             ]));
                         } else {
-                            let card_line = format!("│{}{}│", padded, " ".repeat(padding_right));
+                            let card_line = format!("│{}{} │", padded, " ".repeat(padding_right));
                             lines.push(Line::from(Span::styled(card_line, content_style)));
                         }
                     }
@@ -582,7 +584,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                                             Span::styled("│", Style::default().fg(color)),
                                         ]));
                                     } else {
-                                        let sticker_line = format!("│{}{}│", padded, " ".repeat(padding_right));
+                                        let sticker_line = format!("│{}{} │", padded, " ".repeat(padding_right));
                                         lines.push(Line::from(Span::styled(sticker_line, sticker_style)));
                                     }
                                 }
@@ -699,11 +701,12 @@ fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
                         let (display_title, value_str) = if let Some(meta) = sticker_meta {
                             // We have metadata
                             let value = match state_value {
-                                serde_json::Value::String(state_id) => {
+                                serde_json::Value::String(state_id_or_text) => {
+                                    // Check if it's a state_id or free text
                                     meta.states
-                                        .get(state_id)
+                                        .get(state_id_or_text)
                                         .cloned()
-                                        .unwrap_or_else(|| state_id.clone())
+                                        .unwrap_or_else(|| state_id_or_text.clone())
                                 }
                                 serde_json::Value::Number(n) => n.to_string(),
                                 serde_json::Value::Bool(b) => b.to_string(),
@@ -711,14 +714,14 @@ fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
                             };
                             (meta.title.clone(), value)
                         } else {
-                            // No metadata - number-type sticker, show raw value
+                            // No metadata - show unknown
                             let value = match state_value {
                                 serde_json::Value::String(s) => s.clone(),
                                 serde_json::Value::Number(n) => n.to_string(),
                                 serde_json::Value::Bool(b) => b.to_string(),
                                 _ => "[unknown]".to_string(),
                             };
-                            (format!("Custom ({})", truncate_str(sticker_id, 8)), value)
+                            (format!("Unknown ({})", truncate_str(sticker_id, 8)), value)
                         };
                         
                         details.push(Line::from(vec![
@@ -838,7 +841,7 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from(""),
         Line::from("Columns: Color-coded by API (1-16 hex colors) • Count shows non-archived tasks only"),
         Line::from("Tasks: Card borders colored by task-* • Stickers shown in cyan boxes • Archived dimmed"),
-        Line::from("Stickers: [name:value] for known types • [value] for number-type custom stickers"),
+        Line::from("Stickers: [name:state] for state-based • [name:text] for free-text values"),
     ];
 
     let block = Block::default()
