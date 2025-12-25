@@ -22,12 +22,27 @@ use config::Config;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    // Initialize logging
+    // Initialize logging to file to avoid interfering with TUI
+    let log_file = dirs::cache_dir()
+        .unwrap_or_else(|| std::path::PathBuf::from("."))
+        .join("yougile-tui")
+        .join("yougile-tui.log");
+    
+    // Create log directory if it doesn't exist
+    if let Some(parent) = log_file.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+
     env_logger::builder()
         .filter_level(log::LevelFilter::Info)
+        .target(env_logger::Target::Pipe(Box::new(std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&log_file)?)))
         .try_init()?;
 
     log::info!("Starting YouGile TUI application");
+    log::info!("Log file: {:?}", log_file);
 
     // Load configuration
     let config = match Config::load() {
