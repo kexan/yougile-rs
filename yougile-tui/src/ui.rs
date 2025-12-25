@@ -304,17 +304,10 @@ fn draw_task_detail_view(f: &mut Frame, app: &App) {
         // Assigned users - show names if available, otherwise count
         if let Some(ref assigned) = task.assigned {
             if !assigned.is_empty() {
-                log::debug!("Task has {} assigned users", assigned.len());
-                log::debug!("User cache has {} users", app.users.len());
-                
                 // Try to get names
                 let assignee_names: Vec<String> = assigned
                     .iter()
-                    .map(|user_id| {
-                        let name = app.get_user_name(user_id);
-                        log::debug!("User ID: {} -> Name: {}", user_id, name);
-                        name
-                    })
+                    .map(|user_id| app.get_user_name(user_id))
                     .collect();
                 
                 // Check if we got actual names or just IDs
