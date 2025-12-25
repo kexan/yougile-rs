@@ -7,17 +7,21 @@ use ratatui::{
     Frame,
 };
 
-// Fixed width for each column in characters (increased from 30 to 40)
+// Fixed width for each column in characters
 const COLUMN_WIDTH: u16 = 40;
 // Padding between columns
 const COLUMN_PADDING: u16 = 1;
+// Maximum columns to display at once (to reserve space for task detail panel)
+const MAX_COLUMNS_VISIBLE: usize = 4;
+// Minimum width for task detail panel
+const TASK_DETAIL_MIN_WIDTH: u16 = 50;
 
 pub fn draw(f: &mut Frame, app: &App) {
     match app.current_view {
         View::Projects => draw_projects_view(f, app),
         View::Boards => draw_boards_view(f, app),
         View::Tasks => draw_kanban_view(f, app),
-        View::TaskDetail => draw_task_detail_view(f, app),
+        View::TaskDetail => draw_kanban_view(f, app), // Same view, task detail shown on the right
         View::Help => draw_help_view(f, app),
     }
 }
@@ -227,6 +231,21 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
         .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
     f.render_widget(header, chunks[0]);
 
+    // Split main area into columns and task detail if task is open
+    let main_chunks = if app.current_task.is_some() {
+        Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([
+                Constraint::Min(COLUMN_WIDTH),
+                Constraint::Length(TASK_DETAIL_MIN_WIDTH),
+            ])
+            .split(chunks[1])
+    } else {
+        vec![chunks[1]]
+    };
+
+    let columns_area = main_chunks[0];
+
     // Kanban board - columns with fixed width and horizontal scrolling
     if app.columns.is_empty() {
         let empty_msg = Paragraph::new("No columns found")
@@ -236,12 +255,13 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     .border_type(ratatui::widgets::BorderType::Rounded),
             )
             .style(Style::default().fg(Color::Yellow));
-        f.render_widget(empty_msg, chunks[1]);
+        f.render_widget(empty_msg, columns_area);
     } else {
-        // Calculate how many columns fit on screen (with padding)
-        let available_width = chunks[1].width;
+        // Calculate how many columns fit on screen (with padding and max limit)
+        let available_width = columns_area.width;
         let column_with_padding = COLUMN_WIDTH + COLUMN_PADDING;
-        let columns_on_screen = ((available_width + COLUMN_PADDING) / column_with_padding).max(1) as usize;
+        let columns_that_fit = ((available_width + COLUMN_PADDING) / column_with_padding).max(1) as usize;
+        let columns_on_screen = columns_that_fit.min(MAX_COLUMNS_VISIBLE);
         
         // Calculate scroll offset based on selected column
         let scroll_offset = if app.selected_column_idx >= columns_on_screen {
@@ -274,7 +294,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
         let column_chunks = Layout::default()
             .direction(Direction::Horizontal)
             .constraints(constraints)
-            .split(chunks[1]);
+            .split(columns_area);
 
         // Draw each visible column
         for (visible_idx, (actual_col_idx, column_with_tasks)) in visible_columns.iter().enumerate() {
@@ -416,16 +436,28 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
         }
     }
 
+    // Draw task detail panel on the right if task is open
+    if app.current_task.is_some() && main_chunks.len() > 1 {
+        draw_task_detail_panel(f, app, main_chunks[1]);
+    }
+
     // Footer with instructions
     let scroll_indicator = if app.columns.len() > 1 {
         format!(" ({}/{})", app.selected_column_idx + 1, app.columns.len())
     } else {
         String::new()
     };
-    let footer_text = format!(
-        "↵: open{} | Tab/←/→/h/l: columns | ↑/↓/j/k: tasks | r: refresh | Esc: back | q: quit",
-        scroll_indicator
-    );
+    let footer_text = if app.current_task.is_some() {
+        format!(
+            "↵: close task{} | Tab/←/→/h/l: columns | ↑/↓/j/k: tasks | r: refresh | Esc: back | q: quit",
+            scroll_indicator
+        )
+    } else {
+        format!(
+            "↵: open{} | Tab/←/→/h/l: columns | ↑/↓/j/k: tasks | r: refresh | Esc: back | q: quit",
+            scroll_indicator
+        )
+    };
     let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
     f.render_widget(footer, chunks[2]);
 
@@ -440,28 +472,17 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
     }
 }
 
-fn draw_task_detail_view(f: &mut Frame, app: &App) {
-    let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .margin(1)
-        .constraints(
-            [
-                Constraint::Length(3),
-                Constraint::Min(5),
-                Constraint::Length(1),
-            ]
-            .as_ref(),
-        )
-        .split(f.area());
-
+fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
     if let Some(ref task) = app.current_task {
-        // Header with task title
-        let header = Paragraph::new(format!("Task: {}", task.title))
-            .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
-        f.render_widget(header, chunks[0]);
-
         // Task details
         let mut details = vec![];
+        
+        // Title
+        details.push(Line::from(vec![Span::styled(
+            &task.title,
+            Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+        )]));
+        details.push(Line::from(""));
         
         // ID
         if let Some(ref id_common) = task.id_task_common {
@@ -552,21 +573,7 @@ fn draw_task_detail_view(f: &mut Frame, app: &App) {
         let details_widget = Paragraph::new(details)
             .block(block)
             .wrap(Wrap { trim: true });
-        f.render_widget(details_widget, chunks[1]);
-
-        // Footer
-        let footer_text = "Esc: back to kanban | q: quit";
-        let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
-        f.render_widget(footer, chunks[2]);
-    } else {
-        let error_msg = Paragraph::new("No task selected")
-            .style(Style::default().fg(Color::Red));
-        f.render_widget(error_msg, chunks[1]);
-    }
-
-    // Error message
-    if let Some(ref error) = app.error {
-        draw_error_popup(f, error);
+        f.render_widget(details_widget, area);
     }
 }
 
@@ -592,7 +599,7 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from("  l/→   Next column (Kanban view)"),
         Line::from(""),
         Line::from("Actions:"),
-        Line::from("  ↵     Open selected item (project/board/task)"),
+        Line::from("  ↵     Open/close task details"),
         Line::from("  Esc   Back to previous view / Close error"),
         Line::from("  r     Refresh current view"),
         Line::from(""),
