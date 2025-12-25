@@ -60,6 +60,8 @@ pub async fn parse_response<T: DeserializeOwned + Debug>(
             "Received JSON response with length: {} bytes",
             content.len()
         );
+        // Log actual JSON content at DEBUG level for easier debugging
+        debug!("JSON response: {}", content);
         trace!("JSON response content: {}", content);
     }
 
