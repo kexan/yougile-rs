@@ -100,13 +100,8 @@ async fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Re
         // Handle events with timeout for async operations
         if event::poll(Duration::from_millis(100))? {
             if let Event::Key(key) = event::read()? {
-                // Handle quit
-                if key.code == KeyCode::Char('q') || key.code == KeyCode::Esc {
-                    log::info!("User initiated quit");
-                    return Ok(());
-                }
-
-                // Pass to app handler
+                // Pass ALL key events to app handler
+                // App will decide whether to quit or not
                 app.handle_key_event(key).await?;
             }
         } else {
@@ -116,6 +111,7 @@ async fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Re
 
         // Check if app should quit
         if app.should_quit() {
+            log::info!("Application quit requested");
             return Ok(());
         }
     }
