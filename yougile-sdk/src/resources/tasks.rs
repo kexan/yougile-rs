@@ -50,6 +50,14 @@ impl TasksAPI {
         self.search().execute().await
     }
 
+    /// List all tasks for a specific column
+    pub async fn list_by_column(&self, column_id: &str) -> Result<Vec<yougile_client::models::Task>, SDKError> {
+        self.search()
+            .column_id(column_id)
+            .all()
+            .await
+    }
+
     /// Get task chat subscribers
     pub async fn get_chat_subscribers(&self, id: &str) -> Result<Vec<String>, SDKError> {
         self.client
@@ -100,6 +108,7 @@ impl TasksAPI {
 }
 
 /// Search builder for tasks with fluent API
+#[derive(Clone)]
 pub struct TaskSearchBuilder {
     client: Arc<YouGileClient>,
     include_deleted: Option<bool>,
@@ -117,7 +126,7 @@ impl TaskSearchBuilder {
         Self {
             client,
             include_deleted: None,
-            limit: Some(50.0), // Default limit
+            limit: Some(100.0),
             offset: Some(0.0),
             title: None,
             column_id: None,
@@ -167,6 +176,7 @@ impl TaskSearchBuilder {
         self
     }
 
+    /// Execute the search with current parameters
     pub async fn execute(self) -> Result<yougile_client::models::TaskList, SDKError> {
         self.client
             .search_tasks(
@@ -181,5 +191,25 @@ impl TaskSearchBuilder {
             )
             .await
             .map_err(SDKError::from)
+    }
+
+    /// Get all tasks matching the search criteria with automatic pagination
+    pub async fn all(self) -> Result<Vec<yougile_client::models::Task>, SDKError> {
+        let mut all_tasks = Vec::new();
+        let mut offset = 0.0;
+        let limit = self.limit.unwrap_or(100.0);
+
+        loop {
+            let result = self.clone().offset(offset).execute().await?;
+            let count = result.content.len() as f64;
+            all_tasks.extend(result.content);
+
+            if count < limit {
+                break;
+            }
+            offset += limit;
+        }
+
+        Ok(all_tasks)
     }
 }
