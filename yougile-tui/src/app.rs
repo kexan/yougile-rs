@@ -8,7 +8,8 @@ use yougile_client::models::{Project, Board, Task, Column};
 pub enum View {
     Projects,
     Boards,
-    Tasks,  // Now shows Kanban board with columns
+    Tasks,
+    TaskDetail,
     Help,
 }
 
@@ -30,6 +31,7 @@ pub struct App {
     pub columns: Vec<ColumnWithTasks>,
     pub selected_column_idx: usize,
     pub selected_task_idx: usize,
+    pub current_task: Option<Task>,
     pub quit: bool,
     pub loading: bool,
     pub error: Option<String>,
@@ -67,6 +69,7 @@ impl App {
             columns: Vec::new(),
             selected_column_idx: 0,
             selected_task_idx: 0,
+            current_task: None,
             quit: false,
             loading: false,
             error: None,
@@ -83,7 +86,7 @@ impl App {
         use crossterm::event::KeyCode;
 
         match key.code {
-            KeyCode::Char('h') | KeyCode::F(1) => {
+            KeyCode::Char('?') | KeyCode::F(1) => {
                 log::debug!("Switching to Help view");
                 self.current_view = View::Help;
             }
@@ -141,6 +144,16 @@ impl App {
                             }
                         }
                     }
+                    View::Tasks => {
+                        // Open task detail
+                        if let Some(column) = self.columns.get(self.selected_column_idx) {
+                            if let Some(task) = column.tasks.get(self.selected_task_idx) {
+                                log::info!("Opening task: {:?}", task.title);
+                                self.current_task = Some(task.clone());
+                                self.current_view = View::TaskDetail;
+                            }
+                        }
+                    }
                     _ => {}
                 }
             }
@@ -166,6 +179,10 @@ impl App {
                             self.selected_column_idx = 0;
                             self.selected_task_idx = 0;
                         }
+                        View::TaskDetail => {
+                            self.current_view = View::Tasks;
+                            self.current_task = None;
+                        }
                         View::Help => self.current_view = View::Projects,
                     }
                 }
@@ -176,7 +193,7 @@ impl App {
                     View::Projects => self.load_projects().await?,
                     View::Boards => self.load_boards().await?,
                     View::Tasks => self.load_columns_with_tasks().await?,
-                    View::Help => {},
+                    _ => {},
                 }
             }
             _ => {}
@@ -211,7 +228,7 @@ impl App {
                     self.selected_task_idx -= 1;
                 }
             }
-            View::Help => {}
+            _ => {}
         }
     }
 
@@ -234,7 +251,7 @@ impl App {
                     }
                 }
             }
-            View::Help => {}
+            _ => {}
         }
     }
 
