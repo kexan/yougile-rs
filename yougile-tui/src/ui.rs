@@ -278,42 +278,35 @@ fn calculate_card_height(app: &App, task: &yougile_client::models::Task, max_wid
 
 /// Format single sticker as display string with box
 fn format_single_sticker(app: &App, sticker_id: &str, state_value: &serde_json::Value, max_width: usize) -> String {
-    // Get sticker title from metadata (or use fallback)
-    let sticker_title = app.get_sticker_title(sticker_id);
+    // Try to get sticker metadata
+    let sticker_meta = app.stickers.get(sticker_id);
     
-    // If sticker_title still looks like an ID (starts with "Sticker("), it's a number sticker
-    // For number stickers, we don't have metadata, so just show the value
-    let is_unknown_sticker = sticker_title.starts_with("Sticker(");
-    
-    // Format based on value type
-    let display = match state_value {
-        serde_json::Value::String(state_id) => {
-            if is_unknown_sticker {
-                // Unknown sticker with string value - show ID and value
-                format!("[{}:{}]", truncate_str(sticker_id, 8), truncate_str(state_id, 15))
-            } else {
-                // Known sticker - Get state title from sticker metadata
-                let state_title = app.get_sticker_state_title(sticker_id, state_id);
-                format!("[{}:{}]", truncate_str(&sticker_title, 15), truncate_str(&state_title, 15))
+    let display = if let Some(meta) = sticker_meta {
+        // We have metadata for this sticker (string or sprint type)
+        match state_value {
+            serde_json::Value::String(state_id) => {
+                let state_title = meta.states
+                    .get(state_id)
+                    .map(|s| s.as_str())
+                    .unwrap_or(state_id);
+                format!("[{}:{}]", truncate_str(&meta.title, 15), truncate_str(state_title, 15))
             }
-        }
-        serde_json::Value::Number(n) => {
-            if is_unknown_sticker {
-                // This is a number sticker without metadata - just show the value
-                format!("[№{}]", n)
-            } else {
-                // Known sticker with number value
-                format!("[{}:{}]", truncate_str(&sticker_title, 15), n)
+            serde_json::Value::Number(n) => {
+                format!("[{}:{}]", truncate_str(&meta.title, 15), n)
             }
-        }
-        serde_json::Value::Bool(b) if *b => {
-            if is_unknown_sticker {
-                format!("[✓{}]", truncate_str(sticker_id, 8))
-            } else {
-                format!("[✓{}]", truncate_str(&sticker_title, 15))
+            serde_json::Value::Bool(b) if *b => {
+                format!("[✓{}]", truncate_str(&meta.title, 15))
             }
+            _ => return String::new(),
         }
-        _ => return String::new(),
+    } else {
+        // No metadata - this is a number-type custom sticker, just show the raw value
+        match state_value {
+            serde_json::Value::String(s) => format!("[{}]", truncate_str(s, 20)),
+            serde_json::Value::Number(n) => format!("[№{}]", n),
+            serde_json::Value::Bool(b) if *b => "[✓]".to_string(),
+            _ => return String::new(),
+        }
     };
     
     // Truncate if too long for card width
@@ -700,29 +693,32 @@ fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
                 
                 if let Some(obj) = stickers.as_object() {
                     for (sticker_id, state_value) in obj.iter() {
-                        // Get sticker and state titles from metadata
-                        let sticker_title = app.get_sticker_title(sticker_id);
-                        let is_unknown = sticker_title.starts_with("Sticker(");
+                        // Try to get sticker metadata
+                        let sticker_meta = app.stickers.get(sticker_id);
                         
-                        let value_str = match state_value {
-                            serde_json::Value::String(state_id) => {
-                                if is_unknown {
-                                    state_id.clone()
-                                } else {
-                                    app.get_sticker_state_title(sticker_id, state_id)
+                        let (display_title, value_str) = if let Some(meta) = sticker_meta {
+                            // We have metadata
+                            let value = match state_value {
+                                serde_json::Value::String(state_id) => {
+                                    meta.states
+                                        .get(state_id)
+                                        .cloned()
+                                        .unwrap_or_else(|| state_id.clone())
                                 }
-                            }
-                            serde_json::Value::Number(n) => n.to_string(),
-                            serde_json::Value::Bool(b) => b.to_string(),
-                            serde_json::Value::Array(_) => "[array]".to_string(),
-                            serde_json::Value::Object(_) => "[object]".to_string(),
-                            serde_json::Value::Null => "null".to_string(),
-                        };
-                        
-                        let display_title = if is_unknown {
-                            format!("Unknown ({})", truncate_str(sticker_id, 8))
+                                serde_json::Value::Number(n) => n.to_string(),
+                                serde_json::Value::Bool(b) => b.to_string(),
+                                _ => "[unknown]".to_string(),
+                            };
+                            (meta.title.clone(), value)
                         } else {
-                            sticker_title
+                            // No metadata - number-type sticker, show raw value
+                            let value = match state_value {
+                                serde_json::Value::String(s) => s.clone(),
+                                serde_json::Value::Number(n) => n.to_string(),
+                                serde_json::Value::Bool(b) => b.to_string(),
+                                _ => "[unknown]".to_string(),
+                            };
+                            (format!("Custom ({})", truncate_str(sticker_id, 8)), value)
                         };
                         
                         details.push(Line::from(vec![
@@ -842,6 +838,7 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from(""),
         Line::from("Columns: Color-coded by API (1-16 hex colors) • Count shows non-archived tasks only"),
         Line::from("Tasks: Card borders colored by task-* • Stickers shown in cyan boxes • Archived dimmed"),
+        Line::from("Stickers: [name:value] for known types • [value] for number-type custom stickers"),
     ];
 
     let block = Block::default()
