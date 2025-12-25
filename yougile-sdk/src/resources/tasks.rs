@@ -51,11 +51,11 @@ impl TasksAPI {
     }
 
     /// List all tasks for a specific column
-    pub async fn list_by_column(&self, column_id: &str) -> Result<Vec<yougile_client::models::Task>, SDKError> {
-        self.search()
-            .column_id(column_id)
-            .all()
-            .await
+    pub async fn list_by_column(
+        &self,
+        column_id: &str,
+    ) -> Result<Vec<yougile_client::models::Task>, SDKError> {
+        self.search().column_id(column_id).all().await
     }
 
     /// Get task chat subscribers

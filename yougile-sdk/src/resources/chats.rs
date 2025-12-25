@@ -2,9 +2,7 @@ use crate::SDKError;
 use std::sync::Arc;
 use yougile_client::{
     YouGileClient,
-    models::{
-        ChatId, ChatMessage, ChatMessageList, CreateChatMessage, UpdateChatMessage,
-    },
+    models::{ChatId, ChatMessage, ChatMessageList, CreateChatMessage, UpdateChatMessage},
 };
 
 /// API for working with chats

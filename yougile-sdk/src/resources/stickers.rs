@@ -1,13 +1,12 @@
 use crate::SDKError;
 use std::sync::Arc;
 use yougile_client::{
-    YouGileClient,
+    SprintStateData, SprintStateUpdate, StringStateData, StringStateUpdate, YouGileClient,
     models::{
         CreateSprintSticker, CreateStringSticker, Id, SprintSticker, SprintStickerList,
         SprintStickerState, StringSticker, StringStickerList, StringStickerState,
         UpdateSprintSticker, UpdateStringSticker,
     },
-    SprintStateData, SprintStateUpdate, StringStateData, StringStateUpdate,
 };
 
 /// API for working with stickers (both sprint and string types)

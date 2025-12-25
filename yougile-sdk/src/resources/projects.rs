@@ -3,8 +3,8 @@ use std::sync::Arc;
 use yougile_client::{
     YouGileClient,
     models::{
-        CreateProject, CreateProjectRole, Id, Project, ProjectList, ProjectRole,
-        ProjectRoleList, UpdateProject, UpdateProjectRole,
+        CreateProject, CreateProjectRole, Id, Project, ProjectList, ProjectRole, ProjectRoleList,
+        UpdateProject, UpdateProjectRole,
     },
 };
 
@@ -32,11 +32,7 @@ impl ProjectsAPI {
     }
 
     /// Update an existing project
-    pub async fn update(
-        &self,
-        id: &str,
-        update_project: UpdateProject,
-    ) -> Result<Id, SDKError> {
+    pub async fn update(&self, id: &str, update_project: UpdateProject) -> Result<Id, SDKError> {
         self.client
             .update_project(id, update_project)
             .await
@@ -59,7 +55,7 @@ impl ProjectsAPI {
     }
 
     // Project Role methods
-    
+
     /// Create a project role
     pub async fn create_role(
         &self,
@@ -94,11 +90,7 @@ impl ProjectsAPI {
     }
 
     /// Delete a project role
-    pub async fn delete_role(
-        &self,
-        project_id: &str,
-        id: &str,
-    ) -> Result<ProjectRole, SDKError> {
+    pub async fn delete_role(&self, project_id: &str, id: &str) -> Result<ProjectRole, SDKError> {
         self.client
             .delete_project_role(project_id, id)
             .await

@@ -1,6 +1,9 @@
 use crate::SDKError;
 use std::sync::Arc;
-use yougile_client::{YouGileClient, models::{User, UserList, CreateUser, UpdateUser, Id}};
+use yougile_client::{
+    YouGileClient,
+    models::{CreateUser, Id, UpdateUser, User, UserList},
+};
 
 /// API for working with users
 pub struct UsersAPI {
@@ -19,12 +22,18 @@ impl UsersAPI {
 
     /// Create a new user
     pub async fn create(&self, create_user: CreateUser) -> Result<Id, SDKError> {
-        self.client.create_user(create_user).await.map_err(SDKError::from)
+        self.client
+            .create_user(create_user)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Update an existing user
     pub async fn update(&self, id: &str, update_user: UpdateUser) -> Result<Id, SDKError> {
-        self.client.update_user(id, update_user).await.map_err(SDKError::from)
+        self.client
+            .update_user(id, update_user)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// Delete a user
@@ -44,10 +53,7 @@ impl UsersAPI {
 
     /// List all users for a specific project
     pub async fn list_by_project(&self, project_id: &str) -> Result<Vec<User>, SDKError> {
-        self.search()
-            .project_id(project_id)
-            .all()
-            .await
+        self.search().project_id(project_id).all().await
     }
 }
 

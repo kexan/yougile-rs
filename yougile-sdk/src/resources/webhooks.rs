@@ -24,11 +24,7 @@ impl WebhooksAPI {
     }
 
     /// Update an existing webhook
-    pub async fn update(
-        &self,
-        id: &str,
-        update_webhook: UpdateWebhook,
-    ) -> Result<Id, SDKError> {
+    pub async fn update(&self, id: &str, update_webhook: UpdateWebhook) -> Result<Id, SDKError> {
         self.client
             .update_webhook(id, update_webhook)
             .await
