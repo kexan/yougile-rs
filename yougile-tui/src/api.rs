@@ -131,13 +131,13 @@ impl YouGileAPI {
     }
 
     pub async fn fetch_stickers(&self, board_id: Option<&str>) -> Result<Vec<StickerMeta>, String> {
-        info!("Fetching stickers from YouGile API{}", 
-            if let Some(id) = board_id { format!(" for board {}", id) } else { String::new() });
+        info!("Fetching all stickers from YouGile API (board filter: {})", 
+            board_id.unwrap_or("none"));
         
         let mut all_stickers = Vec::new();
         
-        // Fetch sprint stickers (with board filter if provided)
-        match self.client.search_sprint_stickers(None, Some(100.0), None, None, board_id).await {
+        // Fetch sprint stickers WITHOUT board filter to get all stickers (global + board-specific)
+        match self.client.search_sprint_stickers(None, Some(100.0), None, None, None).await {
             Ok(page) => {
                 let count = page.content.len();
                 for sticker in page.content {
@@ -166,8 +166,8 @@ impl YouGileAPI {
             }
         }
         
-        // Fetch string stickers (with board filter if provided)
-        match self.client.search_string_stickers(None, Some(100.0), None, None, board_id).await {
+        // Fetch string stickers WITHOUT board filter to get all stickers (global + board-specific)
+        match self.client.search_string_stickers(None, Some(100.0), None, None, None).await {
             Ok(page) => {
                 let count = page.content.len();
                 for sticker in page.content {
@@ -196,32 +196,8 @@ impl YouGileAPI {
             }
         }
         
-        // Fetch number stickers (with board filter if provided)
-        match self.client.search_number_stickers(None, Some(100.0), None, None, board_id).await {
-            Ok(page) => {
-                let count = page.content.len();
-                for sticker in page.content {
-                    // Number stickers don't have states, just store empty states map
-                    let states = HashMap::new();
-                    
-                    debug!("Number sticker: id={}, name={}", 
-                        sticker.id, sticker.data.name);
-                    
-                    all_stickers.push(StickerMeta {
-                        id: sticker.id.clone(),
-                        title: sticker.data.name.clone(),
-                        states,
-                    });
-                }
-                info!("Fetched {} number stickers", count);
-            }
-            Err(e) => {
-                error!("Failed to fetch number stickers: {}", e);
-                // Don't fail completely
-            }
-        }
-        
-        info!("Successfully fetched {} total stickers (sprint + string + number)", all_stickers.len());
+        info!("Successfully fetched {} total stickers (sprint + string)", all_stickers.len());
+        debug!("Note: String stickers can have both state-based values (state_id) and free-text values");
         
         // Log all loaded stickers for debugging
         for sticker in &all_stickers {
