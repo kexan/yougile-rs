@@ -29,6 +29,29 @@ pub fn draw(f: &mut Frame, app: &App) {
     }
 }
 
+/// Map column color index (0-15) to ratatui Color
+fn get_column_color(color_index: Option<u8>) -> Color {
+    match color_index {
+        Some(0) => Color::Gray,
+        Some(1) => Color::Red,
+        Some(2) => Color::LightRed,
+        Some(3) => Color::Green,
+        Some(4) => Color::LightGreen,
+        Some(5) => Color::Yellow,
+        Some(6) => Color::LightYellow,
+        Some(7) => Color::Blue,
+        Some(8) => Color::LightBlue,
+        Some(9) => Color::Magenta,
+        Some(10) => Color::LightMagenta,
+        Some(11) => Color::Cyan,
+        Some(12) => Color::LightCyan,
+        Some(13) => Color::White,
+        Some(14) => Color::DarkGray,
+        Some(15) => Color::Rgb(138, 43, 226), // BlueViolet
+        _ => Color::White, // Default
+    }
+}
+
 fn draw_projects_view(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
@@ -322,14 +345,22 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
         for (visible_idx, (actual_col_idx, column_with_tasks)) in visible_columns.iter().enumerate() {
             let is_selected = *actual_col_idx == app.selected_column_idx;
             
+            // Get column color from API
+            let column_color = get_column_color(column_with_tasks.column.color);
+            
             let border_style = if is_selected {
                 Style::default().fg(Color::Green)
             } else {
-                Style::default()
+                Style::default().fg(column_color)
             };
 
             // Calculate which chunk to use (accounting for padding)
             let chunk_idx = visible_idx * 2;
+
+            // Count non-archived tasks only
+            let active_tasks_count = column_with_tasks.tasks.iter()
+                .filter(|t| !t.archived.unwrap_or(false))
+                .count();
 
             // Add scroll indicators to title
             let left_indicator = if visible_idx == 0 && has_left_columns { "◀ " } else { "" };
@@ -338,7 +369,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                 left_indicator,
                 column_with_tasks.column.title, 
                 " ",
-                column_with_tasks.tasks.len(),
+                active_tasks_count,  // Only non-archived count
                 right_indicator
             );
             
@@ -351,6 +382,13 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             // Calculate available height for tasks
             let available_height = column_chunks[chunk_idx].height.saturating_sub(2) as usize; // -2 for borders
             
+            // Sort tasks: non-archived first, then archived
+            let mut sorted_tasks: Vec<(usize, &yougile_client::models::Task)> = column_with_tasks.tasks
+                .iter()
+                .enumerate()
+                .collect();
+            sorted_tasks.sort_by_key(|(_, task)| task.archived.unwrap_or(false));
+            
             // Calculate which tasks to show based on scroll offset
             let max_width = (COLUMN_WIDTH - 6) as usize;
             let mut task_scroll_offset = 0;
@@ -359,7 +397,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             
             // If this is the selected column, calculate scroll
             if is_selected && app.selected_task_idx > 0 {
-                for (idx, task) in column_with_tasks.tasks.iter().enumerate() {
+                for (idx, (_, task)) in sorted_tasks.iter().enumerate() {
                     let card_height = calculate_card_height(&task.title, max_width);
                     if idx < app.selected_task_idx {
                         cumulative_height += card_height;
@@ -378,7 +416,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             let has_tasks_above = visible_task_start > 0;
             let mut has_tasks_below = false;
             let mut current_height = 0;
-            for (idx, task) in column_with_tasks.tasks.iter().enumerate().skip(visible_task_start) {
+            for (idx, (_, task)) in sorted_tasks.iter().enumerate().skip(visible_task_start) {
                 let card_height = calculate_card_height(&task.title, max_width);
                 current_height += card_height;
                 if current_height > available_height {
@@ -388,13 +426,14 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             }
 
             // Create task card items with borders and text wrapping
-            let items: Vec<ListItem> = column_with_tasks
-                .tasks
+            let items: Vec<ListItem> = sorted_tasks
                 .iter()
-                .enumerate()
                 .skip(visible_task_start)
-                .map(|(task_idx, task)| {
-                    let is_task_selected = is_selected && task_idx == app.selected_task_idx;
+                .enumerate()
+                .map(|(display_idx, (original_task_idx, task))| {
+                    let actual_task_idx = display_idx + visible_task_start;
+                    let is_task_selected = is_selected && actual_task_idx == app.selected_task_idx;
+                    let is_archived = task.archived.unwrap_or(false);
                     
                     // Wrap task name to fit in card width
                     let wrapped_lines = wrap_text(&task.title, max_width);
@@ -403,7 +442,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     let mut lines = vec![];
                     
                     // Top border of card with scroll indicator
-                    let top_border = if task_idx == visible_task_start && has_tasks_above {
+                    let top_border = if actual_task_idx == 0 && has_tasks_above {
                         // Add up arrow in the middle
                         let half_width = max_width / 2;
                         let left_part = "─".repeat(half_width);
@@ -420,19 +459,18 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                         let padding_right = (max_width + 2).saturating_sub(padded.chars().count());
                         let card_line = format!("│{}{}│", padded, " ".repeat(padding_right));
                         
-                        if is_task_selected {
-                            lines.push(Line::from(Span::styled(
-                                card_line,
-                                Style::default()
-                                    .fg(Color::Yellow)
-                                    .add_modifier(Modifier::BOLD),
-                            )));
+                        let style = if is_archived {
+                            // Archived tasks are dimmed
+                            Style::default().fg(Color::DarkGray)
+                        } else if is_task_selected {
+                            Style::default()
+                                .fg(Color::Yellow)
+                                .add_modifier(Modifier::BOLD)
                         } else {
-                            lines.push(Line::from(Span::styled(
-                                card_line,
-                                Style::default().fg(Color::White),
-                            )));
-                        }
+                            Style::default().fg(Color::White)
+                        };
+                        
+                        lines.push(Line::from(Span::styled(card_line, style)));
                     }
                     
                     // Bottom border of card
@@ -626,6 +664,9 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from("  q     Quit"),
         Line::from(""),
         Line::from("Note: Logs are written to ~/.cache/yougile-tui/yougile-tui.log"),
+        Line::from(""),
+        Line::from("Columns: Color-coded by API • Count shows non-archived tasks only"),
+        Line::from("Tasks: Archived tasks are dimmed and sorted to bottom"),
     ];
 
     let block = Block::default()
