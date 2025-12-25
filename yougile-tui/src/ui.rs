@@ -301,17 +301,34 @@ fn draw_task_detail_view(f: &mut Frame, app: &App) {
             Span::raw(status),
         ]));
 
-        // Assigned users - show names instead of count
+        // Assigned users - show names if available, otherwise count
         if let Some(ref assigned) = task.assigned {
             if !assigned.is_empty() {
+                log::debug!("Task has {} assigned users", assigned.len());
+                log::debug!("User cache has {} users", app.users.len());
+                
+                // Try to get names
                 let assignee_names: Vec<String> = assigned
                     .iter()
-                    .map(|user_id| app.get_user_name(user_id))
+                    .map(|user_id| {
+                        let name = app.get_user_name(user_id);
+                        log::debug!("User ID: {} -> Name: {}", user_id, name);
+                        name
+                    })
                     .collect();
+                
+                // Check if we got actual names or just IDs
+                let has_real_names = assignee_names.iter().any(|name| !name.starts_with("User("));
+                
+                let display_text = if has_real_names {
+                    assignee_names.join(", ")
+                } else {
+                    format!("{} user(s)", assigned.len())
+                };
                 
                 details.push(Line::from(vec![
                     Span::styled("Assigned: ", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
-                    Span::raw(assignee_names.join(", ")),
+                    Span::raw(display_text),
                 ]));
             }
         }
