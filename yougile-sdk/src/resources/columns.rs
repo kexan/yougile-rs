@@ -2,6 +2,7 @@ use crate::SDKError;
 use std::sync::Arc;
 use yougile_client::{YouGileClient, models::{Column, ColumnList, CreateColumn, UpdateColumn, Id}};
 
+/// API for working with columns
 pub struct ColumnsAPI {
     client: Arc<YouGileClient>,
 }
@@ -11,31 +12,41 @@ impl ColumnsAPI {
         Self { client }
     }
 
+    /// Get a specific column by ID
     pub async fn get(&self, id: &str) -> Result<Column, SDKError> {
         self.client.get_column(id).await.map_err(SDKError::from)
     }
 
+    /// Create a new column
     pub async fn create(&self, create_column: CreateColumn) -> Result<Id, SDKError> {
         self.client.create_column(create_column).await.map_err(SDKError::from)
     }
 
+    /// Update an existing column
     pub async fn update(&self, id: &str, update_column: UpdateColumn) -> Result<Id, SDKError> {
         self.client.update_column(id, update_column).await.map_err(SDKError::from)
     }
 
+    /// Search for columns with various filters using a fluent API
     pub fn search(&self) -> ColumnSearchBuilder {
         ColumnSearchBuilder::new(self.client.clone())
     }
 
+    /// List all columns (with default parameters)
     pub async fn list(&self) -> Result<ColumnList, SDKError> {
         self.search().execute().await
     }
 
-    pub async fn list_for_board(&self, board_id: &str) -> Result<Vec<Column>, SDKError> {
-        self.search().board_id(board_id).all().await
+    /// List all columns for a specific board
+    pub async fn list_by_board(&self, board_id: &str) -> Result<Vec<Column>, SDKError> {
+        self.search()
+            .board_id(board_id)
+            .all()
+            .await
     }
 }
 
+/// Search builder for columns with fluent API
 #[derive(Clone)]
 pub struct ColumnSearchBuilder {
     client: Arc<YouGileClient>,
@@ -83,6 +94,7 @@ impl ColumnSearchBuilder {
         self
     }
 
+    /// Execute the search with current parameters
     pub async fn execute(self) -> Result<ColumnList, SDKError> {
         self.client
             .search_columns(
@@ -96,6 +108,7 @@ impl ColumnSearchBuilder {
             .map_err(SDKError::from)
     }
 
+    /// Get all columns matching the search criteria with automatic pagination
     pub async fn all(self) -> Result<Vec<Column>, SDKError> {
         let mut all_columns = Vec::new();
         let mut offset = 0.0;
