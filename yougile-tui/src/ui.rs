@@ -301,12 +301,17 @@ fn draw_task_detail_view(f: &mut Frame, app: &App) {
             Span::raw(status),
         ]));
 
-        // Assigned users
+        // Assigned users - show names instead of count
         if let Some(ref assigned) = task.assigned {
             if !assigned.is_empty() {
+                let assignee_names: Vec<String> = assigned
+                    .iter()
+                    .map(|user_id| app.get_user_name(user_id))
+                    .collect();
+                
                 details.push(Line::from(vec![
                     Span::styled("Assigned: ", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
-                    Span::raw(format!("{} user(s)", assigned.len())),
+                    Span::raw(assignee_names.join(", ")),
                 ]));
             }
         }
