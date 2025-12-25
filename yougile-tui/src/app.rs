@@ -19,6 +19,14 @@ pub struct ColumnWithTasks {
     pub tasks: Vec<Task>,
 }
 
+/// Sticker metadata from API
+#[derive(Debug, Clone)]
+pub struct StickerMeta {
+    pub id: String,
+    pub title: String,
+    pub states: HashMap<String, String>, // state_id -> state_title
+}
+
 pub struct App {
     config: Config,
     api: Option<YouGileAPI>,
@@ -35,6 +43,7 @@ pub struct App {
     pub task_scroll_offset: usize,  // For vertical scrolling of tasks
     pub current_task: Option<Task>,
     pub users: HashMap<String, User>,  // Cache of users by ID
+    pub stickers: HashMap<String, StickerMeta>,  // Cache of sticker metadata by ID
     pub quit: bool,
     pub loading: bool,
     pub error: Option<String>,
@@ -75,15 +84,17 @@ impl App {
             task_scroll_offset: 0,
             current_task: None,
             users: HashMap::new(),
+            stickers: HashMap::new(),
             quit: false,
             loading: false,
             error: None,
             focus: FocusedWidget::ProjectList,
         };
 
-        // Load projects and users on startup
+        // Load projects, users, and stickers on startup
         app.load_projects().await?;
         app.load_users().await?;
+        app.load_stickers().await?;
 
         Ok(app)
     }
@@ -214,6 +225,26 @@ impl App {
             .get(user_id)
             .map(|u| u.real_name.clone())
             .unwrap_or_else(|| format!("User({})", &user_id[..8.min(user_id.len())]))
+    }
+
+    /// Get sticker title by ID
+    pub fn get_sticker_title(&self, sticker_id: &str) -> String {
+        self.stickers
+            .get(sticker_id)
+            .map(|s| s.title.clone())
+            .unwrap_or_else(|| format!("Sticker({})", &sticker_id[..8.min(sticker_id.len())]))
+    }
+
+    /// Get sticker state title by sticker ID and state ID
+    pub fn get_sticker_state_title(&self, sticker_id: &str, state_id: &str) -> String {
+        if let Some(sticker) = self.stickers.get(sticker_id) {
+            sticker.states
+                .get(state_id)
+                .cloned()
+                .unwrap_or_else(|| format!("State({})", &state_id[..8.min(state_id.len())]))
+        } else {
+            format!("State({})", &state_id[..8.min(state_id.len())])
+        }
     }
 
     fn move_up(&mut self) {
@@ -390,6 +421,30 @@ impl App {
                     }
                     Err(e) => {
                         log::error!("Failed to load users: {}", e);
+                        // Don't show error to user, just log it
+                    }
+                }
+            }
+            None => {
+                log::error!("API client is not initialized");
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn load_stickers(&mut self) -> io::Result<()> {
+        log::info!("Loading stickers...");
+        
+        match &self.api {
+            Some(api) => {
+                match api.fetch_stickers().await {
+                    Ok(stickers) => {
+                        self.stickers = stickers.into_iter().map(|s| (s.id.clone(), s)).collect();
+                        log::info!("Loaded {} stickers", self.stickers.len());
+                    }
+                    Err(e) => {
+                        log::error!("Failed to load stickers: {}", e);
                         // Don't show error to user, just log it
                     }
                 }
