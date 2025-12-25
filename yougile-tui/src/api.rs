@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::app::ColumnWithTasks;
 use log::{error, info};
-use yougile_client::models::{Project, Board, Task, Column, User};
+use yougile_client::models::{Project, Board, User};
 use yougile_client::apis::configuration::Configuration;
 use yougile_client::YouGileClient;
 
@@ -116,7 +116,7 @@ impl YouGileAPI {
     pub async fn fetch_users(&self) -> Result<Vec<User>, String> {
         info!("Fetching users from YouGile API");
         
-        match self.client.search_users(None, Some(100.0), None).await {
+        match self.client.search_users(Some(100.0), None, None, None).await {
             Ok(page) => {
                 let users = page.content;
                 info!("Successfully fetched {} users", users.len());
