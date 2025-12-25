@@ -1,9 +1,8 @@
 use ratatui::{
+    Frame,
     layout::Rect,
     style::{Color, Style},
-    text::Paragraph,
-    widgets::{Block, Borders},
-    Frame,
+    widgets::{Block, Borders, Paragraph},
 };
 
 pub fn draw_loading_popup(f: &mut Frame) {
