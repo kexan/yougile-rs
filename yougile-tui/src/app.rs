@@ -91,10 +91,9 @@ impl App {
             focus: FocusedWidget::ProjectList,
         };
 
-        // Load projects, users, and stickers on startup
+        // Load projects and users on startup
         app.load_projects().await?;
         app.load_users().await?;
-        app.load_stickers().await?;
 
         Ok(app)
     }
@@ -143,6 +142,8 @@ impl App {
                             if let Some(board) = self.boards.get(self.selected_board_idx) {
                                 log::info!("Selected board: {:?}", board.title);
                                 self.current_board = Some(board.clone());
+                                // Load stickers for this board specifically
+                                self.load_stickers_for_board(&board.id).await?;
                                 self.load_columns_with_tasks().await?;
                                 self.current_view = View::Tasks;
                             }
@@ -201,7 +202,13 @@ impl App {
                 match self.current_view {
                     View::Projects => self.load_projects().await?,
                     View::Boards => self.load_boards().await?,
-                    View::Tasks | View::TaskDetail => self.load_columns_with_tasks().await?,
+                    View::Tasks | View::TaskDetail => {
+                        // Reload stickers and tasks when refreshing
+                        if let Some(ref board) = self.current_board {
+                            self.load_stickers_for_board(&board.id).await?;
+                        }
+                        self.load_columns_with_tasks().await?
+                    },
                     _ => {},
                 }
             }
@@ -243,7 +250,7 @@ impl App {
                 .cloned()
                 .unwrap_or_else(|| format!("State({})", &state_id[..8.min(state_id.len())]))
         } else {
-            format!("State({})", &state_id[..8.min(state_id.len())])
+            format!("State({})", &state_id[..8.min(state_id.len())]))
         }
     }
 
@@ -433,12 +440,12 @@ impl App {
         Ok(())
     }
 
-    async fn load_stickers(&mut self) -> io::Result<()> {
-        log::info!("Loading stickers...");
+    async fn load_stickers_for_board(&mut self, board_id: &str) -> io::Result<()> {
+        log::info!("Loading stickers for board {}...", board_id);
         
         match &self.api {
             Some(api) => {
-                match api.fetch_stickers().await {
+                match api.fetch_stickers(Some(board_id)).await {
                     Ok(stickers) => {
                         self.stickers = stickers.into_iter().map(|s| (s.id.clone(), s)).collect();
                         log::info!("Loaded {} stickers", self.stickers.len());
