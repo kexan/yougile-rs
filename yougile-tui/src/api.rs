@@ -1,10 +1,10 @@
-use crate::config::Config;
 use crate::app::{ColumnWithTasks, StickerMeta};
-use log::{error, info, debug};
-use yougile_client::models::{Project, Board, User};
-use yougile_client::apis::configuration::Configuration;
-use yougile_client::YouGileClient;
+use crate::config::Config;
+use log::{debug, error, info};
 use std::collections::HashMap;
+use yougile_client::YouGileClient;
+use yougile_client::apis::configuration::Configuration;
+use yougile_client::models::{Board, Project, User};
 
 pub struct YouGileAPI {
     client: YouGileClient,
@@ -13,8 +13,8 @@ pub struct YouGileAPI {
 impl YouGileAPI {
     pub fn new(config: &Config) -> Result<Self, String> {
         // Create configuration with token
-        let configuration = Configuration::new(config.api_token.clone())
-            .with_base_path(&config.api_url);
+        let configuration =
+            Configuration::new(config.api_token.clone()).with_base_path(&config.api_url);
 
         let client = YouGileClient::new(configuration);
         Ok(YouGileAPI { client })
@@ -22,8 +22,12 @@ impl YouGileAPI {
 
     pub async fn fetch_projects(&self) -> Result<Vec<Project>, String> {
         info!("Fetching projects from YouGile API");
-        
-        match self.client.search_projects(None, Some(100.0), None, None).await {
+
+        match self
+            .client
+            .search_projects(None, Some(100.0), None, None)
+            .await
+        {
             Ok(page) => {
                 let projects = page.content;
                 info!("Successfully fetched {} projects", projects.len());
@@ -36,25 +40,14 @@ impl YouGileAPI {
         }
     }
 
-    pub async fn get_project_details(&self, project_id: &str) -> Result<Project, String> {
-        info!("Fetching details for project: {}", project_id);
-        
-        match self.client.get_project(project_id).await {
-            Ok(project) => {
-                info!("Successfully fetched project details");
-                Ok(project)
-            }
-            Err(e) => {
-                error!("Failed to fetch project details: {}", e);
-                Err(format!("Failed to fetch project details: {}", e))
-            }
-        }
-    }
-
     pub async fn fetch_boards(&self, project_id: &str) -> Result<Vec<Board>, String> {
         info!("Fetching boards for project: {}", project_id);
-        
-        match self.client.search_boards(None, Some(100.0), None, None, Some(project_id)).await {
+
+        match self
+            .client
+            .search_boards(None, Some(100.0), None, None, Some(project_id))
+            .await
+        {
             Ok(page) => {
                 let boards = page.content;
                 info!("Successfully fetched {} boards", boards.len());
@@ -67,11 +60,18 @@ impl YouGileAPI {
         }
     }
 
-    pub async fn fetch_columns_with_tasks(&self, board_id: &str) -> Result<Vec<ColumnWithTasks>, String> {
+    pub async fn fetch_columns_with_tasks(
+        &self,
+        board_id: &str,
+    ) -> Result<Vec<ColumnWithTasks>, String> {
         info!("Fetching columns with tasks for board: {}", board_id);
-        
+
         // First, get all columns for this board
-        let columns = match self.client.search_columns(None, Some(100.0), None, None, Some(board_id)).await {
+        let columns = match self
+            .client
+            .search_columns(None, Some(100.0), None, None, Some(board_id))
+            .await
+        {
             Ok(page) => page.content,
             Err(e) => {
                 error!("Failed to fetch columns for board {}: {}", board_id, e);
@@ -84,18 +84,26 @@ impl YouGileAPI {
         // Now fetch tasks for each column
         let mut columns_with_tasks = Vec::new();
         for column in columns {
-            let tasks = match self.client.search_tasks(
-                None,       // include_deleted
-                Some(100.0), // limit
-                None,       // offset
-                None,       // title
-                Some(&column.id), // column_id
-                None,       // assigned_to
-                None,       // sticker_id
-                None,       // sticker_state_id
-            ).await {
+            let tasks = match self
+                .client
+                .search_tasks(
+                    None,             // include_deleted
+                    Some(100.0),      // limit
+                    None,             // offset
+                    None,             // title
+                    Some(&column.id), // column_id
+                    None,             // assigned_to
+                    None,             // sticker_id
+                    None,             // sticker_state_id
+                )
+                .await
+            {
                 Ok(page) => {
-                    info!("Found {} tasks in column {}", page.content.len(), column.title);
+                    info!(
+                        "Found {} tasks in column {}",
+                        page.content.len(),
+                        column.title
+                    );
                     page.content
                 }
                 Err(e) => {
@@ -104,20 +112,24 @@ impl YouGileAPI {
                 }
             };
 
-            columns_with_tasks.push(ColumnWithTasks {
-                column,
-                tasks,
-            });
+            columns_with_tasks.push(ColumnWithTasks { column, tasks });
         }
 
-        info!("Successfully fetched {} columns with tasks", columns_with_tasks.len());
+        info!(
+            "Successfully fetched {} columns with tasks",
+            columns_with_tasks.len()
+        );
         Ok(columns_with_tasks)
     }
 
     pub async fn fetch_users(&self) -> Result<Vec<User>, String> {
         info!("Fetching users from YouGile API");
-        
-        match self.client.search_users(Some(100.0), None, None, None).await {
+
+        match self
+            .client
+            .search_users(Some(100.0), None, None, None)
+            .await
+        {
             Ok(page) => {
                 let users = page.content;
                 info!("Successfully fetched {} users", users.len());
@@ -131,27 +143,40 @@ impl YouGileAPI {
     }
 
     pub async fn fetch_stickers(&self, board_id: Option<&str>) -> Result<Vec<StickerMeta>, String> {
-        info!("Fetching all stickers from YouGile API (board filter: {})", 
-            board_id.unwrap_or("none"));
-        
+        info!(
+            "Fetching all stickers from YouGile API (board filter: {})",
+            board_id.unwrap_or("none")
+        );
+
         let mut all_stickers = Vec::new();
-        
+
         // Fetch sprint stickers WITHOUT board filter to get all stickers (global + board-specific)
-        match self.client.search_sprint_stickers(None, Some(100.0), None, None, None).await {
+        match self
+            .client
+            .search_sprint_stickers(None, Some(100.0), None, None, None)
+            .await
+        {
             Ok(page) => {
                 let count = page.content.len();
                 for sticker in page.content {
                     let mut states = HashMap::new();
                     if let Some(sticker_states) = sticker.states {
                         for state in sticker_states {
-                            debug!("Sprint sticker state: id={}, name={}", state.id, state.data.name);
+                            debug!(
+                                "Sprint sticker state: id={}, name={}",
+                                state.id, state.data.name
+                            );
                             states.insert(state.id.clone(), state.data.name.clone());
                         }
                     }
-                    
-                    debug!("Sprint sticker: id={}, name={}, states_count={}", 
-                        sticker.id, sticker.data.name, states.len());
-                    
+
+                    debug!(
+                        "Sprint sticker: id={}, name={}, states_count={}",
+                        sticker.id,
+                        sticker.data.name,
+                        states.len()
+                    );
+
                     all_stickers.push(StickerMeta {
                         id: sticker.id.clone(),
                         title: sticker.data.name.clone(),
@@ -165,23 +190,34 @@ impl YouGileAPI {
                 // Don't fail completely, continue to string stickers
             }
         }
-        
+
         // Fetch string stickers WITHOUT board filter to get all stickers (global + board-specific)
-        match self.client.search_string_stickers(None, Some(100.0), None, None, None).await {
+        match self
+            .client
+            .search_string_stickers(None, Some(100.0), None, None, None)
+            .await
+        {
             Ok(page) => {
                 let count = page.content.len();
                 for sticker in page.content {
                     let mut states = HashMap::new();
                     if let Some(sticker_states) = sticker.states {
                         for state in sticker_states {
-                            debug!("String sticker state: id={}, name={}", state.id, state.data.name);
+                            debug!(
+                                "String sticker state: id={}, name={}",
+                                state.id, state.data.name
+                            );
                             states.insert(state.id.clone(), state.data.name.clone());
                         }
                     }
-                    
-                    debug!("String sticker: id={}, name={}, states_count={}", 
-                        sticker.id, sticker.data.name, states.len());
-                    
+
+                    debug!(
+                        "String sticker: id={}, name={}, states_count={}",
+                        sticker.id,
+                        sticker.data.name,
+                        states.len()
+                    );
+
                     all_stickers.push(StickerMeta {
                         id: sticker.id.clone(),
                         title: sticker.data.name.clone(),
@@ -195,16 +231,25 @@ impl YouGileAPI {
                 // Don't fail completely
             }
         }
-        
-        info!("Successfully fetched {} total stickers (sprint + string)", all_stickers.len());
-        debug!("Note: String stickers can have both state-based values (state_id) and free-text values");
-        
+
+        info!(
+            "Successfully fetched {} total stickers (sprint + string)",
+            all_stickers.len()
+        );
+        debug!(
+            "Note: String stickers can have both state-based values (state_id) and free-text values"
+        );
+
         // Log all loaded stickers for debugging
         for sticker in &all_stickers {
-            debug!("Loaded sticker: id='{}', title='{}', states={}", 
-                sticker.id, sticker.title, sticker.states.len());
+            debug!(
+                "Loaded sticker: id='{}', title='{}', states={}",
+                sticker.id,
+                sticker.title,
+                sticker.states.len()
+            );
         }
-        
+
         Ok(all_stickers)
     }
 }

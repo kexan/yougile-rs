@@ -21,10 +21,3 @@ pub struct StickerMeta {
     pub title: String,
     pub states: HashMap<String, String>,
 }
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum FocusedWidget {
-    ProjectList,
-    BoardList,
-    ColumnList,
-}

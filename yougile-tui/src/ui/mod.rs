@@ -6,7 +6,6 @@ mod widgets;
 pub use styles::*;
 pub use utils::*;
 pub use views::*;
-pub use widgets::*;
 
 use crate::app::{App, View};
 use ratatui::Frame;

@@ -36,10 +36,10 @@ impl App {
                 }
             }
             View::Tasks | View::TaskDetail => {
-                if let Some(column) = self.columns.get(self.selected_column_idx) {
-                    if self.selected_task_idx < column.tasks.len().saturating_sub(1) {
-                        self.selected_task_idx += 1;
-                    }
+                if let Some(column) = self.columns.get(self.selected_column_idx)
+                    && self.selected_task_idx < column.tasks.len().saturating_sub(1)
+                {
+                    self.selected_task_idx += 1;
                 }
             }
             _ => {}

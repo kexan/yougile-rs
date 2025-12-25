@@ -1,12 +1,10 @@
-mod state;
-mod navigation;
-mod input;
 mod data_loading;
+mod input;
+mod navigation;
+mod state;
 
-pub use state::*;
-use navigation::*;
 use input::*;
-use data_loading::*;
+pub use state::*;
 
 use crate::api::YouGileAPI;
 use crate::config::Config;
@@ -34,7 +32,6 @@ pub struct App {
     pub quit: bool,
     pub loading: bool,
     pub error: Option<String>,
-    pub focus: FocusedWidget,
 }
 
 impl App {
@@ -67,7 +64,6 @@ impl App {
             quit: false,
             loading: false,
             error: None,
-            focus: FocusedWidget::ProjectList,
         };
 
         app.load_projects().await?;
@@ -105,7 +101,8 @@ impl App {
 
     pub fn get_sticker_state_title(&self, sticker_id: &str, state_id: &str) -> String {
         if let Some(sticker) = self.stickers.get(sticker_id) {
-            sticker.states
+            sticker
+                .states
                 .get(state_id)
                 .cloned()
                 .unwrap_or_else(|| format!("State({})", &state_id[..8.min(state_id.len())]))

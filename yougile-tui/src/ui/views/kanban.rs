@@ -1,14 +1,17 @@
 use crate::app::{App, ColumnWithTasks};
 use crate::ui::{
     get_column_color,
-    widgets::{build_task_card_lines, calculate_card_height, draw_error_popup, draw_loading_popup, draw_task_detail_panel},
+    widgets::{
+        build_task_card_lines, calculate_card_height, draw_error_popup, draw_loading_popup,
+        draw_task_detail_panel,
+    },
 };
 use ratatui::{
+    Frame,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     text::{Line, Span},
     widgets::{Block, Borders, List, ListItem, Paragraph},
-    Frame,
 };
 use std::rc::Rc;
 
@@ -34,21 +37,28 @@ pub fn draw_kanban_view(f: &mut Frame, app: &App) {
     } else {
         "YouGile TUI - Kanban Board".to_string()
     };
-    let header = Paragraph::new(header_text)
-        .style(Style::default().fg(Color::Cyan).add_modifier(ratatui::style::Modifier::BOLD));
+    let header = Paragraph::new(header_text).style(
+        Style::default()
+            .fg(Color::Cyan)
+            .add_modifier(ratatui::style::Modifier::BOLD),
+    );
     f.render_widget(header, chunks[0]);
 
     let main_chunks: Rc<[Rect]> = if app.current_task.is_some() {
         let visible_columns = app.columns.len().min(MAX_COLUMNS_VISIBLE);
         let columns_width = if visible_columns > 0 {
-            (visible_columns as u16 * COLUMN_WIDTH) + ((visible_columns.saturating_sub(1)) as u16 * COLUMN_PADDING)
+            (visible_columns as u16 * COLUMN_WIDTH)
+                + ((visible_columns.saturating_sub(1)) as u16 * COLUMN_PADDING)
         } else {
             COLUMN_WIDTH
         };
-        
+
         let available_width = chunks[1].width;
-        let task_detail_width = available_width.saturating_sub(columns_width).saturating_sub(PANEL_PADDING).max(TASK_DETAIL_MIN_WIDTH);
-        
+        let task_detail_width = available_width
+            .saturating_sub(columns_width)
+            .saturating_sub(PANEL_PADDING)
+            .max(TASK_DETAIL_MIN_WIDTH);
+
         Layout::default()
             .direction(Direction::Horizontal)
             .constraints([
@@ -88,7 +98,11 @@ pub fn draw_kanban_view(f: &mut Frame, app: &App) {
     let footer_text = format!(
         "↵: open task{} | ←/→/h/l: columns | ↑/↓/j/k: tasks | r: refresh | Esc: {} | q: quit",
         scroll_indicator,
-        if app.current_task.is_some() { "close task" } else { "back" }
+        if app.current_task.is_some() {
+            "close task"
+        } else {
+            "back"
+        }
     );
     let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
     f.render_widget(footer, chunks[2]);
@@ -105,19 +119,21 @@ pub fn draw_kanban_view(f: &mut Frame, app: &App) {
 fn draw_columns(f: &mut Frame, app: &App, area: Rect) {
     let available_width = area.width;
     let column_with_padding = COLUMN_WIDTH + COLUMN_PADDING;
-    let columns_that_fit = ((available_width + COLUMN_PADDING) / column_with_padding).max(1) as usize;
+    let columns_that_fit =
+        ((available_width + COLUMN_PADDING) / column_with_padding).max(1) as usize;
     let columns_on_screen = columns_that_fit.min(MAX_COLUMNS_VISIBLE);
-    
+
     let scroll_offset = if app.selected_column_idx >= columns_on_screen {
         app.selected_column_idx - columns_on_screen + 1
     } else {
         0
     };
-    
+
     let has_left_columns = scroll_offset > 0;
     let has_right_columns = scroll_offset + columns_on_screen < app.columns.len();
-    
-    let visible_columns: Vec<(usize, &ColumnWithTasks)> = app.columns
+
+    let visible_columns: Vec<(usize, &ColumnWithTasks)> = app
+        .columns
         .iter()
         .enumerate()
         .skip(scroll_offset)
@@ -131,7 +147,7 @@ fn draw_columns(f: &mut Frame, app: &App, area: Rect) {
             constraints.push(Constraint::Length(COLUMN_PADDING));
         }
     }
-    
+
     let column_chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints(constraints)
@@ -166,28 +182,34 @@ fn draw_single_column(
 ) {
     let is_selected = actual_col_idx == app.selected_column_idx;
     let column_color = get_column_color(column_with_tasks.column.color);
-    
+
     let border_style = if is_selected {
         Style::default().fg(Color::Green)
     } else {
         Style::default().fg(column_color)
     };
 
-    let active_tasks_count = column_with_tasks.tasks.iter()
+    let active_tasks_count = column_with_tasks
+        .tasks
+        .iter()
         .filter(|t| !t.archived.unwrap_or(false))
         .count();
 
-    let left_indicator = if visible_idx == 0 && has_left { "◀ " } else { "" };
-    let right_indicator = if visible_idx == visible_count - 1 && has_right { " ▶" } else { "" };
+    let left_indicator = if visible_idx == 0 && has_left {
+        "◀ "
+    } else {
+        ""
+    };
+    let right_indicator = if visible_idx == visible_count - 1 && has_right {
+        " ▶"
+    } else {
+        ""
+    };
     let title = format!(
         "{}{}{} ({}) {}",
-        left_indicator,
-        column_with_tasks.column.title,
-        "",
-        active_tasks_count,
-        right_indicator
+        left_indicator, column_with_tasks.column.title, "", active_tasks_count, right_indicator
     );
-    
+
     let block = Block::default()
         .title(title)
         .borders(Borders::ALL)
@@ -196,16 +218,14 @@ fn draw_single_column(
 
     let available_height = area.height.saturating_sub(2) as usize;
     let max_width = (COLUMN_WIDTH - 6) as usize;
-    
-    let mut sorted_tasks: Vec<(usize, &yougile_client::models::Task)> = column_with_tasks.tasks
-        .iter()
-        .enumerate()
-        .collect();
+
+    let mut sorted_tasks: Vec<(usize, &yougile_client::models::Task)> =
+        column_with_tasks.tasks.iter().enumerate().collect();
     sorted_tasks.sort_by_key(|(_, task)| task.archived.unwrap_or(false));
-    
+
     let mut cumulative_height = 0;
     let mut visible_task_start = 0;
-    
+
     if is_selected && app.selected_task_idx > 0 {
         for (idx, (_, task)) in sorted_tasks.iter().enumerate() {
             let card_height = calculate_card_height(app, task, max_width);
@@ -219,7 +239,7 @@ fn draw_single_column(
             }
         }
     }
-    
+
     let has_tasks_above = visible_task_start > 0;
     let mut has_tasks_below = false;
     let mut current_height = 0;
@@ -241,7 +261,7 @@ fn draw_single_column(
             let is_task_selected = is_selected && actual_task_idx == app.selected_task_idx;
             let is_archived = task.archived.unwrap_or(false);
             let is_first_visible = display_idx == 0;
-            
+
             let lines = build_task_card_lines(
                 app,
                 task,
@@ -251,7 +271,7 @@ fn draw_single_column(
                 is_first_visible,
                 has_tasks_above,
             );
-            
+
             ListItem::new(lines)
         })
         .collect();

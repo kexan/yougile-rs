@@ -1,11 +1,11 @@
 use crate::app::App;
 use crate::ui::widgets::{draw_error_popup, draw_loading_popup};
 use ratatui::{
+    Frame,
     layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, List, ListItem, Paragraph},
-    Frame,
 };
 
 pub fn draw_projects_view(f: &mut Frame, app: &App) {
@@ -19,8 +19,11 @@ pub fn draw_projects_view(f: &mut Frame, app: &App) {
         ])
         .split(f.area());
 
-    let header = Paragraph::new("YouGile TUI - Projects")
-        .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
+    let header = Paragraph::new("YouGile TUI - Projects").style(
+        Style::default()
+            .fg(Color::Cyan)
+            .add_modifier(Modifier::BOLD),
+    );
     f.render_widget(header, chunks[0]);
 
     let projects_block = Block::default()

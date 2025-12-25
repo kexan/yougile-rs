@@ -6,7 +6,7 @@ pub fn truncate_str(s: &str, max_chars: usize) -> String {
 /// Extract initials from a name: "Сергей Никитин" -> "СН", "Admin" -> "AD"
 pub fn get_initials(name: &str) -> String {
     let words: Vec<&str> = name.split_whitespace().collect();
-    
+
     if words.len() >= 2 {
         let first = words[0].chars().next().unwrap_or(' ');
         let second = words[1].chars().next().unwrap_or(' ');
@@ -29,11 +29,11 @@ pub fn get_initials(name: &str) -> String {
 pub fn wrap_text(text: &str, max_width: usize) -> Vec<String> {
     let mut lines = Vec::new();
     let mut current_line = String::new();
-    
+
     for word in text.split_whitespace() {
         let word_len = word.chars().count();
         let current_len = current_line.chars().count();
-        
+
         if current_len == 0 {
             if word_len > max_width {
                 let chars: Vec<char> = word.chars().collect();
@@ -51,24 +51,21 @@ pub fn wrap_text(text: &str, max_width: usize) -> Vec<String> {
             current_line = word.to_string();
         }
     }
-    
+
     if !current_line.is_empty() {
         lines.push(current_line);
     }
-    
+
     if lines.is_empty() {
         lines.push(String::new());
     }
-    
+
     lines
 }
 
 /// Check if stickers value is non-empty
 pub fn has_stickers(stickers: Option<&serde_json::Value>) -> bool {
-    if let Some(value) = stickers {
-        if let Some(obj) = value.as_object() {
-            return !obj.is_empty();
-        }
-    }
-    false
+    stickers
+        .and_then(|v| v.as_object())
+        .is_some_and(|obj| !obj.is_empty())
 }

@@ -1,11 +1,11 @@
+use crate::app::App;
 use ratatui::{
+    Frame,
     layout::{Constraint, Layout},
     style::{Color, Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Paragraph},
-    Frame,
 };
-use crate::app::App;
 
 pub fn draw_help_view(f: &mut Frame, _app: &App) {
     let chunks = Layout::default()
@@ -41,10 +41,16 @@ pub fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from(""),
         Line::from("Note: Logs are written to ~/.cache/yougile-tui/yougile-tui.log"),
         Line::from(""),
-        Line::from("Columns: Color-coded by API (1-16 hex colors) • Count shows non-archived tasks only"),
-        Line::from("Tasks: Card borders colored by task-* • Stickers shown in cyan boxes • Archived dimmed"),
+        Line::from(
+            "Columns: Color-coded by API (1-16 hex colors) • Count shows non-archived tasks only",
+        ),
+        Line::from(
+            "Tasks: Card borders colored by task-* • Stickers shown in cyan boxes • Archived dimmed",
+        ),
         Line::from("Stickers: [name:state] for state-based • [name:text] for free-text values"),
-        Line::from("Card indicators: ✓ (top-left, green=done, gray=pending) • [XX] (bottom-right, assignee initials)"),
+        Line::from(
+            "Card indicators: ✓ (top-left, green=done, gray=pending) • [XX] (bottom-right, assignee initials)",
+        ),
     ];
 
     let block = Block::default()

@@ -1,11 +1,11 @@
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event},
     execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
 use ratatui::{
-    backend::{Backend, CrosstermBackend},
     Terminal,
+    backend::{Backend, CrosstermBackend},
 };
 use std::error::Error;
 use std::io;
@@ -14,7 +14,6 @@ use std::time::Duration;
 mod api;
 mod app;
 mod config;
-mod handlers;
 mod ui;
 
 use app::App;
@@ -27,7 +26,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .unwrap_or_else(|| std::path::PathBuf::from("."))
         .join("yougile-tui")
         .join("yougile-tui.log");
-    
+
     // Create log directory if it doesn't exist
     if let Some(parent) = log_file.parent() {
         std::fs::create_dir_all(parent)?;
@@ -41,10 +40,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     env_logger::builder()
         .filter_level(log_level)
-        .target(env_logger::Target::Pipe(Box::new(std::fs::OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(&log_file)?)))
+        .target(env_logger::Target::Pipe(Box::new(
+            std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(&log_file)?,
+        )))
         .try_init()?;
 
     // Set up panic handler to log panics
@@ -52,17 +53,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
     std::panic::set_hook(Box::new(move |panic_info| {
         let msg = format!("{}", panic_info);
         log::error!("PANIC: {}", msg);
-        
+
         // Also write to stderr and a separate panic file
         eprintln!("\n\nPANIC: {}\n\n", msg);
-        
+
         if let Ok(mut file) = std::fs::OpenOptions::new()
             .create(true)
             .append(true)
             .open(log_file_clone.with_file_name("panic.log"))
         {
             use std::io::Write;
-            let _ = writeln!(file, "\n========== PANIC at {} ==========\n{}", 
+            let _ = writeln!(
+                file,
+                "\n========== PANIC at {} ==========\n{}",
                 chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
                 msg
             );
@@ -110,7 +113,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 DisableMouseCapture
             )?;
             terminal.show_cursor()?;
-            
+
             eprintln!("Failed to initialize app: {}", e);
             std::process::exit(1);
         }

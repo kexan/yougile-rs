@@ -12,7 +12,10 @@ pub struct Config {
 impl Config {
     pub fn load() -> io::Result<Self> {
         // Try to load from environment variables first
-        if let (Ok(api_url), Ok(api_token)) = (std::env::var("YOUGILE_API_URL"), std::env::var("YOUGILE_API_TOKEN")) {
+        if let (Ok(api_url), Ok(api_token)) = (
+            std::env::var("YOUGILE_API_URL"),
+            std::env::var("YOUGILE_API_TOKEN"),
+        ) {
             return Ok(Config { api_url, api_token });
         }
 
@@ -32,20 +35,10 @@ impl Config {
         ))
     }
 
-    pub fn save(&self) -> io::Result<()> {
-        let config_path = Self::config_path()?;
-        if let Some(parent) = config_path.parent() {
-            fs::create_dir_all(parent)?;
-        }
-        let content = toml::to_string_pretty(self)
-            .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
-        fs::write(config_path, content)?;
-        Ok(())
-    }
-
     fn config_path() -> io::Result<PathBuf> {
-        let config_dir = dirs::config_dir()
-            .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Cannot find config directory"))?;
+        let config_dir = dirs::config_dir().ok_or_else(|| {
+            io::Error::new(io::ErrorKind::NotFound, "Cannot find config directory")
+        })?;
         Ok(config_dir.join("yougile-tui").join("config.toml"))
     }
 }
