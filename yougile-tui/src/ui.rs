@@ -668,7 +668,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                             let left_len = (max_width + 2).saturating_sub(assignee_len);
                             lines.push(Line::from(vec![
                                 Span::styled(format!("└{}",  "─".repeat(left_len)), Style::default().fg(color)),
-                                Span::styled(&assignee_box, Style::default().fg(Color::Blue)),
+                                Span::styled(assignee_box.clone(), Style::default().fg(Color::Blue)),
                                 Span::styled("┘", Style::default().fg(color)),
                             ]));
                         } else {
@@ -679,7 +679,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                             let left_len = (max_width + 2).saturating_sub(assignee_len);
                             lines.push(Line::from(vec![
                                 Span::raw(format!("└{}", "─".repeat(left_len))),
-                                Span::styled(&assignee_box, Style::default().fg(Color::Blue)),
+                                Span::styled(assignee_box.clone(), Style::default().fg(Color::Blue)),
                                 Span::raw("┘"),
                             ]));
                         } else {
