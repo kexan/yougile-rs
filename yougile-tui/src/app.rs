@@ -2,14 +2,19 @@ use crate::api::YouGileAPI;
 use crate::config::Config;
 use crossterm::event::KeyEvent;
 use std::io;
-use yougile_client::models::{Project, Board, Task};
+use yougile_client::models::{Project, Board, Task, Column};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum View {
     Projects,
     Boards,
-    Tasks,
+    Tasks,  // Now shows Kanban board with columns
     Help,
+}
+
+pub struct ColumnWithTasks {
+    pub column: Column,
+    pub tasks: Vec<Task>,
 }
 
 pub struct App {
@@ -22,7 +27,8 @@ pub struct App {
     pub boards: Vec<Board>,
     pub selected_board_idx: usize,
     pub current_board: Option<Board>,
-    pub tasks: Vec<Task>,
+    pub columns: Vec<ColumnWithTasks>,
+    pub selected_column_idx: usize,
     pub selected_task_idx: usize,
     pub quit: bool,
     pub loading: bool,
@@ -34,7 +40,7 @@ pub struct App {
 pub enum FocusedWidget {
     ProjectList,
     BoardList,
-    TaskList,
+    ColumnList,
 }
 
 impl App {
@@ -58,7 +64,8 @@ impl App {
             boards: Vec::new(),
             selected_board_idx: 0,
             current_board: None,
-            tasks: Vec::new(),
+            columns: Vec::new(),
+            selected_column_idx: 0,
             selected_task_idx: 0,
             quit: false,
             loading: false,
@@ -88,14 +95,29 @@ impl App {
                 self.quit = true;
             }
             KeyCode::Tab => {
-                self.toggle_focus();
+                if self.current_view == View::Tasks {
+                    self.next_column();
+                } else {
+                    self.toggle_focus();
+                }
                 log::debug!("Toggled focus to: {:?}", self.focus);
+            }
+            KeyCode::BackTab => {
+                if self.current_view == View::Tasks {
+                    self.prev_column();
+                }
             }
             KeyCode::Up | KeyCode::Char('k') => {
                 self.move_up();
             }
             KeyCode::Down | KeyCode::Char('j') => {
                 self.move_down();
+            }
+            KeyCode::Left | KeyCode::Char('h') if self.current_view == View::Tasks => {
+                self.prev_column();
+            }
+            KeyCode::Right | KeyCode::Char('l') if self.current_view == View::Tasks => {
+                self.next_column();
             }
             KeyCode::Enter => {
                 match self.current_view {
@@ -114,7 +136,7 @@ impl App {
                             if let Some(board) = self.boards.get(self.selected_board_idx) {
                                 log::info!("Selected board: {:?}", board.title);
                                 self.current_board = Some(board.clone());
-                                self.load_tasks().await?;
+                                self.load_columns_with_tasks().await?;
                                 self.current_view = View::Tasks;
                             }
                         }
@@ -140,7 +162,8 @@ impl App {
                         View::Tasks => {
                             self.current_view = View::Boards;
                             self.current_board = None;
-                            self.tasks.clear();
+                            self.columns.clear();
+                            self.selected_column_idx = 0;
                             self.selected_task_idx = 0;
                         }
                         View::Help => self.current_view = View::Projects,
@@ -152,7 +175,7 @@ impl App {
                 match self.current_view {
                     View::Projects => self.load_projects().await?,
                     View::Boards => self.load_boards().await?,
-                    View::Tasks => self.load_tasks().await?,
+                    View::Tasks => self.load_columns_with_tasks().await?,
                     View::Help => {},
                 }
             }
@@ -164,7 +187,6 @@ impl App {
 
     pub async fn process_pending(&mut self) -> io::Result<()> {
         // Handle any pending async operations
-        // Currently unused, but placeholder for future improvements
         Ok(())
     }
 
@@ -206,19 +228,35 @@ impl App {
                 }
             }
             View::Tasks => {
-                if self.selected_task_idx < self.tasks.len().saturating_sub(1) {
-                    self.selected_task_idx += 1;
+                if let Some(column) = self.columns.get(self.selected_column_idx) {
+                    if self.selected_task_idx < column.tasks.len().saturating_sub(1) {
+                        self.selected_task_idx += 1;
+                    }
                 }
             }
             View::Help => {}
         }
     }
 
+    fn next_column(&mut self) {
+        if self.selected_column_idx < self.columns.len().saturating_sub(1) {
+            self.selected_column_idx += 1;
+            self.selected_task_idx = 0;
+        }
+    }
+
+    fn prev_column(&mut self) {
+        if self.selected_column_idx > 0 {
+            self.selected_column_idx -= 1;
+            self.selected_task_idx = 0;
+        }
+    }
+
     fn toggle_focus(&mut self) {
         self.focus = match self.focus {
             FocusedWidget::ProjectList => FocusedWidget::BoardList,
-            FocusedWidget::BoardList => FocusedWidget::TaskList,
-            FocusedWidget::TaskList => FocusedWidget::ProjectList,
+            FocusedWidget::BoardList => FocusedWidget::ColumnList,
+            FocusedWidget::ColumnList => FocusedWidget::ProjectList,
         };
     }
 
@@ -281,23 +319,24 @@ impl App {
         Ok(())
     }
 
-    async fn load_tasks(&mut self) -> io::Result<()> {
+    async fn load_columns_with_tasks(&mut self) -> io::Result<()> {
         self.loading = true;
         self.error = None;
-        self.tasks.clear();
+        self.columns.clear();
+        self.selected_column_idx = 0;
         self.selected_task_idx = 0;
 
         if let Some(ref board) = self.current_board {
             match &self.api {
                 Some(api) => {
-                    match api.fetch_board_tasks(&board.id).await {
-                        Ok(tasks) => {
-                            self.tasks = tasks;
-                            log::info!("Loaded {} tasks for board {}", self.tasks.len(), board.title);
+                    match api.fetch_columns_with_tasks(&board.id).await {
+                        Ok(columns) => {
+                            self.columns = columns;
+                            log::info!("Loaded {} columns for board {}", self.columns.len(), board.title);
                         }
                         Err(e) => {
                             self.error = Some(e);
-                            log::error!("Failed to load tasks: {:?}", self.error);
+                            log::error!("Failed to load columns: {:?}", self.error);
                         }
                     }
                 }
