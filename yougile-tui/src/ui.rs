@@ -3,7 +3,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, List, ListItem, Paragraph},
+    widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
     Frame,
 };
 
@@ -12,6 +12,7 @@ pub fn draw(f: &mut Frame, app: &App) {
         View::Projects => draw_projects_view(f, app),
         View::Boards => draw_boards_view(f, app),
         View::Tasks => draw_kanban_view(f, app),
+        View::TaskDetail => draw_task_detail_view(f, app),
         View::Help => draw_help_view(f, app),
     }
 }
@@ -65,7 +66,7 @@ fn draw_projects_view(f: &mut Frame, app: &App) {
     f.render_widget(projects_list, chunks[1]);
 
     // Footer with instructions
-    let footer_text = "↵: open | h: help | ↑/↓ or j/k: navigate | r: refresh | q: quit";
+    let footer_text = "↵: open | ?: help | ↑/↓ or j/k: navigate | r: refresh | q: quit";
     let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
     f.render_widget(footer, chunks[2]);
 
@@ -134,7 +135,7 @@ fn draw_boards_view(f: &mut Frame, app: &App) {
     f.render_widget(boards_list, chunks[1]);
 
     // Footer with instructions
-    let footer_text = "↵: open | h: help | ↑/↓ or j/k: navigate | r: refresh | Esc: back | q: quit";
+    let footer_text = "↵: open | ?: help | ↑/↓ or j/k: navigate | r: refresh | Esc: back | q: quit";
     let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
     f.render_widget(footer, chunks[2]);
 
@@ -239,13 +240,128 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
     }
 
     // Footer with instructions
-    let footer_text = "Tab/←/→: switch columns | ↑/↓ or j/k: navigate tasks | r: refresh | Esc: back | q: quit";
+    let footer_text = "↵: open task | Tab/←/→: switch columns | ↑/↓ or j/k: navigate | r: refresh | Esc: back | q: quit";
     let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
     f.render_widget(footer, chunks[2]);
 
     // Loading indicator
     if app.loading {
         draw_loading_popup(f);
+    }
+
+    // Error message
+    if let Some(ref error) = app.error {
+        draw_error_popup(f, error);
+    }
+}
+
+fn draw_task_detail_view(f: &mut Frame, app: &App) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(1)
+        .constraints(
+            [
+                Constraint::Length(3),
+                Constraint::Min(5),
+                Constraint::Length(1),
+            ]
+            .as_ref(),
+        )
+        .split(f.area());
+
+    if let Some(ref task) = app.current_task {
+        // Header with task title
+        let header = Paragraph::new(format!("Task: {}", task.title))
+            .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
+        f.render_widget(header, chunks[0]);
+
+        // Task details
+        let mut details = vec![];
+        
+        // ID
+        if let Some(ref id_common) = task.id_task_common {
+            details.push(Line::from(vec![
+                Span::styled("ID: ", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
+                Span::raw(id_common.clone()),
+            ]));
+        }
+        
+        details.push(Line::from(""));
+
+        // Status
+        let status = if task.completed.unwrap_or(false) {
+            "✓ Completed"
+        } else if task.archived.unwrap_or(false) {
+            "📦 Archived"
+        } else {
+            "⏳ In Progress"
+        };
+        details.push(Line::from(vec![
+            Span::styled("Status: ", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
+            Span::raw(status),
+        ]));
+
+        // Assigned users
+        if let Some(ref assigned) = task.assigned {
+            if !assigned.is_empty() {
+                details.push(Line::from(vec![
+                    Span::styled("Assigned: ", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
+                    Span::raw(format!("{} user(s)", assigned.len())),
+                ]));
+            }
+        }
+
+        // Subtasks
+        if let Some(ref subtasks) = task.subtasks {
+            if !subtasks.is_empty() {
+                details.push(Line::from(vec![
+                    Span::styled("Subtasks: ", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
+                    Span::raw(format!("{}", subtasks.len())),
+                ]));
+            }
+        }
+
+        details.push(Line::from(""));
+        details.push(Line::from(vec![
+            Span::styled("Description:", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
+        ]));
+        details.push(Line::from(""));
+
+        // Description
+        if let Some(ref description) = task.description {
+            if !description.is_empty() {
+                details.push(Line::from(description.clone()));
+            } else {
+                details.push(Line::from(Span::styled(
+                    "No description",
+                    Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC),
+                )));
+            }
+        } else {
+            details.push(Line::from(Span::styled(
+                "No description",
+                Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC),
+            )));
+        }
+
+        let block = Block::default()
+            .title(" Task Details ")
+            .borders(Borders::ALL)
+            .border_type(ratatui::widgets::BorderType::Rounded);
+
+        let details_widget = Paragraph::new(details)
+            .block(block)
+            .wrap(Wrap { trim: true });
+        f.render_widget(details_widget, chunks[1]);
+
+        // Footer
+        let footer_text = "Esc: back to kanban | q: quit";
+        let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
+        f.render_widget(footer, chunks[2]);
+    } else {
+        let error_msg = Paragraph::new("No task selected")
+            .style(Style::default().fg(Color::Red));
+        f.render_widget(error_msg, chunks[1]);
     }
 
     // Error message
@@ -269,20 +385,20 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         )]),
         Line::from(""),
         Line::from("Navigation:"),
-        Line::from("  j/↓   Move down in current column"),
-        Line::from("  k/↑   Move up in current column"),
+        Line::from("  j/↓   Move down in current column/list"),
+        Line::from("  k/↑   Move up in current column/list"),
         Line::from("  Tab   Switch to next column (Kanban view)"),
         Line::from("  h/←   Previous column (Kanban view)"),
         Line::from("  l/→   Next column (Kanban view)"),
         Line::from(""),
         Line::from("Actions:"),
-        Line::from("  ↵     Open selected item (project/board)"),
+        Line::from("  ↵     Open selected item (project/board/task)"),
         Line::from("  Esc   Back to previous view / Close error"),
         Line::from("  r     Refresh current view"),
         Line::from(""),
         Line::from("Views:"),
         Line::from("  p     Projects view"),
-        Line::from("  h     Help view"),
+        Line::from("  ?     Help view"),
         Line::from(""),
         Line::from("General:"),
         Line::from("  q     Quit"),
