@@ -1,0 +1,26 @@
+[package]
+name = "yougile-api-client"
+version = "0.1.0"
+authors = ["OpenAPI Generator team and contributors"]
+description = "A Rust client for the YouGile API v2.0. Provides a more idiomatic Rust interface for interacting with YouGile services."
+license = "Unlicense"
+edition = "2021"
+
+[dependencies]
+serde = { version = "^1.0", features = ["derive"] }
+serde_json = "^1.0"
+serde_repr = "^0.1"
+url = "^2.5"
+reqwest = { version = "^0.12", default-features = false, features = ["json", "multipart"] }
+thiserror = "2.0.17"
+log = "0.4"
+env_logger = "0.11"
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["full"] }
+
+[features]
+default = ["native-tls", "logging"]
+logging = []
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]
