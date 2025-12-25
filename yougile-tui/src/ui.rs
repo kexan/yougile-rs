@@ -273,10 +273,6 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
         .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
     f.render_widget(header, chunks[0]);
 
-    // Calculate how many columns can fit and their total width
-    let available_width = chunks[1].width;
-    let column_with_padding = COLUMN_WIDTH + COLUMN_PADDING;
-    
     // Split main area into columns and task detail if task is open
     let main_chunks: Rc<[Rect]> = if app.current_task.is_some() {
         // Calculate columns area width:
@@ -289,8 +285,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
         };
         
         // Task detail panel gets remaining space (but at least minimum width)
-        // Total width = columns_width + padding + task_detail_width
-        // So: task_detail_width = available_width - columns_width - padding
+        let available_width = chunks[1].width;
         let task_detail_width = available_width.saturating_sub(columns_width).saturating_sub(PANEL_PADDING).max(TASK_DETAIL_MIN_WIDTH);
         
         Layout::default()
@@ -407,7 +402,6 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             
             // Calculate which tasks to show based on scroll offset
             let max_width = (COLUMN_WIDTH - 6) as usize;
-            let mut task_scroll_offset = 0;
             let mut cumulative_height = 0;
             let mut visible_task_start = 0;
             
@@ -420,7 +414,6 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                         // Scroll if selected task would be below visible area
                         if cumulative_height > available_height.saturating_sub(card_height) {
                             visible_task_start = idx + 1;
-                            task_scroll_offset = cumulative_height;
                         }
                     } else {
                         break;
@@ -432,7 +425,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             let has_tasks_above = visible_task_start > 0;
             let mut has_tasks_below = false;
             let mut current_height = 0;
-            for (idx, (_, task)) in sorted_tasks.iter().enumerate().skip(visible_task_start) {
+            for (_, task) in sorted_tasks.iter().skip(visible_task_start) {
                 let card_height = calculate_card_height(&task.title, max_width);
                 current_height += card_height;
                 if current_height > available_height {
@@ -446,7 +439,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                 .iter()
                 .skip(visible_task_start)
                 .enumerate()
-                .map(|(display_idx, (original_task_idx, task))| {
+                .map(|(display_idx, (_original_task_idx, task))| {
                     let actual_task_idx = display_idx + visible_task_start;
                     let is_task_selected = is_selected && actual_task_idx == app.selected_task_idx;
                     let is_archived = task.archived.unwrap_or(false);
@@ -480,9 +473,8 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     for line_text in wrapped_lines {
                         let padded = format!(" {} ", line_text);
                         let padding_right = (max_width + 2).saturating_sub(padded.chars().count());
-                        let card_line = format!("│{}{}│", padded, " ".repeat(padding_right));
                         
-                        let mut style = if is_task_selected {
+                        let content_style = if is_task_selected {
                             // Selected tasks always yellow and bold
                             Style::default()
                                 .fg(Color::Yellow)
@@ -497,20 +489,14 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                         
                         // Apply task color to borders
                         if let Some(color) = task_color {
-                            // Get the border characters (left and right pipes)
-                            let left_border = &card_line[0.."│".len()];
-                            let content_start = "│".len();
-                            let content_end = card_line.len() - "│".len();
-                            let content = &card_line[content_start..content_end];
-                            let right_border = &card_line[content_end..];
-                            
                             lines.push(Line::from(vec![
-                                Span::styled(left_border, Style::default().fg(color)),
-                                Span::styled(content, style),
-                                Span::styled(right_border, Style::default().fg(color)),
+                                Span::styled("│", Style::default().fg(color)),
+                                Span::styled(format!("{}{}", padded, " ".repeat(padding_right)), content_style),
+                                Span::styled("│", Style::default().fg(color)),
                             ]));
                         } else {
-                            lines.push(Line::from(Span::styled(card_line, style)));
+                            let card_line = format!("│{}{}│", padded, " ".repeat(padding_right));
+                            lines.push(Line::from(Span::styled(card_line, content_style)));
                         }
                     }
                     
