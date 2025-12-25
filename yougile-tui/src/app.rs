@@ -32,6 +32,7 @@ pub struct App {
     pub columns: Vec<ColumnWithTasks>,
     pub selected_column_idx: usize,
     pub selected_task_idx: usize,
+    pub task_scroll_offset: usize,  // For vertical scrolling of tasks
     pub current_task: Option<Task>,
     pub users: HashMap<String, User>,  // Cache of users by ID
     pub quit: bool,
@@ -71,6 +72,7 @@ impl App {
             columns: Vec::new(),
             selected_column_idx: 0,
             selected_task_idx: 0,
+            task_scroll_offset: 0,
             current_task: None,
             users: HashMap::new(),
             quit: false,
@@ -182,6 +184,7 @@ impl App {
                             self.columns.clear();
                             self.selected_column_idx = 0;
                             self.selected_task_idx = 0;
+                            self.task_scroll_offset = 0;
                         }
                         View::TaskDetail => {
                             self.current_view = View::Tasks;
@@ -270,6 +273,7 @@ impl App {
         if self.selected_column_idx < self.columns.len().saturating_sub(1) {
             self.selected_column_idx += 1;
             self.selected_task_idx = 0;
+            self.task_scroll_offset = 0;
         }
     }
 
@@ -277,6 +281,7 @@ impl App {
         if self.selected_column_idx > 0 {
             self.selected_column_idx -= 1;
             self.selected_task_idx = 0;
+            self.task_scroll_offset = 0;
         }
     }
 
@@ -353,6 +358,7 @@ impl App {
         self.columns.clear();
         self.selected_column_idx = 0;
         self.selected_task_idx = 0;
+        self.task_scroll_offset = 0;
 
         if let Some(ref board) = self.current_board {
             match &self.api {
