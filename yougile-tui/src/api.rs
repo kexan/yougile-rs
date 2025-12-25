@@ -130,13 +130,14 @@ impl YouGileAPI {
         }
     }
 
-    pub async fn fetch_stickers(&self) -> Result<Vec<StickerMeta>, String> {
-        info!("Fetching stickers from YouGile API");
+    pub async fn fetch_stickers(&self, board_id: Option<&str>) -> Result<Vec<StickerMeta>, String> {
+        info!("Fetching stickers from YouGile API{}", 
+            if let Some(id) = board_id { format!(" for board {}", id) } else { String::new() });
         
         let mut all_stickers = Vec::new();
         
-        // Fetch sprint stickers
-        match self.client.search_sprint_stickers(None, Some(100.0), None, None, None).await {
+        // Fetch sprint stickers (with board filter if provided)
+        match self.client.search_sprint_stickers(None, Some(100.0), None, None, board_id).await {
             Ok(page) => {
                 let count = page.content.len();
                 for sticker in page.content {
@@ -165,8 +166,8 @@ impl YouGileAPI {
             }
         }
         
-        // Fetch string stickers
-        match self.client.search_string_stickers(None, Some(100.0), None, None, None).await {
+        // Fetch string stickers (with board filter if provided)
+        match self.client.search_string_stickers(None, Some(100.0), None, None, board_id).await {
             Ok(page) => {
                 let count = page.content.len();
                 for sticker in page.content {
@@ -196,7 +197,7 @@ impl YouGileAPI {
         }
         
         info!("Successfully fetched {} total stickers (sprint + string)", all_stickers.len());
-        debug!("Note: Number stickers are not loaded separately - they are handled as plain values");
+        debug!("Note: Number-type custom stickers show as plain values if not in sprint/string types");
         
         // Log all loaded stickers for debugging
         for sticker in &all_stickers {
