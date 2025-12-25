@@ -11,7 +11,7 @@ pub fn draw(f: &mut Frame, app: &App) {
     match app.current_view {
         View::Projects => draw_projects_view(f, app),
         View::Boards => draw_boards_view(f, app),
-        View::Tasks => draw_tasks_view(f, app),
+        View::Tasks => draw_kanban_view(f, app),
         View::Help => draw_help_view(f, app),
     }
 }
@@ -149,7 +149,7 @@ fn draw_boards_view(f: &mut Frame, app: &App) {
     }
 }
 
-fn draw_tasks_view(f: &mut Frame, app: &App) {
+fn draw_kanban_view(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .margin(0)
@@ -165,45 +165,81 @@ fn draw_tasks_view(f: &mut Frame, app: &App) {
 
     // Header
     let header_text = if let Some(ref board) = app.current_board {
-        format!("YouGile TUI - {} / Tasks", board.title)
+        format!("YouGile TUI - {} (Kanban)", board.title)
     } else {
-        "YouGile TUI - Tasks".to_string()
+        "YouGile TUI - Kanban Board".to_string()
     };
     let header = Paragraph::new(header_text)
         .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
     f.render_widget(header, chunks[0]);
 
-    // Tasks list
-    let tasks_block = Block::default()
-        .title(" Tasks ")
-        .borders(Borders::ALL)
-        .border_type(ratatui::widgets::BorderType::Rounded);
+    // Kanban board - columns displayed horizontally
+    if app.columns.is_empty() {
+        let empty_msg = Paragraph::new("No columns found")
+            .block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .border_type(ratatui::widgets::BorderType::Rounded),
+            )
+            .style(Style::default().fg(Color::Yellow));
+        f.render_widget(empty_msg, chunks[1]);
+    } else {
+        // Create constraints for each column (equal width)
+        let column_count = app.columns.len();
+        let constraints: Vec<Constraint> = vec![Constraint::Ratio(1, column_count as u32); column_count];
+        
+        let column_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(constraints)
+            .split(chunks[1]);
 
-    let items: Vec<ListItem> = app
-        .tasks
-        .iter()
-        .enumerate()
-        .map(|(idx, task)| {
-            let name = task.title.clone();
-            let content = if idx == app.selected_task_idx {
-                Line::from(vec![Span::styled(
-                    format!("▶ {}", name),
-                    Style::default()
-                        .fg(Color::Green)
-                        .add_modifier(Modifier::BOLD),
-                )])
+        // Draw each column
+        for (col_idx, column_with_tasks) in app.columns.iter().enumerate() {
+            let is_selected = col_idx == app.selected_column_idx;
+            
+            let border_style = if is_selected {
+                Style::default().fg(Color::Green)
             } else {
-                Line::from(vec![Span::raw(format!("  {}", name))])
+                Style::default()
             };
-            ListItem::new(content)
-        })
-        .collect();
 
-    let tasks_list = List::new(items).block(tasks_block);
-    f.render_widget(tasks_list, chunks[1]);
+            let title = format!(" {} ({}) ", column_with_tasks.column.title, column_with_tasks.tasks.len());
+            let block = Block::default()
+                .title(title)
+                .borders(Borders::ALL)
+                .border_type(ratatui::widgets::BorderType::Rounded)
+                .border_style(border_style);
+
+            // Create task list items
+            let items: Vec<ListItem> = column_with_tasks
+                .tasks
+                .iter()
+                .enumerate()
+                .map(|(task_idx, task)| {
+                    let name = task.title.clone();
+                    let is_task_selected = is_selected && task_idx == app.selected_task_idx;
+                    
+                    let content = if is_task_selected {
+                        Line::from(vec![Span::styled(
+                            format!("▶ {}", name),
+                            Style::default()
+                                .fg(Color::Yellow)
+                                .add_modifier(Modifier::BOLD),
+                        )])
+                    } else {
+                        Line::from(vec![Span::raw(format!("  {}", name))])
+                    };
+                    ListItem::new(content)
+                })
+                .collect();
+
+            let tasks_list = List::new(items).block(block);
+            f.render_widget(tasks_list, column_chunks[col_idx]);
+        }
+    }
 
     // Footer with instructions
-    let footer_text = "h: help | ↑/↓ or j/k: navigate | r: refresh | Esc: back | q: quit";
+    let footer_text = "Tab/←/→: switch columns | ↑/↓ or j/k: navigate tasks | r: refresh | Esc: back | q: quit";
     let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
     f.render_widget(footer, chunks[2]);
 
@@ -233,13 +269,15 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         )]),
         Line::from(""),
         Line::from("Navigation:"),
-        Line::from("  j/↓   Move down"),
-        Line::from("  k/↑   Move up"),
-        Line::from("  Tab   Switch focus between panels"),
+        Line::from("  j/↓   Move down in current column"),
+        Line::from("  k/↑   Move up in current column"),
+        Line::from("  Tab   Switch to next column (Kanban view)"),
+        Line::from("  h/←   Previous column (Kanban view)"),
+        Line::from("  l/→   Next column (Kanban view)"),
         Line::from(""),
         Line::from("Actions:"),
-        Line::from("  ↑    Open selected item (project/board)"),
-        Line::from("  Esc   Back to previous view"),
+        Line::from("  ↵     Open selected item (project/board)"),
+        Line::from("  Esc   Back to previous view / Close error"),
         Line::from("  r     Refresh current view"),
         Line::from(""),
         Line::from("Views:"),
@@ -248,6 +286,8 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from(""),
         Line::from("General:"),
         Line::from("  q     Quit"),
+        Line::from(""),
+        Line::from("Note: Logs are written to ~/.cache/yougile-tui/yougile-tui.log"),
     ];
 
     let block = Block::default()
@@ -299,7 +339,7 @@ fn draw_error_popup(f: &mut Frame, error: &str) {
     };
 
     let block = Block::default()
-        .title(" Error ")
+        .title(" Error (Press Esc to close) ")
         .borders(Borders::ALL)
         .border_type(ratatui::widgets::BorderType::Rounded)
         .style(Style::default().fg(Color::Red));
