@@ -1,6 +1,5 @@
 use crate::app::{App, View};
 use ratatui::{
-    backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span},
@@ -8,7 +7,7 @@ use ratatui::{
     Frame,
 };
 
-pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
+pub fn draw(f: &mut Frame, app: &App) {
     match app.current_view {
         View::Projects => draw_projects_view(f, app),
         View::Tasks => draw_tasks_view(f, app),
@@ -16,7 +15,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
     }
 }
 
-fn draw_projects_view<B: Backend>(f: &mut Frame<B>, app: &App) {
+fn draw_projects_view(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .margin(0)
@@ -28,7 +27,7 @@ fn draw_projects_view<B: Backend>(f: &mut Frame<B>, app: &App) {
             ]
             .as_ref(),
         )
-        .split(f.size());
+        .split(f.area());
 
     // Header
     let header = Paragraph::new("YouGile TUI - Project Manager")
@@ -46,7 +45,7 @@ fn draw_projects_view<B: Backend>(f: &mut Frame<B>, app: &App) {
         .iter()
         .enumerate()
         .map(|(idx, project)| {
-            let name = project.title.as_ref().unwrap_or(&"Unnamed".to_string()).clone();
+            let name = project.title.clone().unwrap_or_else(|| "Unnamed".to_string());
             let content = if idx == app.selected_project_idx {
                 Line::from(vec![Span::styled(
                     format!("▶ {}", name),
@@ -80,11 +79,11 @@ fn draw_projects_view<B: Backend>(f: &mut Frame<B>, app: &App) {
     }
 }
 
-fn draw_tasks_view<B: Backend>(f: &mut Frame<B>, app: &App) {
+fn draw_tasks_view(f: &mut Frame, _app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Min(0)])
-        .split(f.size());
+        .split(f.area());
 
     let block = Block::default()
         .title(" Tasks ")
@@ -98,11 +97,11 @@ fn draw_tasks_view<B: Backend>(f: &mut Frame<B>, app: &App) {
     f.render_widget(content, chunks[0]);
 }
 
-fn draw_help_view<B: Backend>(f: &mut Frame<B>, _app: &App) {
+fn draw_help_view(f: &mut Frame, _app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Min(0)])
-        .split(f.size());
+        .split(f.area());
 
     let help_text = vec![
         Line::from(vec![Span::styled(
@@ -139,10 +138,10 @@ fn draw_help_view<B: Backend>(f: &mut Frame<B>, _app: &App) {
     f.render_widget(help_widget, chunks[0]);
 }
 
-fn draw_loading_popup<B: Backend>(f: &mut Frame<B>) {
+fn draw_loading_popup(f: &mut Frame) {
     let popup_width = 40;
     let popup_height = 5;
-    let screen = f.size();
+    let screen = f.area();
 
     let x = (screen.width.saturating_sub(popup_width)) / 2;
     let y = (screen.height.saturating_sub(popup_height)) / 2;
@@ -163,10 +162,10 @@ fn draw_loading_popup<B: Backend>(f: &mut Frame<B>) {
     f.render_widget(content, popup_rect);
 }
 
-fn draw_error_popup<B: Backend>(f: &mut Frame<B>, error: &str) {
+fn draw_error_popup(f: &mut Frame, error: &str) {
     let popup_width = 60;
     let popup_height = 7;
-    let screen = f.size();
+    let screen = f.area();
 
     let x = (screen.width.saturating_sub(popup_width)) / 2;
     let y = (screen.height.saturating_sub(popup_height)) / 2;
