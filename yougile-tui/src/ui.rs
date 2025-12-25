@@ -566,7 +566,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                         }
                     }
                     
-                    // Stickers - each on separate line
+                    // Stickers - each on separate line, borders stay with task color (if any), text is cyan
                     if let Some(ref stickers) = task.stickers {
                         if let Some(obj) = stickers.as_object() {
                             for (sticker_id, state_value) in obj.iter() {
@@ -578,14 +578,19 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                                     let sticker_style = Style::default().fg(Color::Cyan);
                                     
                                     if let Some(color) = task_color {
+                                        // Task has color - borders keep task color, sticker text is cyan
                                         lines.push(Line::from(vec![
                                             Span::styled("│", Style::default().fg(color)),
                                             Span::styled(format!("{}{}", padded, " ".repeat(padding_right)), sticker_style),
                                             Span::styled("│", Style::default().fg(color)),
                                         ]));
                                     } else {
-                                        let sticker_line = format!("│{}{}│", padded, " ".repeat(padding_right));
-                                        lines.push(Line::from(Span::styled(sticker_line, sticker_style)));
+                                        // No task color - everything normal, sticker text is cyan
+                                        lines.push(Line::from(vec![
+                                            Span::raw("│"),
+                                            Span::styled(format!("{}{}", padded, " ".repeat(padding_right)), sticker_style),
+                                            Span::raw("│"),
+                                        ]));
                                     }
                                 }
                             }
