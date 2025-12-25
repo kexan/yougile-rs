@@ -243,11 +243,21 @@ fn wrap_text(text: &str, max_width: usize) -> Vec<String> {
     lines
 }
 
+/// Check if stickers value is non-empty
+fn has_stickers(stickers: Option<&serde_json::Value>) -> bool {
+    if let Some(value) = stickers {
+        if let Some(obj) = value.as_object() {
+            return !obj.is_empty();
+        }
+    }
+    false
+}
+
 /// Calculate card height (number of lines) for a task, including stickers
 fn calculate_card_height(task: &yougile_client::models::Task, max_width: usize) -> usize {
     let wrapped = wrap_text(&task.title, max_width);
     let title_lines = wrapped.len();
-    let sticker_lines = if task.stickers.is_some() && !task.stickers.as_ref().unwrap().is_empty() {
+    let sticker_lines = if has_stickers(task.stickers.as_ref()) {
         1 // One line for stickers
     } else {
         0
@@ -256,28 +266,30 @@ fn calculate_card_height(task: &yougile_client::models::Task, max_width: usize) 
 }
 
 /// Format stickers as a compact display string
-fn format_stickers(stickers: &std::collections::HashMap<String, serde_json::Value>) -> String {
+fn format_stickers(stickers: &serde_json::Value) -> String {
     let mut parts: Vec<String> = Vec::new();
     
-    for (key, value) in stickers.iter() {
-        let display = match value {
-            serde_json::Value::String(s) => {
-                // Short labels for common stickers
-                if key.contains("deadline") {
-                    format!("⏰{}", &s[..s.len().min(10)])
-                } else if key.contains("priority") || key.contains("Prior") {
-                    format!("!{}", s)
-                } else if key.contains("status") || key.contains("Status") {
-                    format!("●{}", &s[..s.len().min(8)])
-                } else {
-                    format!("{}:{}", &key[..key.len().min(6)], &s[..s.len().min(6)])
+    if let Some(obj) = stickers.as_object() {
+        for (key, value) in obj.iter() {
+            let display = match value {
+                serde_json::Value::String(s) => {
+                    // Short labels for common stickers
+                    if key.contains("deadline") {
+                        format!("⏰{}", &s[..s.len().min(10)])
+                    } else if key.contains("priority") || key.contains("Prior") {
+                        format!("!{}", s)
+                    } else if key.contains("status") || key.contains("Status") {
+                        format!("●{}", &s[..s.len().min(8)])
+                    } else {
+                        format!("{}:{}", &key[..key.len().min(6)], &s[..s.len().min(6)])
+                    }
                 }
-            }
-            serde_json::Value::Number(n) => format!("{}:{}", &key[..key.len().min(6)], n),
-            serde_json::Value::Bool(b) if *b => format!("✓{}", &key[..key.len().min(6)]),
-            _ => continue,
-        };
-        parts.push(display);
+                serde_json::Value::Number(n) => format!("{}:{}", &key[..key.len().min(6)], n),
+                serde_json::Value::Bool(b) if *b => format!("✓{}", &key[..key.len().min(6)]),
+                _ => continue,
+            };
+            parts.push(display);
+        }
     }
     
     if parts.is_empty() {
@@ -540,7 +552,7 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     
                     // Stickers line
                     if let Some(ref stickers) = task.stickers {
-                        if !stickers.is_empty() {
+                        if has_stickers(Some(stickers)) {
                             let sticker_text = format_stickers(stickers);
                             if !sticker_text.is_empty() {
                                 let padded = format!(" {} ", sticker_text);
@@ -657,27 +669,29 @@ fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
 
         // Stickers - display in detail view
         if let Some(ref stickers) = task.stickers {
-            if !stickers.is_empty() {
+            if has_stickers(Some(stickers)) {
                 details.push(Line::from(""));
                 details.push(Line::from(vec![
                     Span::styled("Stickers:", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
                 ]));
                 
-                for (key, value) in stickers.iter() {
-                    let value_str = match value {
-                        serde_json::Value::String(s) => s.clone(),
-                        serde_json::Value::Number(n) => n.to_string(),
-                        serde_json::Value::Bool(b) => b.to_string(),
-                        serde_json::Value::Array(_) => "[array]".to_string(),
-                        serde_json::Value::Object(_) => "[object]".to_string(),
-                        serde_json::Value::Null => "null".to_string(),
-                    };
-                    
-                    details.push(Line::from(vec![
-                        Span::raw("  • "),
-                        Span::styled(format!("{}: ", key), Style::default().fg(Color::Cyan)),
-                        Span::raw(value_str),
-                    ]));
+                if let Some(obj) = stickers.as_object() {
+                    for (key, value) in obj.iter() {
+                        let value_str = match value {
+                            serde_json::Value::String(s) => s.clone(),
+                            serde_json::Value::Number(n) => n.to_string(),
+                            serde_json::Value::Bool(b) => b.to_string(),
+                            serde_json::Value::Array(_) => "[array]".to_string(),
+                            serde_json::Value::Object(_) => "[object]".to_string(),
+                            serde_json::Value::Null => "null".to_string(),
+                        };
+                        
+                        details.push(Line::from(vec![
+                            Span::raw("  • "),
+                            Span::styled(format!("{}: ", key), Style::default().fg(Color::Cyan)),
+                            Span::raw(value_str),
+                        ]));
+                    }
                 }
             }
         }
