@@ -10,6 +10,7 @@ use ratatui::{
 pub fn draw(f: &mut Frame, app: &App) {
     match app.current_view {
         View::Projects => draw_projects_view(f, app),
+        View::Boards => draw_boards_view(f, app),
         View::Tasks => draw_tasks_view(f, app),
         View::Help => draw_help_view(f, app),
     }
@@ -30,7 +31,7 @@ fn draw_projects_view(f: &mut Frame, app: &App) {
         .split(f.area());
 
     // Header
-    let header = Paragraph::new("YouGile TUI - Project Manager")
+    let header = Paragraph::new("YouGile TUI - Projects")
         .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
     f.render_widget(header, chunks[0]);
 
@@ -64,7 +65,7 @@ fn draw_projects_view(f: &mut Frame, app: &App) {
     f.render_widget(projects_list, chunks[1]);
 
     // Footer with instructions
-    let footer_text = "q: quit | h: help | ↑/↓ or j/k: navigate | r: refresh | Tab: switch focus";
+    let footer_text = "↵: open | h: help | ↑/↓ or j/k: navigate | r: refresh | q: quit";
     let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
     f.render_widget(footer, chunks[2]);
 
@@ -79,22 +80,142 @@ fn draw_projects_view(f: &mut Frame, app: &App) {
     }
 }
 
-fn draw_tasks_view(f: &mut Frame, _app: &App) {
+fn draw_boards_view(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Min(0)])
+        .margin(0)
+        .constraints(
+            [
+                Constraint::Length(3),
+                Constraint::Min(10),
+                Constraint::Length(1),
+            ]
+            .as_ref(),
+        )
         .split(f.area());
 
-    let block = Block::default()
+    // Header
+    let header_text = if let Some(ref project) = app.current_project {
+        format!("YouGile TUI - {} / Boards", project.title)
+    } else {
+        "YouGile TUI - Boards".to_string()
+    };
+    let header = Paragraph::new(header_text)
+        .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
+    f.render_widget(header, chunks[0]);
+
+    // Boards list
+    let boards_block = Block::default()
+        .title(" Boards ")
+        .borders(Borders::ALL)
+        .border_type(ratatui::widgets::BorderType::Rounded);
+
+    let items: Vec<ListItem> = app
+        .boards
+        .iter()
+        .enumerate()
+        .map(|(idx, board)| {
+            let name = board.title.clone();
+            let content = if idx == app.selected_board_idx {
+                Line::from(vec![Span::styled(
+                    format!("▶ {}", name),
+                    Style::default()
+                        .fg(Color::Green)
+                        .add_modifier(Modifier::BOLD),
+                )])
+            } else {
+                Line::from(vec![Span::raw(format!("  {}", name))])
+            };
+            ListItem::new(content)
+        })
+        .collect();
+
+    let boards_list = List::new(items).block(boards_block);
+    f.render_widget(boards_list, chunks[1]);
+
+    // Footer with instructions
+    let footer_text = "↵: open | h: help | ↑/↓ or j/k: navigate | r: refresh | Esc: back | q: quit";
+    let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
+    f.render_widget(footer, chunks[2]);
+
+    // Loading indicator
+    if app.loading {
+        draw_loading_popup(f);
+    }
+
+    // Error message
+    if let Some(ref error) = app.error {
+        draw_error_popup(f, error);
+    }
+}
+
+fn draw_tasks_view(f: &mut Frame, app: &App) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(0)
+        .constraints(
+            [
+                Constraint::Length(3),
+                Constraint::Min(10),
+                Constraint::Length(1),
+            ]
+            .as_ref(),
+        )
+        .split(f.area());
+
+    // Header
+    let header_text = if let Some(ref board) = app.current_board {
+        format!("YouGile TUI - {} / Tasks", board.title)
+    } else {
+        "YouGile TUI - Tasks".to_string()
+    };
+    let header = Paragraph::new(header_text)
+        .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
+    f.render_widget(header, chunks[0]);
+
+    // Tasks list
+    let tasks_block = Block::default()
         .title(" Tasks ")
         .borders(Borders::ALL)
         .border_type(ratatui::widgets::BorderType::Rounded);
 
-    let content = Paragraph::new("Task list view - Coming soon!")
-        .block(block)
-        .style(Style::default().fg(Color::Yellow));
+    let items: Vec<ListItem> = app
+        .tasks
+        .iter()
+        .enumerate()
+        .map(|(idx, task)| {
+            let name = task.title.clone();
+            let content = if idx == app.selected_task_idx {
+                Line::from(vec![Span::styled(
+                    format!("▶ {}", name),
+                    Style::default()
+                        .fg(Color::Green)
+                        .add_modifier(Modifier::BOLD),
+                )])
+            } else {
+                Line::from(vec![Span::raw(format!("  {}", name))])
+            };
+            ListItem::new(content)
+        })
+        .collect();
 
-    f.render_widget(content, chunks[0]);
+    let tasks_list = List::new(items).block(tasks_block);
+    f.render_widget(tasks_list, chunks[1]);
+
+    // Footer with instructions
+    let footer_text = "h: help | ↑/↓ or j/k: navigate | r: refresh | Esc: back | q: quit";
+    let footer = Paragraph::new(footer_text).style(Style::default().fg(Color::DarkGray));
+    f.render_widget(footer, chunks[2]);
+
+    // Loading indicator
+    if app.loading {
+        draw_loading_popup(f);
+    }
+
+    // Error message
+    if let Some(ref error) = app.error {
+        draw_error_popup(f, error);
+    }
 }
 
 fn draw_help_view(f: &mut Frame, _app: &App) {
@@ -117,8 +238,9 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from("  Tab   Switch focus between panels"),
         Line::from(""),
         Line::from("Actions:"),
-        Line::from("  Enter Select item"),
-        Line::from("  r     Refresh data"),
+        Line::from("  ↑    Open selected item (project/board)"),
+        Line::from("  Esc   Back to previous view"),
+        Line::from("  r     Refresh current view"),
         Line::from(""),
         Line::from("Views:"),
         Line::from("  p     Projects view"),
@@ -126,7 +248,6 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from(""),
         Line::from("General:"),
         Line::from("  q     Quit"),
-        Line::from("  Esc   Quit"),
     ];
 
     let block = Block::default()
