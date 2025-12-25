@@ -168,8 +168,8 @@ impl YouGileAPI {
                     let mut states = HashMap::new();
                     if let Some(sticker_states) = sticker.states {
                         for state in sticker_states {
-                            // StringStickerState has data.title
-                            states.insert(state.id.clone(), state.data.title.clone());
+                            // StringStickerState has data.name
+                            states.insert(state.id.clone(), state.data.name.clone());
                         }
                     }
                     
