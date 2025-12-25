@@ -24,7 +24,6 @@ Cargo.lock
 result
 result-*
 .envrc.swp
-flake.lock
 
 # Editor backups
 *~
