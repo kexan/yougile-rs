@@ -15,14 +15,13 @@ impl DepartmentsAPI {
 
     /// Get a specific department by ID
     pub async fn get(&self, id: &str) -> Result<Department, SDKError> {
-        departments::get_department(self.client.configuration(), id)
-            .await
-            .map_err(SDKError::from)
+        self.client.get_department(id).await.map_err(SDKError::from)
     }
 
     /// Create a new department
     pub async fn create(&self, create_department: CreateDepartment) -> Result<Id, SDKError> {
-        departments::create_department(self.client.configuration(), create_department)
+        self.client
+            .create_department(create_department)
             .await
             .map_err(SDKError::from)
     }
@@ -33,7 +32,8 @@ impl DepartmentsAPI {
         id: &str,
         update_department: UpdateDepartment,
     ) -> Result<Id, SDKError> {
-        departments::update_department(self.client.configuration(), id, update_department)
+        self.client
+            .update_department(id, update_department)
             .await
             .map_err(SDKError::from)
     }
@@ -47,16 +47,10 @@ impl DepartmentsAPI {
         title: Option<&str>,
         parent_id: Option<&str>,
     ) -> Result<DepartmentList, SDKError> {
-        departments::search_department(
-            self.client.configuration(),
-            include_deleted,
-            limit,
-            offset,
-            title,
-            parent_id,
-        )
-        .await
-        .map_err(SDKError::from)
+        self.client
+            .search_department(include_deleted, limit, offset, title, parent_id)
+            .await
+            .map_err(SDKError::from)
     }
 
     /// List all departments (with default parameters)
