@@ -265,27 +265,24 @@ fn calculate_card_height(task: &yougile_client::models::Task, max_width: usize) 
     3 + title_lines + sticker_lines // top border + title + stickers + bottom border
 }
 
-/// Format stickers as a compact display string
-fn format_stickers(stickers: &serde_json::Value) -> String {
+/// Format stickers as a compact display string using metadata from app
+fn format_stickers(app: &App, stickers: &serde_json::Value) -> String {
     let mut parts: Vec<String> = Vec::new();
     
     if let Some(obj) = stickers.as_object() {
-        for (key, value) in obj.iter() {
-            let display = match value {
-                serde_json::Value::String(s) => {
-                    // Short labels for common stickers
-                    if key.contains("deadline") {
-                        format!("⏰{}", &s[..s.len().min(10)])
-                    } else if key.contains("priority") || key.contains("Prior") {
-                        format!("!{}", s)
-                    } else if key.contains("status") || key.contains("Status") {
-                        format!("●{}", &s[..s.len().min(8)])
-                    } else {
-                        format!("{}:{}", &key[..key.len().min(6)], &s[..s.len().min(6)])
-                    }
+        for (sticker_id, state_value) in obj.iter() {
+            // Get sticker title from metadata
+            let sticker_title = app.get_sticker_title(sticker_id);
+            
+            // Format based on value type
+            let display = match state_value {
+                serde_json::Value::String(state_id) => {
+                    // Get state title from sticker metadata
+                    let state_title = app.get_sticker_state_title(sticker_id, state_id);
+                    format!("{}:{}", &sticker_title[..sticker_title.len().min(10)], &state_title[..state_title.len().min(10)])
                 }
-                serde_json::Value::Number(n) => format!("{}:{}", &key[..key.len().min(6)], n),
-                serde_json::Value::Bool(b) if *b => format!("✓{}", &key[..key.len().min(6)]),
+                serde_json::Value::Number(n) => format!("{}:{}", &sticker_title[..sticker_title.len().min(10)], n),
+                serde_json::Value::Bool(b) if *b => format!("✓{}", &sticker_title[..sticker_title.len().min(10)]),
                 _ => continue,
             };
             parts.push(display);
@@ -550,10 +547,10 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                         }
                     }
                     
-                    // Stickers line
+                    // Stickers line - use app to resolve sticker names
                     if let Some(ref stickers) = task.stickers {
                         if has_stickers(Some(stickers)) {
-                            let sticker_text = format_stickers(stickers);
+                            let sticker_text = format_stickers(app, stickers);
                             if !sticker_text.is_empty() {
                                 let padded = format!(" {} ", sticker_text);
                                 let padding_right = (max_width + 2).saturating_sub(padded.chars().count());
@@ -667,7 +664,7 @@ fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
             Span::raw(status),
         ]));
 
-        // Stickers - display in detail view
+        // Stickers - display in detail view with resolved names
         if let Some(ref stickers) = task.stickers {
             if has_stickers(Some(stickers)) {
                 details.push(Line::from(""));
@@ -676,9 +673,14 @@ fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
                 ]));
                 
                 if let Some(obj) = stickers.as_object() {
-                    for (key, value) in obj.iter() {
-                        let value_str = match value {
-                            serde_json::Value::String(s) => s.clone(),
+                    for (sticker_id, state_value) in obj.iter() {
+                        // Get sticker and state titles from metadata
+                        let sticker_title = app.get_sticker_title(sticker_id);
+                        
+                        let value_str = match state_value {
+                            serde_json::Value::String(state_id) => {
+                                app.get_sticker_state_title(sticker_id, state_id)
+                            }
                             serde_json::Value::Number(n) => n.to_string(),
                             serde_json::Value::Bool(b) => b.to_string(),
                             serde_json::Value::Array(_) => "[array]".to_string(),
@@ -688,7 +690,7 @@ fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
                         
                         details.push(Line::from(vec![
                             Span::raw("  • "),
-                            Span::styled(format!("{}: ", key), Style::default().fg(Color::Cyan)),
+                            Span::styled(format!("{}: ", sticker_title), Style::default().fg(Color::Cyan)),
                             Span::raw(value_str),
                         ]));
                     }
