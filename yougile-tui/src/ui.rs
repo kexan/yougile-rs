@@ -73,6 +73,30 @@ fn truncate_str(s: &str, max_chars: usize) -> String {
     s.chars().take(max_chars).collect()
 }
 
+/// Extract initials from a name: "Сергей Никитин" -> "СН", "Admin" -> "AD"
+fn get_initials(name: &str) -> String {
+    let words: Vec<&str> = name.split_whitespace().collect();
+    
+    if words.len() >= 2 {
+        // Two or more words: take first letter of first two words
+        let first = words[0].chars().next().unwrap_or(' ');
+        let second = words[1].chars().next().unwrap_or(' ');
+        format!("{}{}", first, second).to_uppercase()
+    } else if words.len() == 1 {
+        // One word: take first two letters
+        let chars: Vec<char> = words[0].chars().collect();
+        if chars.len() >= 2 {
+            format!("{}{}", chars[0], chars[1]).to_uppercase()
+        } else if chars.len() == 1 {
+            format!("{} ", chars[0]).to_uppercase()
+        } else {
+            "??".to_string()
+        }
+    } else {
+        "??".to_string()
+    }
+}
+
 fn draw_projects_view(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
@@ -442,10 +466,10 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             // Add scroll indicators to title
             let left_indicator = if visible_idx == 0 && has_left_columns { "◀ " } else { "" };
             let right_indicator = if visible_idx == visible_columns.len() - 1 && has_right_columns { " ▶" } else { "" };
-            let title = format!("{}{}{}({}) {}", 
+            let title = format!("{}{}{} ({}) {}", 
                 left_indicator,
                 column_with_tasks.column.title, 
-                " ",
+                "",
                 active_tasks_count,  // Only non-archived count
                 right_indicator
             );
@@ -510,6 +534,20 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     let is_task_selected = is_selected && actual_task_idx == app.selected_task_idx;
                     let is_archived = task.archived.unwrap_or(false);
                     let task_color = get_task_color(task.color.as_ref());
+                    let is_completed = task.completed.unwrap_or(false);
+                    
+                    // Get assignee initials
+                    let assignee_initials = if let Some(ref assigned) = task.assigned {
+                        if !assigned.is_empty() {
+                            let first_assignee = &assigned[0];
+                            let name = app.get_user_name(first_assignee);
+                            get_initials(&name)
+                        } else {
+                            String::new()
+                        }
+                    } else {
+                        String::new()
+                    };
                     
                     // Wrap task name to fit in card width
                     let wrapped_lines = wrap_text(&task.title, max_width);
@@ -517,22 +555,34 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                     // Create card lines
                     let mut lines = vec![];
                     
-                    // Top border of card with scroll indicator
-                    let top_border = if actual_task_idx == 0 && has_tasks_above {
+                    // Top border of card with scroll indicator and completion checkmark
+                    let completion_icon = if is_completed { "✓" } else { "✓" };
+                    let completion_color = if is_completed { Color::Green } else { Color::DarkGray };
+                    
+                    let top_border_base = if actual_task_idx == 0 && has_tasks_above {
                         // Add up arrow in the middle
                         let half_width = max_width / 2;
-                        let left_part = "─".repeat(half_width);
+                        let left_part = "─".repeat(half_width.saturating_sub(1)); // -1 for checkmark
                         let right_part = "─".repeat(max_width - half_width);
                         format!("┌{}▲{}┐", left_part, right_part)
                     } else {
-                        format!("┌{}┐", "─".repeat(max_width + 2))
+                        let inner_width = max_width + 1; // +1 to account for checkmark space
+                        format!("┌{}┐", "─".repeat(inner_width))
                     };
                     
-                    // Apply task color to borders if set
+                    // Apply task color to borders if set, and add completion checkmark
                     if let Some(color) = task_color {
-                        lines.push(Line::from(Span::styled(top_border, Style::default().fg(color))));
+                        lines.push(Line::from(vec![
+                            Span::styled("┌", Style::default().fg(color)),
+                            Span::styled(completion_icon, Style::default().fg(completion_color)),
+                            Span::styled(top_border_base[3..].to_string(), Style::default().fg(color)),
+                        ]));
                     } else {
-                        lines.push(Line::from(top_border));
+                        lines.push(Line::from(vec![
+                            Span::raw("┌"),
+                            Span::styled(completion_icon, Style::default().fg(completion_color)),
+                            Span::raw(top_border_base[3..].to_string()),
+                        ]));
                     }
                     
                     // Task title lines with padding
@@ -597,12 +647,44 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
                         }
                     }
                     
-                    // Bottom border of card
-                    let bottom_border = format!("└{}┘", "─".repeat(max_width + 2));
-                    if let Some(color) = task_color {
-                        lines.push(Line::from(Span::styled(bottom_border, Style::default().fg(color))));
+                    // Bottom border of card with assignee initials
+                    let bottom_border_plain = "─".repeat(max_width + 2);
+                    let assignee_box = if !assignee_initials.is_empty() {
+                        format!("[{}]", assignee_initials)
                     } else {
-                        lines.push(Line::from(bottom_border));
+                        String::new()
+                    };
+                    
+                    let assignee_len = assignee_box.chars().count();
+                    let bottom_line = if assignee_len > 0 {
+                        let left_border_len = (max_width + 2).saturating_sub(assignee_len);
+                        format!("└{}{}┘", "─".repeat(left_border_len), assignee_box)
+                    } else {
+                        format!("└{}┘", bottom_border_plain)
+                    };
+                    
+                    if let Some(color) = task_color {
+                        if assignee_len > 0 {
+                            let left_len = (max_width + 2).saturating_sub(assignee_len);
+                            lines.push(Line::from(vec![
+                                Span::styled(format!("└{}",  "─".repeat(left_len)), Style::default().fg(color)),
+                                Span::styled(&assignee_box, Style::default().fg(Color::Blue)),
+                                Span::styled("┘", Style::default().fg(color)),
+                            ]));
+                        } else {
+                            lines.push(Line::from(Span::styled(bottom_line, Style::default().fg(color))));
+                        }
+                    } else {
+                        if assignee_len > 0 {
+                            let left_len = (max_width + 2).saturating_sub(assignee_len);
+                            lines.push(Line::from(vec![
+                                Span::raw(format!("└{}", "─".repeat(left_len))),
+                                Span::styled(&assignee_box, Style::default().fg(Color::Blue)),
+                                Span::raw("┘"),
+                            ]));
+                        } else {
+                            lines.push(Line::from(bottom_line));
+                        }
                     }
                     
                     ListItem::new(lines)
@@ -847,6 +929,7 @@ fn draw_help_view(f: &mut Frame, _app: &App) {
         Line::from("Columns: Color-coded by API (1-16 hex colors) • Count shows non-archived tasks only"),
         Line::from("Tasks: Card borders colored by task-* • Stickers shown in cyan boxes • Archived dimmed"),
         Line::from("Stickers: [name:state] for state-based • [name:text] for free-text values"),
+        Line::from("Card indicators: ✓ (top-left, green=done, gray=pending) • [XX] (bottom-right, assignee initials)"),
     ];
 
     let block = Block::default()
