@@ -1,0 +1,42 @@
+[package]
+name = "yougile-tui"
+version = "0.1.0"
+edition = "2024"
+authors = ["Sergey Nikitin <your.email@example.com>"]
+description = "Terminal UI for YouGile project management"
+license = "MIT"
+
+[[bin]]
+name = "yougile-tui"
+path = "src/main.rs"
+
+[dependencies]
+# SDK and API client from workspace
+yougile-sdk = { path = "../yougile-sdk" }
+yougile-client = { path = "../" }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# TUI framework
+ratatui = "0.28"
+crossterm = "0.28"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error handling
+thiserror = "2"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+chrono = "0.4"
+
+# Config and paths
+toml = "0.8"
+dirs = "5"
+
+[dev-dependencies]
+tokio-test = "0.4"
