@@ -133,34 +133,59 @@ impl YouGileAPI {
     pub async fn fetch_stickers(&self) -> Result<Vec<StickerMeta>, String> {
         info!("Fetching stickers from YouGile API");
         
-        match self.client.search_stickers(Some(100.0), None).await {
+        let mut all_stickers = Vec::new();
+        
+        // Fetch sprint stickers
+        match self.client.search_sprint_stickers(None, Some(100.0), None, None, None).await {
             Ok(page) => {
-                let stickers: Vec<StickerMeta> = page.content
-                    .into_iter()
-                    .map(|sticker| {
-                        // Extract states from sticker
-                        let mut states = HashMap::new();
-                        if let Some(sticker_states) = sticker.states {
-                            for state in sticker_states {
-                                states.insert(state.id.clone(), state.title.clone());
-                            }
+                for sticker in page.content {
+                    let mut states = HashMap::new();
+                    if let Some(sticker_states) = sticker.states {
+                        for state in sticker_states {
+                            states.insert(state.id.clone(), state.title.clone());
                         }
-                        
-                        StickerMeta {
-                            id: sticker.id,
-                            title: sticker.title,
-                            states,
-                        }
-                    })
-                    .collect();
-                
-                info!("Successfully fetched {} stickers", stickers.len());
-                Ok(stickers)
+                    }
+                    
+                    all_stickers.push(StickerMeta {
+                        id: sticker.id,
+                        title: sticker.title,
+                        states,
+                    });
+                }
+                info!("Fetched {} sprint stickers", page.content.len());
             }
             Err(e) => {
-                error!("Failed to fetch stickers: {}", e);
-                Err(format!("Failed to fetch stickers: {}", e))
+                error!("Failed to fetch sprint stickers: {}", e);
+                // Don't fail completely, continue to string stickers
             }
         }
+        
+        // Fetch string stickers
+        match self.client.search_string_stickers(None, Some(100.0), None, None, None).await {
+            Ok(page) => {
+                for sticker in page.content {
+                    let mut states = HashMap::new();
+                    if let Some(sticker_states) = sticker.states {
+                        for state in sticker_states {
+                            states.insert(state.id.clone(), state.title.clone());
+                        }
+                    }
+                    
+                    all_stickers.push(StickerMeta {
+                        id: sticker.id,
+                        title: sticker.title,
+                        states,
+                    });
+                }
+                info!("Fetched {} string stickers", page.content.len());
+            }
+            Err(e) => {
+                error!("Failed to fetch string stickers: {}", e);
+                // Don't fail completely
+            }
+        }
+        
+        info!("Successfully fetched {} total stickers", all_stickers.len());
+        Ok(all_stickers)
     }
 }
