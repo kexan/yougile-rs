@@ -195,6 +195,29 @@ impl YouGileAPI {
             }
         }
         
+        // Fetch number stickers
+        match self.client.search_number_stickers(None, Some(100.0), None, None, None).await {
+            Ok(page) => {
+                let count = page.content.len();
+                for sticker in page.content {
+                    // Number stickers don't have states, just a title
+                    debug!("Number sticker: id={}, name={}", 
+                        sticker.id, sticker.data.name);
+                    
+                    all_stickers.push(StickerMeta {
+                        id: sticker.id.clone(),
+                        title: sticker.data.name.clone(),
+                        states: HashMap::new(), // No states for number stickers
+                    });
+                }
+                info!("Fetched {} number stickers", count);
+            }
+            Err(e) => {
+                error!("Failed to fetch number stickers: {}", e);
+                // Don't fail completely
+            }
+        }
+        
         info!("Successfully fetched {} total stickers", all_stickers.len());
         
         // Log all loaded stickers for debugging
