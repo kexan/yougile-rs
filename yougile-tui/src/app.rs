@@ -84,6 +84,9 @@ impl App {
                 log::debug!("Switching to Projects view");
                 self.current_view = View::Projects;
             }
+            KeyCode::Char('q') => {
+                self.quit = true;
+            }
             KeyCode::Tab => {
                 self.toggle_focus();
                 log::debug!("Toggled focus to: {:?}", self.focus);
@@ -120,21 +123,28 @@ impl App {
                 }
             }
             KeyCode::Backspace | KeyCode::Esc => {
-                match self.current_view {
-                    View::Projects => self.quit = true,
-                    View::Boards => {
-                        self.current_view = View::Projects;
-                        self.current_project = None;
-                        self.boards.clear();
-                        self.selected_board_idx = 0;
+                // First priority: close error popup if present
+                if self.error.is_some() {
+                    self.error = None;
+                    log::debug!("Closed error popup");
+                } else {
+                    // Otherwise navigate back
+                    match self.current_view {
+                        View::Projects => self.quit = true,
+                        View::Boards => {
+                            self.current_view = View::Projects;
+                            self.current_project = None;
+                            self.boards.clear();
+                            self.selected_board_idx = 0;
+                        }
+                        View::Tasks => {
+                            self.current_view = View::Boards;
+                            self.current_board = None;
+                            self.tasks.clear();
+                            self.selected_task_idx = 0;
+                        }
+                        View::Help => self.current_view = View::Projects,
                     }
-                    View::Tasks => {
-                        self.current_view = View::Boards;
-                        self.current_board = None;
-                        self.tasks.clear();
-                        self.selected_task_idx = 0;
-                    }
-                    View::Help => self.current_view = View::Projects,
                 }
             }
             KeyCode::Char('r') => {
