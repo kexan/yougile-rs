@@ -1,2 +1,3 @@
 [workspace]
 members = ["yougile-api-client", "yougile-sdk", "yougile-tui"]
+resolver = "3"
