@@ -10,23 +10,23 @@ use crate::api::YouGileAPI;
 use crate::config::Config;
 use std::collections::HashMap;
 use std::io;
-use yougile_client::models::User;
+use yougile_api_client::models::User;
 
 pub struct App {
     config: Config,
     api: Option<YouGileAPI>,
     pub current_view: View,
-    pub projects: Vec<yougile_client::models::Project>,
+    pub projects: Vec<yougile_api_client::models::Project>,
     pub selected_project_idx: usize,
-    pub current_project: Option<yougile_client::models::Project>,
-    pub boards: Vec<yougile_client::models::Board>,
+    pub current_project: Option<yougile_api_client::models::Project>,
+    pub boards: Vec<yougile_api_client::models::Board>,
     pub selected_board_idx: usize,
-    pub current_board: Option<yougile_client::models::Board>,
+    pub current_board: Option<yougile_api_client::models::Board>,
     pub columns: Vec<ColumnWithTasks>,
     pub selected_column_idx: usize,
     pub selected_task_idx: usize,
     pub task_scroll_offset: usize,
-    pub current_task: Option<yougile_client::models::Task>,
+    pub current_task: Option<yougile_api_client::models::Task>,
     pub users: HashMap<String, User>,
     pub stickers: HashMap<String, StickerMeta>,
     pub quit: bool,

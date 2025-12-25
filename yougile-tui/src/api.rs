@@ -2,9 +2,9 @@ use crate::app::{ColumnWithTasks, StickerMeta};
 use crate::config::Config;
 use log::{debug, error, info};
 use std::collections::HashMap;
-use yougile_client::YouGileClient;
-use yougile_client::apis::configuration::Configuration;
-use yougile_client::models::{Board, Project, User};
+use yougile_api_client::YouGileClient;
+use yougile_api_client::apis::configuration::Configuration;
+use yougile_api_client::models::{Board, Project, User};
 
 pub struct YouGileAPI {
     client: YouGileClient,

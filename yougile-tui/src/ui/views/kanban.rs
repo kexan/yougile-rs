@@ -14,6 +14,7 @@ use ratatui::{
     widgets::{Block, Borders, List, ListItem, Paragraph},
 };
 use std::rc::Rc;
+use yougile_api_client::models::Task;
 
 const COLUMN_WIDTH: u16 = 40;
 const COLUMN_PADDING: u16 = 1;
@@ -219,7 +220,7 @@ fn draw_single_column(
     let available_height = area.height.saturating_sub(2) as usize;
     let max_width = (COLUMN_WIDTH - 6) as usize;
 
-    let mut sorted_tasks: Vec<(usize, &yougile_client::models::Task)> =
+    let mut sorted_tasks: Vec<(usize, &Task)> =
         column_with_tasks.tasks.iter().enumerate().collect();
     sorted_tasks.sort_by_key(|(_, task)| task.archived.unwrap_or(false));
 

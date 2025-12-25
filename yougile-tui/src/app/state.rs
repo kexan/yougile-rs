@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use yougile_client::models::{Column, Task};
+use yougile_api_client::models::{Column, Task};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum View {

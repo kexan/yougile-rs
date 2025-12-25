@@ -4,12 +4,9 @@ use ratatui::{
     style::{Color, Modifier, Style},
     text::{Line, Span},
 };
+use yougile_api_client::models::Task;
 
-pub fn calculate_card_height(
-    app: &App,
-    task: &yougile_client::models::Task,
-    max_width: usize,
-) -> usize {
+pub fn calculate_card_height(app: &App, task: &Task, max_width: usize) -> usize {
     let wrapped = wrap_text(&task.title, max_width);
     let title_lines = wrapped.len();
     let sticker_lines = count_sticker_lines(app, task.stickers.as_ref());
@@ -68,7 +65,7 @@ pub fn format_single_sticker(
 
 pub fn build_task_card_lines(
     app: &App,
-    task: &yougile_client::models::Task,
+    task: &Task,
     is_selected: bool,
     is_archived: bool,
     max_width: usize,
