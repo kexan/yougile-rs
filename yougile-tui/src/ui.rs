@@ -199,12 +199,12 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             0
         };
         
-        // Get visible columns
-        let visible_columns: Vec<_> = app.columns
+        // Get visible columns with their original indices
+        let visible_columns: Vec<(usize, &crate::app::ColumnWithTasks)> = app.columns
             .iter()
+            .enumerate()
             .skip(scroll_offset)
             .take(columns_on_screen)
-            .enumerate()
             .collect();
 
         // Create fixed width constraints for visible columns
@@ -216,9 +216,8 @@ fn draw_kanban_view(f: &mut Frame, app: &App) {
             .split(chunks[1]);
 
         // Draw each visible column
-        for (visible_idx, (col_idx, column_with_tasks)) in visible_columns.iter().enumerate() {
-            let actual_col_idx = scroll_offset + col_idx;
-            let is_selected = actual_col_idx == app.selected_column_idx;
+        for (visible_idx, (actual_col_idx, column_with_tasks)) in visible_columns.iter().enumerate() {
+            let is_selected = *actual_col_idx == app.selected_column_idx;
             
             let border_style = if is_selected {
                 Style::default().fg(Color::Green)
