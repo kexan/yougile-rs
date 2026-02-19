@@ -1,4 +1,6 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Stickers {
@@ -22,7 +24,7 @@ pub struct Stickers {
     pub repeat: Option<bool>,
     /// Пользовательские стикеры доски
     #[serde(rename = "custom", skip_serializing_if = "Option::is_none")]
-    pub custom: Option<serde_json::Value>,
+    pub custom: Option<HashMap<String, bool>>,
 }
 
 impl Stickers {

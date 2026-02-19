@@ -63,9 +63,11 @@ pub fn wrap_text(text: &str, max_width: usize) -> Vec<String> {
     lines
 }
 
+use std::collections::HashMap;
+use yougile_api_client::models::StickerValue;
+
 /// Check if stickers value is non-empty
-pub fn has_stickers(stickers: Option<&serde_json::Value>) -> bool {
+pub fn has_stickers(stickers: Option<&HashMap<String, StickerValue>>) -> bool {
     stickers
-        .and_then(|v| v.as_object())
-        .is_some_and(|obj| !obj.is_empty())
+        .is_some_and(|map| !map.is_empty())
 }

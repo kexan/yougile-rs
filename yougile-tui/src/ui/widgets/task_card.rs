@@ -4,33 +4,33 @@ use ratatui::{
     style::{Color, Modifier, Style},
     text::{Line, Span},
 };
-use yougile_api_client::models::Task;
+use std::collections::HashMap;
+use yougile_api_client::models::{Task, StickerValue};
 
 pub fn calculate_card_height(app: &App, task: &Task, max_width: usize) -> usize {
     let wrapped = wrap_text(&task.title, max_width);
     let title_lines = wrapped.len();
-    let sticker_lines = count_sticker_lines(app, task.stickers.as_ref());
+    let sticker_lines = count_sticker_lines(task.stickers.as_ref());
     3 + title_lines + sticker_lines
 }
 
-fn count_sticker_lines(_app: &App, stickers: Option<&serde_json::Value>) -> usize {
+fn count_sticker_lines(stickers: Option<&HashMap<String, StickerValue>>) -> usize {
     stickers
-        .and_then(|v| v.as_object())
-        .map(|obj| obj.len())
+        .map(|map| map.len())
         .unwrap_or(0)
 }
 
 pub fn format_single_sticker(
     app: &App,
     sticker_id: &str,
-    state_value: &serde_json::Value,
+    state_value: &StickerValue,
     max_width: usize,
 ) -> String {
     let sticker_meta = app.stickers.get(sticker_id);
 
     let display = if let Some(meta) = sticker_meta {
         match state_value {
-            serde_json::Value::String(state_id_or_text) => {
+            StickerValue::StateId(state_id_or_text) | StickerValue::Text(state_id_or_text) => {
                 let value_display = meta
                     .states
                     .get(state_id_or_text)
@@ -43,20 +43,21 @@ pub fn format_single_sticker(
                     truncate_str(value_display, 15)
                 )
             }
-            serde_json::Value::Number(n) => {
+            StickerValue::Number(n) => {
                 format!("[{}:{}]", truncate_str(&meta.title, 15), n)
             }
-            serde_json::Value::Bool(b) if *b => {
+            StickerValue::Empty => {
                 format!("[✓{}]", truncate_str(&meta.title, 15))
             }
-            _ => return String::new(),
+            StickerValue::Unassigned => return String::new(),
         }
     } else {
         match state_value {
-            serde_json::Value::String(s) => format!("[{}]", truncate_str(s, 20)),
-            serde_json::Value::Number(n) => format!("[№{}]", n),
-            serde_json::Value::Bool(b) if *b => "[✓]".to_string(),
-            _ => return String::new(),
+            StickerValue::Text(s) => format!("[{}]", truncate_str(s, 20)),
+            StickerValue::Number(n) => format!("[№{}]", n),
+            StickerValue::Empty => "[✓]".to_string(),
+            StickerValue::Unassigned => return String::new(),
+            StickerValue::StateId(s) => format!("[{}]", truncate_str(s, 20)),
         }
     };
 
@@ -153,8 +154,8 @@ pub fn build_task_card_lines(
     }
 
     // Stickers
-    if let Some(obj) = task.stickers.as_ref().and_then(|s| s.as_object()) {
-        for (sticker_id, state_value) in obj.iter() {
+    if let Some(stickers_map) = &task.stickers {
+        for (sticker_id, state_value) in stickers_map.iter() {
             let sticker_text = format_single_sticker(app, sticker_id, state_value, max_width);
             if !sticker_text.is_empty() {
                 let padded = format!(" {} ", sticker_text);

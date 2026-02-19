@@ -1,6 +1,7 @@
 use crate::models::{
     self, CheckList, Deadline, Stopwatch, TimeTracking, Timer,
     common::Page,
+    stickers::{StickerValue, TaskStickers},
     tasks::{
         CreateStopwatch, CreateTimer, UpdateDeadline, UpdateStopwatch, UpdateTimeTracking,
         UpdateTimer,
@@ -60,7 +61,7 @@ pub struct Task {
     pub checklists: Option<Vec<CheckList>>,
     /// Пользовательские стикеры. Передаются в виде объекта ключ-значение, где ключ — ID стикера, значение — ID состояния для стикеров с состоянием или строка со значением для стикеров свободных полей.<br /> Для открепления стикера от задачи, используйте \"-\" как значение состояния.<br /> Для прикрепления пустого стикера (без состояния), используйте \"empty\" как значение состояния.<br /> Для стикеров типа \"свободное текстовое поле\" передавайте произвольную строку, например \"ООО «Производство»\".<br /> Для стикеров типа \"свободное числовое поле\" передавайте строку, содержащую число, например \"123\" или \"345.123\"; разделитель целой и дробной части — точка \".\"
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<serde_json::Value>,
+    pub stickers: Option<TaskStickers>,
     /// Цвет карточки задач на доске, доступны цвета: task-primary, task-gray, task-red, task-pink, task-yellow, task-green, task-turquoise, task-blue, task-violet
     #[serde(rename = "color", skip_serializing_if = "Option::is_none")]
     pub color: Option<String>,
@@ -139,7 +140,7 @@ pub struct CreateTask {
     pub checklists: Option<Vec<CheckList>>,
     /// Пользовательские стикеры. Передаются в виде объекта ключ-значение, где ключ — ID стикера, значение — ID состояния для стикеров с состоянием или строка со значением для стикеров свободных полей.<br /> Для открепления стикера от задачи, используйте \"-\" как значение состояния.<br /> Для прикрепления пустого стикера (без состояния), используйте \"empty\" как значение состояния.<br /> Для стикеров типа \"свободное текстовое поле\" передавайте произвольную строку, например \"ООО «Производство»\".<br /> Для стикеров типа \"свободное числовое поле\" передавайте строку, содержащую число, например \"123\" или \"345.123\"; разделитель целой и дробной части — точка \".\"
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<serde_json::Value>,
+    pub stickers: Option<TaskStickers>,
     /// Цвет карточки задач на доске, доступны цвета: task-primary, task-gray, task-red, task-pink, task-yellow, task-green, task-turquoise, task-blue, task-violet
     #[serde(rename = "color", skip_serializing_if = "Option::is_none")]
     pub color: Option<String>,
@@ -217,7 +218,7 @@ pub struct UpdateTask {
     pub checklists: Option<Vec<CheckList>>,
     /// Пользовательские стикеры. Передаются в виде объекта ключ-значение, где ключ — ID стикера, значение — ID состояния для стикеров с состоянием или строка со значением для стикеров свободных полей.<br /> Для открепления стикера от задачи, используйте \"-\" как значение состояния.<br /> Для прикрепления пустого стикера (без состояния), используйте \"empty\" как значение состояния.<br /> Для стикеров типа \"свободное текстовое поле\" передавайте произвольную строку, например \"ООО «Производство»\".<br /> Для стикеров типа \"свободное числовое поле\" передавайте строку, содержащую число, например \"123\" или \"345.123\"; разделитель целой и дробной части — точка \".\"
     #[serde(rename = "stickers", skip_serializing_if = "Option::is_none")]
-    pub stickers: Option<serde_json::Value>,
+    pub stickers: Option<TaskStickers>,
     /// Цвет карточки задач на доске, доступны цвета: task-primary, task-gray, task-red, task-pink, task-yellow, task-green, task-turquoise, task-blue, task-violet
     #[serde(rename = "color", skip_serializing_if = "Option::is_none")]
     pub color: Option<String>,

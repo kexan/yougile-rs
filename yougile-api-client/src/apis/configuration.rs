@@ -11,6 +11,8 @@ pub struct Configuration {
     pub token: String,
 }
 
+use std::time::Duration;
+
 impl Configuration {
     pub fn new(token: String) -> Self {
         Self {
@@ -25,6 +27,19 @@ impl Configuration {
     pub fn with_base_path(mut self, base_path: impl Into<String>) -> Self {
         self.base_path = base_path.into();
         self
+    }
+
+    /// Sets the timeout for all HTTP requests
+    pub fn with_timeout(self, timeout: Duration) -> Self {
+        self.with_timeout_builder(timeout)
+    }
+
+    pub(crate) fn with_timeout_builder(self, timeout: Duration) -> Self {
+        let client = reqwest::Client::builder()
+            .timeout(timeout)
+            .build()
+            .expect("Failed to build reqwest client with timeout");
+        Self { client, ..self }
     }
 }
 

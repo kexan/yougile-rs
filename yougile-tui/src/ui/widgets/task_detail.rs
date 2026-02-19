@@ -7,6 +7,7 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Block, Borders, Paragraph, Wrap},
 };
+use yougile_api_client::models::StickerValue;
 
 pub fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
     if let Some(ref task) = app.current_task {
@@ -62,41 +63,40 @@ pub fn draw_task_detail_panel(f: &mut Frame, app: &App, area: Rect) {
                     .add_modifier(Modifier::BOLD),
             )]));
 
-            if let Some(obj) = stickers.as_object() {
-                for (sticker_id, state_value) in obj.iter() {
-                    let sticker_meta = app.stickers.get(sticker_id);
+            for (sticker_id, state_value) in stickers.iter() {
+                let sticker_meta = app.stickers.get(sticker_id);
 
-                    let (display_title, value_str) = if let Some(meta) = sticker_meta {
-                        let value = match state_value {
-                            serde_json::Value::String(state_id_or_text) => meta
-                                .states
-                                .get(state_id_or_text)
-                                .cloned()
-                                .unwrap_or_else(|| state_id_or_text.clone()),
-                            serde_json::Value::Number(n) => n.to_string(),
-                            serde_json::Value::Bool(b) => b.to_string(),
-                            _ => "[unknown]".to_string(),
-                        };
-                        (meta.title.clone(), value)
-                    } else {
-                        let value = match state_value {
-                            serde_json::Value::String(s) => s.clone(),
-                            serde_json::Value::Number(n) => n.to_string(),
-                            serde_json::Value::Bool(b) => b.to_string(),
-                            _ => "[unknown]".to_string(),
-                        };
-                        (format!("Unknown ({})", truncate_str(sticker_id, 8)), value)
+                let (display_title, value_str) = if let Some(meta) = sticker_meta {
+                    let value = match state_value {
+                        StickerValue::StateId(state_id_or_text) | StickerValue::Text(state_id_or_text) => meta
+                            .states
+                            .get(state_id_or_text)
+                            .cloned()
+                            .unwrap_or_else(|| state_id_or_text.clone()),
+                        StickerValue::Number(n) => n.to_string(),
+                        StickerValue::Empty => "empty".to_string(),
+                        StickerValue::Unassigned => "unassigned".to_string(),
                     };
+                    (meta.title.clone(), value)
+                } else {
+                    let value = match state_value {
+                        StickerValue::Text(s) => s.clone(),
+                        StickerValue::Number(n) => n.to_string(),
+                        StickerValue::Empty => "empty".to_string(),
+                        StickerValue::StateId(s) => s.clone(),
+                        StickerValue::Unassigned => "unassigned".to_string(),
+                    };
+                    (format!("Unknown ({})", truncate_str(sticker_id, 8)), value)
+                };
 
-                    details.push(Line::from(vec![
-                        Span::raw("  • "),
-                        Span::styled(
-                            format!("{}: ", display_title),
-                            Style::default().fg(Color::Cyan),
-                        ),
-                        Span::raw(value_str),
-                    ]));
-                }
+                details.push(Line::from(vec![
+                    Span::raw("  • "),
+                    Span::styled(
+                        format!("{}: ", display_title),
+                        Style::default().fg(Color::Cyan),
+                    ),
+                    Span::raw(value_str),
+                ]));
             }
         }
 
