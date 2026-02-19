@@ -1,6 +1,7 @@
 [package]
 name = "yougile-api-client"
-version = "0.1.1"
+version = "0.1.2"
+authors = ["OpenAPI Generator team and contributors"]
 description = "A Rust client for the YouGile API v2.0. Provides a more idiomatic Rust interface for interacting with YouGile services."
 edition = "2024"
 

@@ -1,4 +1,5 @@
 use crate::models::{self, PagingMetadata, common::Page};
+use crate::models::chats::{UsersList, UserRoleMap, RoleConfigMap};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -14,22 +15,22 @@ pub struct GroupChat {
     pub title: String,
     /// Сотрудники в чате
     #[serde(rename = "users")]
-    pub users: serde_json::Value,
+    pub users: UsersList,
     /// Роли сотрудников в чате
     #[serde(rename = "userRoleMap")]
-    pub user_role_map: serde_json::Value,
+    pub user_role_map: UserRoleMap,
     /// Настройки ролей
     #[serde(rename = "roleConfigMap")]
-    pub role_config_map: serde_json::Value,
+    pub role_config_map: RoleConfigMap,
 }
 
 impl GroupChat {
     pub fn new(
         id: String,
         title: String,
-        users: serde_json::Value,
-        user_role_map: serde_json::Value,
-        role_config_map: serde_json::Value,
+        users: UsersList,
+        user_role_map: UserRoleMap,
+        role_config_map: RoleConfigMap,
     ) -> GroupChat {
         GroupChat {
             deleted: None,
@@ -49,21 +50,21 @@ pub struct CreateGroupChat {
     pub title: String,
     /// Сотрудники в чате
     #[serde(rename = "users")]
-    pub users: serde_json::Value,
+    pub users: UsersList,
     /// Роли сотрудников в чате
     #[serde(rename = "userRoleMap")]
-    pub user_role_map: serde_json::Value,
+    pub user_role_map: UserRoleMap,
     /// Настройки ролей
     #[serde(rename = "roleConfigMap")]
-    pub role_config_map: serde_json::Value,
+    pub role_config_map: RoleConfigMap,
 }
 
 impl CreateGroupChat {
     pub fn new(
         title: String,
-        users: serde_json::Value,
-        user_role_map: serde_json::Value,
-        role_config_map: serde_json::Value,
+        users: UsersList,
+        user_role_map: UserRoleMap,
+        role_config_map: RoleConfigMap,
     ) -> CreateGroupChat {
         CreateGroupChat {
             title,
@@ -84,13 +85,13 @@ pub struct UpdateGroupChat {
     pub title: Option<String>,
     /// Сотрудники в чате
     #[serde(rename = "users", skip_serializing_if = "Option::is_none")]
-    pub users: Option<serde_json::Value>,
+    pub users: Option<UsersList>,
     /// Роли сотрудников в чате
     #[serde(rename = "userRoleMap", skip_serializing_if = "Option::is_none")]
-    pub user_role_map: Option<serde_json::Value>,
+    pub user_role_map: Option<UserRoleMap>,
     /// Настройки ролей
     #[serde(rename = "roleConfigMap", skip_serializing_if = "Option::is_none")]
-    pub role_config_map: Option<serde_json::Value>,
+    pub role_config_map: Option<RoleConfigMap>,
 }
 
 impl UpdateGroupChat {

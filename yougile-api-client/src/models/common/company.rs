@@ -1,4 +1,5 @@
 use crate::models::{self, common::Page};
+use crate::models::common::ApiData;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -17,7 +18,7 @@ pub struct Company {
     pub timestamp: f64,
     /// Вспомогательные данные для разработки
     #[serde(rename = "apiData", skip_serializing_if = "Option::is_none")]
-    pub api_data: Option<serde_json::Value>,
+    pub api_data: Option<ApiData>,
 }
 
 impl Company {
@@ -42,7 +43,7 @@ pub struct UpdateCompany {
     pub title: Option<String>,
     /// Вспомогательные данные для разработки
     #[serde(rename = "apiData", skip_serializing_if = "Option::is_none")]
-    pub api_data: Option<serde_json::Value>,
+    pub api_data: Option<ApiData>,
 }
 
 impl UpdateCompany {

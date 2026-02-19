@@ -1,4 +1,5 @@
 use crate::models::{self, PagingMetadata, common::Page};
+use crate::models::chats::Reactions;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -26,7 +27,7 @@ pub struct ChatMessage {
     pub edit_timestamp: f64,
     /// Реакции на сообщение
     #[serde(rename = "reactions")]
-    pub reactions: serde_json::Value,
+    pub reactions: Reactions,
 }
 
 impl ChatMessage {
@@ -37,7 +38,7 @@ impl ChatMessage {
         text_html: String,
         label: String,
         edit_timestamp: f64,
-        reactions: serde_json::Value,
+        reactions: Reactions,
     ) -> ChatMessage {
         ChatMessage {
             deleted: None,

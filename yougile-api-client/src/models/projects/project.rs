@@ -1,4 +1,5 @@
 use crate::models::{self, common::Page};
+use crate::models::common::UserRoleMapping;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -17,7 +18,7 @@ pub struct Project {
     pub timestamp: f64,
     /// Сотрудники на проекте и их роль. Возможные значения: <br/><div>1) системные роли: worker, admin, observer</div><div>2) ID пользовательской роли</div><div>3) \"-\" для удаления существующего пользователя из проекта</div>
     #[serde(rename = "users", skip_serializing_if = "Option::is_none")]
-    pub users: Option<serde_json::Value>,
+    pub users: Option<UserRoleMapping>,
 }
 
 impl Project {
@@ -39,7 +40,7 @@ pub struct CreateProject {
     pub title: String,
     /// Сотрудники на проекте и их роль. Возможные значения: <br/><div>1) системные роли: worker, admin, observer</div><div>2) ID пользовательской роли</div><div>3) \"-\" для удаления существующего пользователя из проекта</div>
     #[serde(rename = "users", skip_serializing_if = "Option::is_none")]
-    pub users: Option<serde_json::Value>,
+    pub users: Option<UserRoleMapping>,
 }
 
 impl CreateProject {
@@ -58,7 +59,7 @@ pub struct UpdateProject {
     pub title: Option<String>,
     /// Сотрудники на проекте и их роль. Возможные значения: <br/><div>1) системные роли: worker, admin, observer</div><div>2) ID пользовательской роли</div><div>3) \"-\" для удаления существующего пользователя из проекта</div>
     #[serde(rename = "users", skip_serializing_if = "Option::is_none")]
-    pub users: Option<serde_json::Value>,
+    pub users: Option<UserRoleMapping>,
 }
 
 impl UpdateProject {

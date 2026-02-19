@@ -1,4 +1,5 @@
 use crate::models::{self, boards::BoardPermissions};
+use crate::models::projects::ProjectPermissionChildren;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -12,7 +13,7 @@ pub struct ProjectPermissions {
     #[serde(rename = "boards")]
     pub boards: BoardPermissions,
     #[serde(rename = "children")]
-    pub children: serde_json::Value,
+    pub children: ProjectPermissionChildren,
 }
 
 impl ProjectPermissions {
@@ -21,7 +22,7 @@ impl ProjectPermissions {
         delete: bool,
         add_board: bool,
         boards: BoardPermissions,
-        children: serde_json::Value,
+        children: ProjectPermissionChildren,
     ) -> ProjectPermissions {
         ProjectPermissions {
             edit_title,

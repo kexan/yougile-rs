@@ -1,4 +1,5 @@
 use crate::models::{self, PagingMetadata, common::Page};
+use crate::models::common::UserRoleMapping;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -17,7 +18,7 @@ pub struct Department {
     pub parent_id: Option<String>,
     /// Сотрудники на отделе и их роль. Возможные значения: <br/><div>1) manager или member</div><div>2) \"-\" или \"\" для удаления существующего пользователя из отдела</div>
     #[serde(rename = "users", skip_serializing_if = "Option::is_none")]
-    pub users: Option<serde_json::Value>,
+    pub users: Option<UserRoleMapping>,
 }
 
 impl Department {
@@ -44,7 +45,7 @@ pub struct CreateDepartment {
     pub parent_id: Option<String>,
     /// Сотрудники на отделе и их роль. Возможные значения: <br/><div>1) manager или member</div><div>2) \"-\" или \"\" для удаления существующего пользователя из отдела</div>
     #[serde(rename = "users", skip_serializing_if = "Option::is_none")]
-    pub users: Option<serde_json::Value>,
+    pub users: Option<UserRoleMapping>,
 }
 
 impl CreateDepartment {
@@ -70,7 +71,7 @@ pub struct UpdateDepartment {
     pub parent_id: Option<String>,
     /// Сотрудники на отделе и их роль. Возможные значения: <br/><div>1) manager или member</div><div>2) \"-\" или \"\" для удаления существующего пользователя из отдела</div>
     #[serde(rename = "users", skip_serializing_if = "Option::is_none")]
-    pub users: Option<serde_json::Value>,
+    pub users: Option<UserRoleMapping>,
 }
 
 impl UpdateDepartment {
